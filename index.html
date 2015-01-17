@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Skewer</title>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css"> -->
+
+  </head>
+  <body>
+    <div id="app" class="wrapper">
+      <div class="column column1">
+        <div id="library">
+        </div>
+        <div id="io">
+        <nav class="navbar navbar-default">
+          <ul class="nav navbar-nav">
+            <li><a href="#">Link</a></li>
+            <li><a href="#">Link</a></li>
+            <li><a href="#">Link</a></li>
+          </ul>
+        </nav>
+        </div>
+      </div>
+      <div class="column column2">
+        <div id="composition"></div>
+        <div id="render"></div>
+      </div>
+      <div class="column column3">
+        <div id="params"></div>
+        <div id="context"></div>
+      </div>
+    </div>
+
+    <!-- Templates -->
+
+    <script type="text/template" id="item-template">
+      <div id="accordion">
+
+      </div>
+    </script>
+
+    <script type="text/template" id="manifest-group-template">
+        <h3><a href="#"><%= name %></a></h3>
+          <div id=<%= id %>>
+          </div>
+    </script>
+
+    <script type="text/template" id="library-item-template">
+        <div id=<%= id %>>
+            <%= label %>
+        </div>
+    </script>
+
+    <script type="text/template" id="composition-bloq-template">
+        <div class'stage_draggable_handle'><%= label %></div>
+    </script>
+
+    <!-- JS -->
+    
+    <!-- Underscore -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <!-- Backbone -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.1.15/backbone.localStorage.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+    <script src="/skewer"></script>
+    
+    <script src="somecrap.js"></script>
+    <script src="bloqsnet.js"></script>
+
+    <script src="js/model/src-bloq.js"></script>
+    <script src="js/collections/src-bloqs.js"></script>
+    <script src="js/views/library-item-view.js"></script>
+    <script src="js/views/library-view.js"></script>
+    <script src="js/views/app-view.js"></script>
+    <script src="js/app.js"></script>
+    
+  </body>
+</html>
