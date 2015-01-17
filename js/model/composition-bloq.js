@@ -8,11 +8,22 @@ var app = app || {};
     // ----------
 
     // Our basic **Todo** model has `title`, `order`, and `completed` attributes.
-    app.SrcBloq = Backbone.Model.extend({
+    app.CompositionBloq = Backbone.Model.extend({
         // Default attributes for the todo
         // and ensure that each todo created has `title` and `completed` keys.
-        defaults: {
-            type: ''
+        // defaults: {
+        //     id: '',
+        //     type: '',
+        //     x: 0,
+        //     y: 0
+        // }
+
+        initialize: function(point) {
+            this.set({
+                id: point.id,
+                x: point.x,
+                y: point.y
+            });
         }
 
         // Toggle the `completed` state of this todo item.

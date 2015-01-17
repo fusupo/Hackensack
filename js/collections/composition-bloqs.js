@@ -4,14 +4,14 @@ var app = app || {};
 (function($) {
     'use strict';
 
-    // Todo Collection
-    // ---------------
+    // ------------------------------ //
+    // Compositon Bloqs Collection    //
+    // ------------------------------ //
 
-    // The collection of todos is backed by *localStorage* instead of a remote
-    // server.
-    var SrcBloqs = Backbone.Collection.extend({
+    var CompositionBloqs = Backbone.Collection.extend({
+
         // Reference to this collection's model.
-        model: app.SrcBloq,
+        model: app.CompositionBloq,
 
         // Save all of the todo items under the `"todos"` namespace.
         localStorage: new Backbone.LocalStorage('bloqs-backbone')
@@ -34,9 +34,10 @@ var app = app || {};
 
         // // Todos are sorted by their original insertion order.
         // comparator: 'order'
+
     });
 
     // Create our global collection of **Todos**.
-    app.SrcBlocks = new SrcBloqs();
+    app.CompositionBloqs = new CompositionBloqs();
 
 })(jQuery);

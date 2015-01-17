@@ -19,6 +19,34 @@ var app = app || {};
                     }
                 }));
             }
+
+            app.CompositionBloqs.reset([
+                new app.CompositionBloq({
+                    x: 1,
+                    y: 6,
+                    id: 1
+                }),
+                new app.CompositionBloq({
+                    x: 2,
+                    y: 4,
+                    id: 2
+                }),
+                new app.CompositionBloq({
+                    x: 3,
+                    y: 2,
+                    id: 3
+                }),
+                new app.CompositionBloq({
+                    x: 4,
+                    y: 4,
+                    id: 4
+                }),
+                new app.CompositionBloq({
+                    x: 5,
+                    y: 6,
+                    id: 5
+                })
+            ]);
         }
 
     });
