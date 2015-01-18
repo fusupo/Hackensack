@@ -37,6 +37,6 @@ var app = app || {};
     });
 
     // Create our global collection of **Todos**.
-    app.SrcBlocks = new SrcBloqs();
+    app.SrcBloqs = new SrcBloqs();
 
 })(jQuery);

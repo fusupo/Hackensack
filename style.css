@@ -5,7 +5,7 @@ html, body{ height:100%;
           }
 
 .wrapper { display: flex;
-           flex-direction: row;
+           flex-direction: column;
            align-items: stretch;
            height:100%;
 
@@ -35,6 +35,21 @@ html, body{ height:100%;
            background-color: #d3d3d3;
          }
 
+.row-A { display:flex;
+         flex-direction: row;
+         order: 1;
+         flex: 1;
+
+         background-color: #bebebe;
+       }
+
+.row-B { display: flex;
+         flex-direction: row;
+         order: 2;
+         flex: 1;
+
+         background-color: #696969;
+       }
 /* */
 
 #library { flex: 1;
@@ -47,7 +62,7 @@ html, body{ height:100%;
       background-color: #708090;
     }
 
-#composition { flex: 1;
+#composition { flex: 2;
                background-color: #708090;
              }
 
