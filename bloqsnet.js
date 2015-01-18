@@ -1,9 +1,147 @@
-var BLOQS_MANIFEST = [
-    "root",
-    "circle",
-    "text",
-    "image"
-];
+var BLOQS_MANIFEST = [];
+var BLOQS_REGISTRY = {};
+var svgNS = "http://www.w3.org/2000/svg";
+var fonts = {'Lobster' : {"font-family": "'Lobster', cursive",
+                          "src": "http://fonts.googleapis.com/css?family=Lobster"}};
+
+////////////////////////////////////////////////////////////////////////////////
+
+BLOQS_MANIFEST.push("base");
+BLOQS_REGISTRY["base"] == function (spec) {
+
+    spec.type = 'base';
+    spec.children = [];
+    spec.parent = undefined;
+
+    var that = {};
+
+    that.get_type = function () {
+        return spec.type;
+    };
+
+    that.get_svg = function () {
+        
+    };
+
+    that.render_svg = function () {
+        var xxx = that.get_svg();
+        if(spec.children.length > 0) {
+            var g = document. createElementNS (svgNS, "g");
+            for (var i = 0; i < spec.children.length; i++) {
+                g.appendChild(spec.children[i].render_svg());
+            }
+            xxx. appendChild (g);
+        }
+        return xxx;
+    };
+    
+    that.addChild = function (child) {
+        spec.children.push(child);
+    };
+
+    that.addParent = function (parent) {
+        spec.parent = parent;
+    };
+    
+    return that;
+};
+
+////////////////////////////////////////
+
+BLOQS_MANIFEST.push("root");
+BLOQS_REGISTRY["root"] = function (spec) {
+    
+    spec.type = 'root';
+    var that = BLOQS_REGISTRY["base"](spec);
+    that.get_svg = function () {
+        var svg_elem = document.createElementNS(svgNS, "svg");
+        svg_elem.setAttribute("width", spec.width);
+        svg_elem.setAttribute("height", spec.height);
+        svg_elem.setAttribute("style", "background-color: #999999");
+        return svg_elem;
+    };
+
+    return that;
+    
+};
+
+////////////////////////////////////////
+
+BLOQS_MANIFEST.push("rect");
+BLOQS_REGISTRY["rect"] = function (spec) {
+
+    spec.type = 'rect';
+    var that = BLOQS_REGISTRY["base"](spec);
+    that.get_svg = function () {
+        var rect_elm = document.createElementNS(svgNS, "rect");
+        rect_elm.setAttribute("width", spec.width);
+        rect_elm.setAttribute("height", spec.height);
+        rect_elm.setAttribute("x", spec.x);
+        rect_elm.setAttribute("y", spec.y);
+        rect_elm.setAttribute("style", spec.style);
+        return rect_elm;
+    };
+
+    return that;
+};
+
+////////////////////////////////////////
+
+BLOQS_MANIFEST.push("circle");
+BLOQS_REGISTRY["circle"] = function (spec) {
+    
+    spec.type = 'circle';
+    var that = BLOQS_REGISTRY["base"](spec);
+    that.get_svg = function () {
+        var circle_elm = document.createElementNS(svgNS, "circle");
+        circle_elm.setAttribute("cx", spec.x);
+        circle_elm.setAttribute("cy", spec.y);
+        circle_elm.setAttribute("r", spec.r);
+        circle_elm.setAttribute("style", spec.style);
+        return circle_elm;
+    };
+    return that;
+};
+
+////////////////////////////////////////
+
+BLOQS_MANIFEST.push("text");
+BLOQS_REGISTRY["text"] = function (spec) {
+    spec.type = 'text';
+    var that = BLOQS_REGISTRY["base"](spec);
+    that.get_svg = function () {
+        var text_elm = document.createElementNS(svgNS, "text");
+        text_elm.setAttribute("style", "font-family:" + spec.font + ";");
+        text_elm.setAttribute("x", spec.x);
+        text_elm.setAttribute("y", spec.y);
+        text_elm.textContent = spec.text;
+
+        return text_elm;
+    };
+    return that;
+};
+
+////////////////////////////////////////
+
+BLOQS_MANIFEST.push("image");
+BLOQS_REGISTRY["image"] = function (spec) {
+    spec.type = 'image';
+    var that = BLOQS_REGISTRY["base"](spec);
+    that.get_svg = function () {
+        var image_elm = document.createElementNS(svgNS, "image");
+        image_elm.setAttribute("x", spec.x);
+        image_elm.setAttribute("y", spec.y);
+        image_elm.setAttribute("width", spec.width);
+        image_elm.setAttribute("height", spec.height);
+        image_elm.setAttributeNS("http://www.w3.org/1999/xlink", "href",  spec.src);
+        image_elm.setAttributeNS(null, 'visibility', 'visible');
+        image_elm.setAttribute("preserveAspectRatio", spec.aspect);
+        return image_elm;
+    };
+    return that;
+};
+
+////////////////////////////////////////////////////////////////////////////////
 
 var DATA = {
     "bloqs": {
@@ -42,7 +180,7 @@ var DATA = {
             type: "circle",
             meta: {
                 x: 30,
-                y: 10
+                y: 60
             },
             params: {
                 x: 35,
@@ -58,7 +196,7 @@ var DATA = {
             type: "text",
             meta: {
                 x: 40,
-                y:10
+                y: 110
             },
             params: {
                 x: 10,
@@ -74,7 +212,7 @@ var DATA = {
             type: "image",
             meta: {
                 x: 50,
-                y: 10
+                y: 160
             },
             params: {
                 x: 1,

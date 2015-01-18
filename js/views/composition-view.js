@@ -37,7 +37,10 @@ var app = app || {};
         setupD3: function() {
             var win_w = this.w; // using parseInt here to drop the 'px'
             var win_h = this.h; // likewise
-
+            var l_perc = 0.2;
+            var r_perc = 0.8;
+            var l_w = win_w * l_perc;
+            var r_w = win_w * r_perc;
             this.stage = this.div.append("svg:svg")
                 .attr("viewBox", "0 0 " + win_w + " " + win_h)
                 .attr("preserveAspectRatio", "xMinYMin meet")
@@ -61,7 +64,7 @@ var app = app || {};
                     }
                 }));
             this.stage_left = this.stage.append("svg:svg")
-                .attr("viewBox", "0 0 " + (win_w / 2) + " " + win_h)
+                .attr("viewBox", "0 0 " + l_w + " " + win_h)
                 .attr("preserveAspectRatio", "xMinYMin meet")
                 .attr("id", "manifest-svg")
                 .call(zoom1);
@@ -69,7 +72,7 @@ var app = app || {};
                 .append("svg:rect")
                 .attr("x", 0)
                 .attr("y", 0)
-                .attr("width", win_w / 2)
+                .attr("width", l_w)
                 .attr("height", win_h * 2)
                 .attr("fill", "#aaaaaa");
 
@@ -78,9 +81,9 @@ var app = app || {};
             //         //console.log(d3.event);
             //     }));
             this.stage_right = this.stage.append("svg:svg")
-                .attr("viewBox", "0 0 " + (win_w / 2) + " " + win_h)
+                .attr("viewBox", "0 0 " + r_w + " " + win_h)
                 .attr("preserveAspectRatio", "xMinYMin meet")
-                .attr("x", win_w / 2)
+                .attr("x", l_w)
                 .attr("id", "composition-stage-svg");
             //.call(zoom2);
             // this.stage_right
@@ -106,18 +109,18 @@ var app = app || {};
             }
             this.tempSrcBlock.attr("x", e.x);
             this.tempSrcBlock.attr("y", e.y);
-
-
-
         },
         manifestDragEnd: function(d, e) {
             var m = d3.mouse(this.stage_right[0][0]);
             if ((m[0] > 0) && (m[0] < (this.w / 2))) {
                 app.CompositionBloqs.add(new app.CompositionBloq({
-                    x: m[0],
-                    y: m[1],
-                    id: "bloq-" + new Date().
-                    getTime()
+                    id: "bloq-" + new Date().getTime(),
+                    type: "xxx",
+                    meta: {
+                        x: m[0],
+                        y: m[1]
+                    },
+                    params: {}
                 }));
             }
             this.tempSrcBlock.remove();
@@ -129,6 +132,7 @@ var app = app || {};
             var data = this.manifestdata();
             var drag = d3.behavior.drag()
                 // .origin(function(d) {
+                //     console.log(d);
                 //     return d;
                 // })
                 .on("dragstart", function(d) {
@@ -142,18 +146,29 @@ var app = app || {};
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
                     that.manifestDragEnd(d, d3.event);
                 });
-            this.stage_left.selectAll()
+            var g = this.stage_left.selectAll()
                 .data(data)
-                .enter().append("svg:rect")
-                .attr("x", 0)
-                .attr("y", function(d) {
-                    return (d.idx * 60);
+                .enter().append("svg:g")
+                .attr("transform", function(d) {
+                    return "translate(" + 50 + "," + (d.idx * 60) + ")";
                 })
-                .attr("width", 50)
-                .attr("height", 50)
-                .attr("fill", "#463810")
-                .attr("opacity", "80%")
                 .call(drag);
+
+            g.append("svg:rect")
+
+            .attr("width", 50)
+                .attr("height", 50)
+                .attr("fill", "#463810");
+
+            g.append("svg:text")
+                .attr("y", 20)
+                .attr("pointer-events", "none")
+                .attr("font-family", "sans-serif")
+                .attr("font-size", "20px")
+                .attr("fill", "black")
+                .text(function(d) {
+                    return d.type;
+                });
 
         },
         manifestdata: function() {
@@ -162,7 +177,7 @@ var app = app || {};
             this.srcBloqs.forEach(function(datapoint) {
                 data.push({
                     idx: datapoint.get('idx'),
-                    name: datapoint.get('name')
+                    type: datapoint.get('type')
                 });
             });
 
@@ -174,8 +189,9 @@ var app = app || {};
             var data = [];
             this.compositionBloqs.forEach(function(datapoint) {
                 data.push({
-                    x: datapoint.get('x'),
-                    y: datapoint.get('y'),
+                    x: datapoint.get('meta').x,
+                    y: datapoint.get('meta').y,
+                    type: datapoint.get('type'),
                     id: datapoint.get('id')
                 });
             });
@@ -210,20 +226,22 @@ var app = app || {};
 
             <!-- Drag Behavior -->
             var drag = d3.behavior.drag()
-                .origin(function(d) {
-                    return d;
-                })
+                // .origin(function(d) {
+                //     console.log(d);
+                //     return d;
+                // })
                 .on("drag", function(d) {
                     var musketeers = app.CompositionBloqs.findWhere({
                         id: d3.select(this).attr('id')
                     });
                     musketeers.set({
-                        x: d3.event.x,
-                        y: d3.event.y
+                        meta: {
+                            x: d3.event.x,
+                            y: d3.event.y
+                        }
                     });
                     d3.select(this)
-                        .attr("x", d.x = d3.event.x) //Math.max((box_w / 2), Math.min(w - (box_w / 2), d3.event.x)))
-                        .attr("y", d.y = d3.event.y); //Math.max((box_h / 2), Math.min(h - (box_h / 2), d3.event.y)));
+                        .attr("transform", "translate(" + d3.event.x + "," + d3.event.y + ")");
                 });
 
             //var rect = this.stage_right.selectAll("rect")
@@ -232,28 +250,38 @@ var app = app || {};
             // UPDATE
             // Update old elements as needed.
             //--
-            console.log(data);
 
             // ENTER
             // Create new elements as needed.
-            var rect = d3.select('#composition-composite-svg')
+            var r = d3.select('#composition-composite-svg')
                 .select('#composition-stage-svg')
-                .selectAll('rect')
+                .selectAll('g')
                 .data(data);
 
-            rect.enter().append("svg:rect")
-                .attr("x", function(d) {
-                    return d.x;
-                })
-                .attr("y", function(d) {
-                    return d.y;
+            var g = r.enter().append("svg:g")
+                .attr("transform", function(d) {
+                    return "translate(" + d.x + "," + d.y + ")";
                 })
                 .attr("id", function(d) {
                     return d.id;
                 })
+                .call(drag);
+
+            g.append("svg:rect")
                 .attr("width", box_w)
                 .attr("height", box_h)
-                .call(drag);
+                .attr("fill", "#A3B2C1");
+
+            g.append("svg:text")
+                .attr("x", 5)
+                .attr("y", 15)
+                .attr("pointer-events", "none")
+                .attr("font-family", "sans-serif")
+                .attr("font-size", "12px")
+                .attr("fill", "black")
+                .text(function(d) {
+                    return d.id + ':' + d.type;
+                });
 
             // ENTER + UPDATE
             // Appending to the enter selection expands the update selection to include
@@ -263,44 +291,7 @@ var app = app || {};
 
             // EXIT
             // Remove old elements as needed.
-            rect.exit().remove();
-
-
-            // if (options.newPlot) {
-            //     this.stage_right.selectAll()
-            //         .data(data, function(d) {
-            //             return d.id;
-            //         })
-            //         .enter().append("svg:rect")
-            //         .attr("x", function(d) {
-            //             return d.x;
-            //         })
-            //         .attr("y", function(d) {
-            //             return d.y;
-            //         })
-            //         .attr("id", function(d) {
-            //             return d.id;
-            //         })
-            //         .attr("width", box_w)
-            //         .attr("height", box_h)
-            //         .call(drag);
-            // } else {
-            //     this.stage_right.selectAll()
-            //         .data(data)
-            //         .enter().insert("svg:rect")
-            //         .attr("x", function(d) {
-            //             return d.x;
-            //         })
-            //         .attr("y", function(d) {
-            //             return d.y;
-            //         })
-            //         .attr("id", function(d) {
-            //             return d.id;
-            //         })
-            //         .attr("width", box_w)
-            //         .attr("height", box_h)
-            //         .call(drag);
-            // }
+            r.exit().remove();
 
         }
     });
