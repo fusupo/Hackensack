@@ -1,13 +1,15 @@
-var BLOQS_MANIFEST = [];
-var BLOQS_REGISTRY = {};
-var svgNS = "http://www.w3.org/2000/svg";
-var fonts = {'Lobster' : {"font-family": "'Lobster', cursive",
-                          "src": "http://fonts.googleapis.com/css?family=Lobster"}};
+var bloqsnet = bloqsnet || {};
+bloqsnet.MANIFEST = [];
+bloqsnet.REGISTRY = {};
+bloqsnet.svgNS = "http://www.w3.org/2000/svg";
+// var fonts = {'Lobster' : {"font-family": "'Lobster', cursive",
+//                           "src": "http://fonts.googleapis.com/css?family=Lobster"}
+//             };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BLOQS_MANIFEST.push("base");
-BLOQS_REGISTRY["base"] == function (spec) {
+bloqsnet.MANIFEST.push("base");
+bloqsnet.REGISTRY["base"] == function (spec) {
 
     spec.type = 'base';
     spec.children = [];
@@ -34,6 +36,14 @@ BLOQS_REGISTRY["base"] == function (spec) {
         }
         return xxx;
     };
+
+    that.getParentNodes = function(){
+        return undefined;
+    };
+
+    that.getChildNodes = function(){
+        return undefined;
+    };
     
     that.addChild = function (child) {
         spec.children.push(child);
@@ -48,11 +58,11 @@ BLOQS_REGISTRY["base"] == function (spec) {
 
 ////////////////////////////////////////
 
-BLOQS_MANIFEST.push("root");
-BLOQS_REGISTRY["root"] = function (spec) {
+bloqsnet.MANIFEST.push("root");
+bloqsnet.REGISTRY["root"] = function (spec) {
     
     spec.type = 'root';
-    var that = BLOQS_REGISTRY["base"](spec);
+    var that = bloqsnet.REGISTRY["base"](spec);
     that.get_svg = function () {
         var svg_elem = document.createElementNS(svgNS, "svg");
         svg_elem.setAttribute("width", spec.width);
@@ -61,17 +71,21 @@ BLOQS_REGISTRY["root"] = function (spec) {
         return svg_elem;
     };
 
+    that.getChildNodes = function(){
+        return ['x'];
+    };
+    
     return that;
     
 };
 
 ////////////////////////////////////////
 
-BLOQS_MANIFEST.push("rect");
-BLOQS_REGISTRY["rect"] = function (spec) {
+bloqsnet.MANIFEST.push("rect");
+bloqsnet.REGISTRY["rect"] = function (spec) {
 
     spec.type = 'rect';
-    var that = BLOQS_REGISTRY["base"](spec);
+    var that = bloqsnet.REGISTRY["base"](spec);
     that.get_svg = function () {
         var rect_elm = document.createElementNS(svgNS, "rect");
         rect_elm.setAttribute("width", spec.width);
@@ -82,16 +96,20 @@ BLOQS_REGISTRY["rect"] = function (spec) {
         return rect_elm;
     };
 
+    that.getParentNodes = function(){
+        return ['x'];
+    };
+    
     return that;
 };
 
 ////////////////////////////////////////
 
-BLOQS_MANIFEST.push("circle");
-BLOQS_REGISTRY["circle"] = function (spec) {
+bloqsnet.MANIFEST.push("circle");
+bloqsnet.REGISTRY["circle"] = function (spec) {
     
     spec.type = 'circle';
-    var that = BLOQS_REGISTRY["base"](spec);
+    var that = bloqsnet.REGISTRY["base"](spec);
     that.get_svg = function () {
         var circle_elm = document.createElementNS(svgNS, "circle");
         circle_elm.setAttribute("cx", spec.x);
@@ -100,33 +118,43 @@ BLOQS_REGISTRY["circle"] = function (spec) {
         circle_elm.setAttribute("style", spec.style);
         return circle_elm;
     };
+
+    that.getParentNodes = function(){
+        return ['...'];
+    };
+    
     return that;
 };
 
 ////////////////////////////////////////
 
-BLOQS_MANIFEST.push("text");
-BLOQS_REGISTRY["text"] = function (spec) {
+bloqsnet.MANIFEST.push("text");
+bloqsnet.REGISTRY["text"] = function (spec) {
     spec.type = 'text';
-    var that = BLOQS_REGISTRY["base"](spec);
+    var that = bloqsnet.REGISTRY["base"](spec);
     that.get_svg = function () {
         var text_elm = document.createElementNS(svgNS, "text");
-        text_elm.setAttribute("style", "font-family:" + spec.font + ";");
+        text_elm.setAttribute("style", "fXSont-family:" + spec.font + ";");
         text_elm.setAttribute("x", spec.x);
         text_elm.setAttribute("y", spec.y);
         text_elm.textContent = spec.text;
 
         return text_elm;
     };
+
+    that.getParentNodes = function(){
+        return ['x'];
+    };
+    
     return that;
 };
 
 ////////////////////////////////////////
 
-BLOQS_MANIFEST.push("image");
-BLOQS_REGISTRY["image"] = function (spec) {
+bloqsnet.MANIFEST.push("image");
+bloqsnet.REGISTRY["image"] = function (spec) {
     spec.type = 'image';
-    var that = BLOQS_REGISTRY["base"](spec);
+    var that = bloqsnet.REGISTRY["base"](spec);
     that.get_svg = function () {
         var image_elm = document.createElementNS(svgNS, "image");
         image_elm.setAttribute("x", spec.x);
@@ -138,12 +166,17 @@ BLOQS_REGISTRY["image"] = function (spec) {
         image_elm.setAttribute("preserveAspectRatio", spec.aspect);
         return image_elm;
     };
+
+    that.getParentNodes = function(){
+        return ['x'];
+    };
+    
     return that;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-var DATA = {
+bloqsnet.TEST_DATA = {
     "bloqs": {
         "b1": {
             id: "b1",
