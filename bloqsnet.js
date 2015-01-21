@@ -24,13 +24,13 @@ bloqsnet.REGISTRY["base"] = {
         };
 
         that.get_params = function () { return []; };
-    
+        
         that.get_svg = function () {};
 
         that.render_svg = function () {
             var xxx = that.get_svg();
             if(spec.children.length > 0) {
-                var g = document. createElementNS (svgNS, "g");
+                var g = document. createElementNS (bloqsnet.svgNS, "g");
                 for (var i = 0; i < spec.children.length; i++) {
                     g.appendChild(spec.children[i].render_svg());
                 }
@@ -46,7 +46,7 @@ bloqsnet.REGISTRY["base"] = {
         that.getChildNodes = function(){
             return undefined;
         };
-    
+        
         that.addChild = function (child) {
             spec.children.push(child);
         };
@@ -54,7 +54,7 @@ bloqsnet.REGISTRY["base"] = {
         that.addParent = function (parent) {
             spec.parent = parent;
         };
-    
+        
         return that;
     }
 };
@@ -67,13 +67,13 @@ bloqsnet.REGISTRY["root"] = {
                 ["height", "number"]]
     },
     func: function (spec) {
-    
+        
         spec.type = 'root';
-    
-        var that = bloqsnet.REGISTRY["base"](spec);
-    
+        
+        var that = bloqsnet.REGISTRY["base"].func(spec);
+        
         that.get_svg = function () {
-            var svg_elem = document.createElementNS(svgNS, "svg");
+            var svg_elem = document.createElementNS(bloqsnet.svgNS, "svg");
             svg_elem.setAttribute("width", spec.width);
             svg_elem.setAttribute("height", spec.height);
             svg_elem.setAttribute("style", "background-color: #999999");
@@ -83,7 +83,7 @@ bloqsnet.REGISTRY["root"] = {
         that.getChildNodes = function(){
             return ['x'];
         };
-    
+        
         return that;
 
     }
@@ -102,11 +102,11 @@ bloqsnet.REGISTRY["rect"] = {
     func: function (spec) {
 
         spec.type = 'rect';
-    
-        var that = bloqsnet.REGISTRY["base"](spec);
-    
+        
+        var that = bloqsnet.REGISTRY["base"].func(spec);
+        
         that.get_svg = function () {
-            var rect_elm = document.createElementNS(svgNS, "rect");
+            var rect_elm = document.createElementNS(bloqsnet.svgNS, "rect");
             rect_elm.setAttribute("width", spec.width);
             rect_elm.setAttribute("height", spec.height);
             rect_elm.setAttribute("x", spec.x);
@@ -118,7 +118,7 @@ bloqsnet.REGISTRY["rect"] = {
         that.getParentNodes = function(){
             return ['x'];
         };
-    
+        
         return that;
     }
 };
@@ -133,13 +133,13 @@ bloqsnet.REGISTRY["circle"] = {
                    ["r", "number"]]
     },
     func: function (spec) {
-    
+        
         spec.type = 'circle';
-    
-        var that = bloqsnet.REGISTRY["base"](spec);
+        
+        var that = bloqsnet.REGISTRY["base"].func(spec);
 
         that.get_svg = function () {
-            var circle_elm = document.createElementNS(svgNS, "circle");
+            var circle_elm = document.createElementNS(bloqsnet.svgNS, "circle");
             circle_elm.setAttribute("cx", spec.cx);
             circle_elm.setAttribute("cy", spec.cy);
             circle_elm.setAttribute("r", spec.r);
@@ -150,7 +150,7 @@ bloqsnet.REGISTRY["circle"] = {
         that.getParentNodes = function(){
             return ['...'];
         };
-    
+        
         return that;
     }
 };
@@ -165,13 +165,13 @@ bloqsnet.REGISTRY["text"] = {
                 ["style", "number"],
                 ["text", "number"]]},
     func: function (spec) {
-    
+        
         spec.type = 'text';
 
-        var that = bloqsnet.REGISTRY["base"](spec);
-    
+        var that = bloqsnet.REGISTRY["base"].func(spec);
+        
         that.get_svg = function () {
-            var text_elm = document.createElementNS(svgNS, "text");
+            var text_elm = document.createElementNS(bloqsnet.svgNS, "text");
             text_elm.setAttribute("style", "fXSont-family:" + spec.font + ";");
             text_elm.setAttribute("x", spec.x);
             text_elm.setAttribute("y", spec.y);
@@ -183,7 +183,7 @@ bloqsnet.REGISTRY["text"] = {
         that.getParentNodes = function(){
             return ['x'];
         };
-    
+        
         return that;
     }
 };
@@ -201,13 +201,13 @@ bloqsnet.REGISTRY["image"] = {
                 ["aspect", "string"]]
     },
     func: function (spec) {
-    
+        
         spec.type = 'image';
 
-        var that = bloqsnet.REGISTRY["base"](spec);
+        var that = bloqsnet.REGISTRY["base"].func(spec);
 
         that.get_svg = function () {
-            var image_elm = document.createElementNS(svgNS, "image");
+            var image_elm = document.createElementNS(bloqsnet.svgNS, "image");
             image_elm.setAttribute("x", spec.x);
             image_elm.setAttribute("y", spec.y);
             image_elm.setAttribute("width", spec.width);
@@ -225,6 +225,25 @@ bloqsnet.REGISTRY["image"] = {
         return that;
     }
 };
+
+////////////////////////////////////////////////////////////////////////////////
+
+bloqsnet.create = function(data, id) {
+    
+    var r = data[id];
+    var inst = bloqsnet.REGISTRY[r.type].func(r.params);
+    _.each(r.c, function(child){
+        if(child !== "x"){
+            inst.addChild(bloqsnet.create(data, child));
+        }
+    });
+
+    console.log(inst);
+    
+    return inst;
+    
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 
 bloqsnet.TEST_DATA = {
@@ -270,7 +289,7 @@ bloqsnet.TEST_DATA = {
                 cx: 35,
                 cy: 100,
                 r: 25,
-                style: "fill: $990f67"
+                style: "fill: #990f67"
             },
             p:["b1"],
             c:[]
@@ -303,7 +322,7 @@ bloqsnet.TEST_DATA = {
                 y: 1,
                 width: 300,
                 height: 200,
-                src: "",
+                src: "http://backbonejs.org/docs/images/backbone.png",
                 aspect: "xMaxYMin meet"
             },
             p:["b1"],

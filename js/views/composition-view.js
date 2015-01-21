@@ -125,7 +125,6 @@ var app = app || {};
             if (b !== undefined) {
 
                 this.trigger('bloqSelection', d3.select(b).datum());
-                console.log('barbaz 00');
 
                 d3.select(b).select(".face").classed({
                     "selected": true
@@ -180,20 +179,47 @@ var app = app || {};
         },
 
         // MANIFEST ON DRAG
-        manifestOnDrag: function(d, e) {
+        manifestOnDrag: function(evt, targ) {
 
             if (this.tempSrcBlock === null || this.tempSrcBlock === undefined) {
-                this.tempSrcBlock = this.stage.append("svg:rect")
-                    .attr("id", "tmp_src")
-                    .attr("x", e.x)
-                    .attr("y", e.y)
-                    .attr("width", 100)
-                    .attr("height", 100)
-                    .attr("fill", "#ff0000");
+
+                this.tempSrcBlock = this.stage.append("svg:g");
+                // drop shadow
+                this.tempSrcBlock.append("svg:rect")
+                    .attr({
+                        "x": 1,
+                        "y": 2,
+                        "width": this.box_w,
+                        "height": this.box_h,
+                        "fill": "#435261",
+                        'class': 'dropshadow'
+                    });
+
+                // face
+                this.tempSrcBlock.append("svg:rect")
+                    .attr({
+                        "width": this.box_w,
+                        "height": this.box_h,
+                        "fill": "#A3B2C1"
+                    })
+                    .classed({
+                        "face": true
+                    });
+
+                // this.tempSrcBlock.append("svg:text")
+                //     .attr("y", 20)
+                //     .attr("pointer-events", "none")
+                //     .attr("font-family", "sans-serif")
+                //     .attr("font-size", "20px")
+                //     .attr("fill", "black")
+                //     .text(function(d) {
+                //         return d.type;
+                //     });;
+
+                console.log(targ);
             }
 
-            this.tempSrcBlock.attr("x", e.x);
-            this.tempSrcBlock.attr("y", e.y);
+            this.tempSrcBlock.attr("transform", "translate(" + targ.x + "," + targ.y + ")");
 
         },
 
@@ -205,12 +231,20 @@ var app = app || {};
             if ((m[0] > 0) && (m[0] < (this.w))) {
                 app.CompositionBloqs.add(new app.CompositionBloq({
                     id: "bloq-" + new Date().getTime(),
-                    type: "xxx",
+                    type: "rect",
                     meta: {
                         x: m[0],
                         y: m[1]
                     },
-                    params: {}
+                    params: {
+                        width: 50,
+                        height: 50,
+                        x: 10,
+                        y: 20,
+                        style: "fill: #ff0f67"
+                    },
+                    p: ["x"],
+                    c: []
                 }));
             }
 
@@ -276,6 +310,10 @@ var app = app || {};
         resetManifest: function() {
 
             var that = this;
+            var w = this.w;
+            var h = this.h;
+            var box_w = this.box_w;
+            var box_h = this.box_h;
             var data = this.manifestdata();
 
             var g = this.stage_left.selectAll()
@@ -286,11 +324,32 @@ var app = app || {};
                 })
                 .call(this.manifestDragBehavior());
 
-            g.append("svg:rect")
+            // g.append("svg:rect")
+            //     .attr("width", 50)
+            //     .attr("height", 50)
+            //     .attr("fill", "#463810");
 
-            .attr("width", 50)
-                .attr("height", 50)
-                .attr("fill", "#463810");
+            // drop shadow
+            g.append("svg:rect")
+                .attr({
+                    "x": 1,
+                    "y": 2,
+                    "width": box_w,
+                    "height": box_h,
+                    "fill": "#435261",
+                    'class': 'dropshadow'
+                });
+
+            // face
+            g.append("svg:rect")
+                .attr({
+                    "width": box_w,
+                    "height": box_h,
+                    "fill": "#A3B2C1"
+                })
+                .classed({
+                    "face": true
+                });
 
             g.append("svg:text")
                 .attr("y", 20)
@@ -364,13 +423,15 @@ var app = app || {};
                 var id = d.get("id");
                 if (p) {
                     _.each(p, function(targ_id, idx, l) {
-                        var c_term = [id, idx];
-                        var targ_bloq = app.CompositionBloqs.findWhere({
-                            "id": targ_id
-                        });
-                        var targ_idx = _.indexOf(targ_bloq.get("c"), id);
-                        var p_term = [targ_id, targ_idx];
-                        data.push([terminal_pos("p", c_term), terminal_pos("c", p_term)]);
+                        if (targ_id !== "x") {
+                            var c_term = [id, idx];
+                            var targ_bloq = app.CompositionBloqs.findWhere({
+                                "id": targ_id
+                            });
+                            var targ_idx = _.indexOf(targ_bloq.get("c"), id);
+                            var p_term = [targ_id, targ_idx];
+                            data.push([terminal_pos("p", c_term), terminal_pos("c", p_term)]);
+                        }
                     });
                 }
             });
