@@ -124,16 +124,14 @@ var app = app || {};
 
             if (b !== undefined) {
 
-                this.trigger('bloqSelection', d3.select(b).datum());
+                this.trigger('bloqSelection', d3.select(b).datum().id);
 
                 d3.select(b).select(".face").classed({
                     "selected": true
                 });
 
             } else {
-
                 this.trigger('bloqSelection', undefined);
-                console.log('barbaz');
             }
 
             this.currentSelectedBloq = b;
@@ -271,10 +269,10 @@ var app = app || {};
                 })
                 .on("drag", function(d) {
                     that.updateLines();
-                    var musketeers = app.CompositionBloqs.findWhere({
+                    var bloqModel = app.CompositionBloqs.findWhere({
                         id: d3.select(this).attr('id')
                     });
-                    musketeers.set({
+                    bloqModel.set({
                         meta: {
                             x: d3.event.x,
                             y: d3.event.y

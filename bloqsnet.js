@@ -162,8 +162,8 @@ bloqsnet.REGISTRY["text"] = {
     def:{
         params:[["x", "number"],
                 ["y", "number"],
-                ["style", "number"],
-                ["text", "number"]]},
+                ["style", "string"],
+                ["text", "string"]]},
     func: function (spec) {
         
         spec.type = 'text';
@@ -238,8 +238,6 @@ bloqsnet.create = function(data, id) {
         }
     });
 
-    console.log(inst);
-    
     return inst;
     
 };
@@ -252,8 +250,8 @@ bloqsnet.TEST_DATA = {
             id: "b1",
             type: "root",
             meta: {
-                x: 10,
-                y: 10
+                x: 300,
+                y: 105
             },
             params: {
                 width: "100%",
@@ -266,7 +264,7 @@ bloqsnet.TEST_DATA = {
             id: "b2",
             type: "rect",
             meta: {
-                x: 20,
+                x: 50,
                 y: 10},
             params: {
                 width: 50,
@@ -298,12 +296,12 @@ bloqsnet.TEST_DATA = {
             id: "b4",
             type: "text",
             meta: {
-                x: 40,
+                x: 35,
                 y: 110
             },
             params: {
                 x: 10,
-                y: 60,
+                y: 50,
                 font: "Lobster",
                 text: "SOmeo ther text here"
             },
@@ -314,7 +312,7 @@ bloqsnet.TEST_DATA = {
             id: "b5",
             type: "image",
             meta: {
-                x: 50,
+                x: 55,
                 y: 160
             },
             params: {
