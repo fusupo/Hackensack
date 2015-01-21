@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="en"><head>
+<html lang="en">
+
+<head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Skewer</title>
 
@@ -11,52 +13,76 @@
     <!-- Optional theme -->
     <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css"> -->
 
-  </head>
-  <body>
+</head>
+
+<body>
     <div id="app" class="wrapper">
-      <div class="row row-A">
-        <div id="composition">
+        <div class="row row-A">
+            <div id="composition">
+            </div>
+            <div id="params"></div>
         </div>
-        <div id="params"></div>
-      </div>
-      <div class="row row-B">
-        <div id="io">
-        <nav class="navbar navbar-default">
-          <ul class="nav navbar-nav">
-            <li><a href="#">Link</a></li>
-            <li><a href="#">Link</a></li>
-            <li><a href="#">Link</a></li>
-          </ul>
-        </nav>
+        <div class="row row-B">
+            <div id="io">
+                <nav class="navbar navbar-default">
+                    <ul class="nav navbar-nav">
+                        <li><a href="#">Link</a>
+                        </li>
+                        <li><a href="#">Link</a>
+                        </li>
+                        <li><a href="#">Link</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div id="render"></div>
+            <div id="context"></div>
         </div>
-        <div id="render"></div>
-        <div id="context"></div>
-      </div>
     </div>
 
     <!-- Templates -->
 
-    <script type="text/template" id="item-template">
-      <div id="accordion">
+    <!-- <script type="text/template" id="item-template"> -->
+    <!--     <div id="accordion"> -->
+    <!--     </div> -->
+    <!-- </script> -->
 
-      </div>
+    <!-- <script type="text/template" id="manifest-group-template"> -->
+    <!--     <h3><a href="#"><%= name %></a></h3> -->
+    <!--     <div id=<%=i d %>> -->
+    <!--     </div> -->
+    <!-- </script> -->
+
+    <!-- <script type="text/template" id="library-item-template"> -->
+    <!--     <div id=<%=i d %>> -->
+    <!--         <%=l abel %> -->
+    <!--     </div> -->
+    <!-- </script> -->
+
+    <script type="text/template" id="params-container-template">
+        <form class="form">
+        </form>
     </script>
 
-    <script type="text/template" id="manifest-group-template">
-        <h3><a href="#"><%= name %></a></h3>
-          <div id=<%= id %>>
-          </div>
-    </script>
-
-    <script type="text/template" id="library-item-template">
-        <div id=<%= id %>>
-            <%= label %>
+    <script type="text/template" id="params-item-template">
+        <div class="row">
+            <div class="form-group col-xs-8 col-lg-8 form-group-sm">
+                <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                <div class="input-group">
+                    <div class="input-group-addon">
+                        <%=label %>
+                    </div>
+                    <input type="text" class="form-control" value=<%=val %>>
+                </div>
+            </div>
         </div>
     </script>
 
-    <script type="text/template" id="composition-bloq-template">
-        <div class'stage_draggable_handle'><%= label %></div>
-    </script>
+    <!-- <script type="text/template" id="composition-bloq-template"> -->
+    <!--     <div class 'stage_draggable_handle'> -->
+    <!--         <%= label %> -->
+    <!--     </div> -->
+    <!-- </script> -->
 
     <!-- JS -->
 
@@ -72,7 +98,7 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
     <script src="/skewer"></script>
-    
+
     <script src="somecrap.js"></script>
     <script src="bloqsnet.js"></script>
 
@@ -83,10 +109,12 @@
     <script src="js/collections/composition-bloqs.js"></script>
     <!-- -->
     <script src="js/views/composition-view.js"></script>
+    <script src="js/views/params-view.js"></script>
     <!-- -->
     <script src="js/views/app-view.js"></script>
     <!-- -->
     <script src="js/app.js"></script>
-    
-  </body>
+
+</body>
+
 </html>

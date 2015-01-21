@@ -11,6 +11,8 @@ var app = app || {};
         el: '#app',
         initialize: function() {
 
+            console.log('APP VIEW INIT');
+
             app.SrcBloqs.reset(_.map(bloqsnet.MANIFEST, function(v, k) {
                 return new app.SrcBloq({
                     idx: k,
@@ -21,6 +23,7 @@ var app = app || {};
             _.map(bloqsnet.TEST_DATA.bloqs, function(x) {
                 app.CompositionBloqs.add(x);
             });
+
         }
 
     });

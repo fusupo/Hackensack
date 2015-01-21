@@ -9,171 +9,222 @@ bloqsnet.svgNS = "http://www.w3.org/2000/svg";
 ////////////////////////////////////////////////////////////////////////////////
 
 bloqsnet.MANIFEST.push("base");
-bloqsnet.REGISTRY["base"] == function (spec) {
+bloqsnet.REGISTRY["base"] = {
+    def: {},
+    func: function (spec) {
 
-    spec.type = 'base';
-    spec.children = [];
-    spec.parent = undefined;
+        spec.type = 'base';
+        spec.children = [];
+        spec.parent = undefined;
 
-    var that = {};
+        var that = {};
 
-    that.get_type = function () {
-        return spec.type;
-    };
+        that.get_type = function () {
+            return spec.type;
+        };
 
-    that.get_svg = function () {
-        
-    };
+        that.get_params = function () { return []; };
+    
+        that.get_svg = function () {};
 
-    that.render_svg = function () {
-        var xxx = that.get_svg();
-        if(spec.children.length > 0) {
-            var g = document. createElementNS (svgNS, "g");
-            for (var i = 0; i < spec.children.length; i++) {
-                g.appendChild(spec.children[i].render_svg());
+        that.render_svg = function () {
+            var xxx = that.get_svg();
+            if(spec.children.length > 0) {
+                var g = document. createElementNS (svgNS, "g");
+                for (var i = 0; i < spec.children.length; i++) {
+                    g.appendChild(spec.children[i].render_svg());
+                }
+                xxx. appendChild (g);
             }
-            xxx. appendChild (g);
-        }
-        return xxx;
-    };
+            return xxx;
+        };
 
-    that.getParentNodes = function(){
-        return undefined;
-    };
+        that.getParentNodes = function(){
+            return undefined;
+        };
 
-    that.getChildNodes = function(){
-        return undefined;
-    };
+        that.getChildNodes = function(){
+            return undefined;
+        };
     
-    that.addChild = function (child) {
-        spec.children.push(child);
-    };
+        that.addChild = function (child) {
+            spec.children.push(child);
+        };
 
-    that.addParent = function (parent) {
-        spec.parent = parent;
-    };
+        that.addParent = function (parent) {
+            spec.parent = parent;
+        };
     
-    return that;
+        return that;
+    }
 };
-
 ////////////////////////////////////////
 
 bloqsnet.MANIFEST.push("root");
-bloqsnet.REGISTRY["root"] = function (spec) {
+bloqsnet.REGISTRY["root"] = {
+    def:{
+        params:[["width", "number"],
+                ["height", "number"]]
+    },
+    func: function (spec) {
     
-    spec.type = 'root';
-    var that = bloqsnet.REGISTRY["base"](spec);
-    that.get_svg = function () {
-        var svg_elem = document.createElementNS(svgNS, "svg");
-        svg_elem.setAttribute("width", spec.width);
-        svg_elem.setAttribute("height", spec.height);
-        svg_elem.setAttribute("style", "background-color: #999999");
-        return svg_elem;
-    };
+        spec.type = 'root';
+    
+        var that = bloqsnet.REGISTRY["base"](spec);
+    
+        that.get_svg = function () {
+            var svg_elem = document.createElementNS(svgNS, "svg");
+            svg_elem.setAttribute("width", spec.width);
+            svg_elem.setAttribute("height", spec.height);
+            svg_elem.setAttribute("style", "background-color: #999999");
+            return svg_elem;
+        };
 
-    that.getChildNodes = function(){
-        return ['x'];
-    };
+        that.getChildNodes = function(){
+            return ['x'];
+        };
     
-    return that;
-    
+        return that;
+
+    }
 };
 
 ////////////////////////////////////////
 
 bloqsnet.MANIFEST.push("rect");
-bloqsnet.REGISTRY["rect"] = function (spec) {
+bloqsnet.REGISTRY["rect"] = {
+    def:{
+        params:[["x", "number"],
+                ["y", "number"],
+                ["width", "number"],
+                ["height", "number"]]
+    },
+    func: function (spec) {
 
-    spec.type = 'rect';
-    var that = bloqsnet.REGISTRY["base"](spec);
-    that.get_svg = function () {
-        var rect_elm = document.createElementNS(svgNS, "rect");
-        rect_elm.setAttribute("width", spec.width);
-        rect_elm.setAttribute("height", spec.height);
-        rect_elm.setAttribute("x", spec.x);
-        rect_elm.setAttribute("y", spec.y);
-        rect_elm.setAttribute("style", spec.style);
-        return rect_elm;
-    };
-
-    that.getParentNodes = function(){
-        return ['x'];
-    };
+        spec.type = 'rect';
     
-    return that;
+        var that = bloqsnet.REGISTRY["base"](spec);
+    
+        that.get_svg = function () {
+            var rect_elm = document.createElementNS(svgNS, "rect");
+            rect_elm.setAttribute("width", spec.width);
+            rect_elm.setAttribute("height", spec.height);
+            rect_elm.setAttribute("x", spec.x);
+            rect_elm.setAttribute("y", spec.y);
+            rect_elm.setAttribute("style", spec.style);
+            return rect_elm;
+        };
+
+        that.getParentNodes = function(){
+            return ['x'];
+        };
+    
+        return that;
+    }
 };
 
 ////////////////////////////////////////
 
 bloqsnet.MANIFEST.push("circle");
-bloqsnet.REGISTRY["circle"] = function (spec) {
+bloqsnet.REGISTRY["circle"] = {
+    def: {
+        params:   [["cx", "number"],
+                   ["cy", "number"],
+                   ["r", "number"]]
+    },
+    func: function (spec) {
     
-    spec.type = 'circle';
-    var that = bloqsnet.REGISTRY["base"](spec);
-    that.get_svg = function () {
-        var circle_elm = document.createElementNS(svgNS, "circle");
-        circle_elm.setAttribute("cx", spec.x);
-        circle_elm.setAttribute("cy", spec.y);
-        circle_elm.setAttribute("r", spec.r);
-        circle_elm.setAttribute("style", spec.style);
-        return circle_elm;
-    };
+        spec.type = 'circle';
+    
+        var that = bloqsnet.REGISTRY["base"](spec);
 
-    that.getParentNodes = function(){
-        return ['...'];
-    };
+        that.get_svg = function () {
+            var circle_elm = document.createElementNS(svgNS, "circle");
+            circle_elm.setAttribute("cx", spec.cx);
+            circle_elm.setAttribute("cy", spec.cy);
+            circle_elm.setAttribute("r", spec.r);
+            circle_elm.setAttribute("style", spec.style);
+            return circle_elm;
+        };
+
+        that.getParentNodes = function(){
+            return ['...'];
+        };
     
-    return that;
+        return that;
+    }
 };
 
 ////////////////////////////////////////
 
 bloqsnet.MANIFEST.push("text");
-bloqsnet.REGISTRY["text"] = function (spec) {
-    spec.type = 'text';
-    var that = bloqsnet.REGISTRY["base"](spec);
-    that.get_svg = function () {
-        var text_elm = document.createElementNS(svgNS, "text");
-        text_elm.setAttribute("style", "fXSont-family:" + spec.font + ";");
-        text_elm.setAttribute("x", spec.x);
-        text_elm.setAttribute("y", spec.y);
-        text_elm.textContent = spec.text;
-
-        return text_elm;
-    };
-
-    that.getParentNodes = function(){
-        return ['x'];
-    };
+bloqsnet.REGISTRY["text"] = {
+    def:{
+        params:[["x", "number"],
+                ["y", "number"],
+                ["style", "number"],
+                ["text", "number"]]},
+    func: function (spec) {
     
-    return that;
+        spec.type = 'text';
+
+        var that = bloqsnet.REGISTRY["base"](spec);
+    
+        that.get_svg = function () {
+            var text_elm = document.createElementNS(svgNS, "text");
+            text_elm.setAttribute("style", "fXSont-family:" + spec.font + ";");
+            text_elm.setAttribute("x", spec.x);
+            text_elm.setAttribute("y", spec.y);
+            text_elm.textContent = spec.text;
+
+            return text_elm;
+        };
+
+        that.getParentNodes = function(){
+            return ['x'];
+        };
+    
+        return that;
+    }
 };
 
 ////////////////////////////////////////
 
 bloqsnet.MANIFEST.push("image");
-bloqsnet.REGISTRY["image"] = function (spec) {
-    spec.type = 'image';
-    var that = bloqsnet.REGISTRY["base"](spec);
-    that.get_svg = function () {
-        var image_elm = document.createElementNS(svgNS, "image");
-        image_elm.setAttribute("x", spec.x);
-        image_elm.setAttribute("y", spec.y);
-        image_elm.setAttribute("width", spec.width);
-        image_elm.setAttribute("height", spec.height);
-        image_elm.setAttributeNS("http://www.w3.org/1999/xlink", "href",  spec.src);
-        image_elm.setAttributeNS(null, 'visibility', 'visible');
-        image_elm.setAttribute("preserveAspectRatio", spec.aspect);
-        return image_elm;
-    };
-
-    that.getParentNodes = function(){
-        return ['x'];
-    };
+bloqsnet.REGISTRY["image"] = {
+    def:{
+        params:[["x", "number"],
+                ["y", "number"],
+                ["width", "number"],
+                ["height", "number"],
+                ["src", "string"],
+                ["aspect", "string"]]
+    },
+    func: function (spec) {
     
-    return that;
-};
+        spec.type = 'image';
 
+        var that = bloqsnet.REGISTRY["base"](spec);
+
+        that.get_svg = function () {
+            var image_elm = document.createElementNS(svgNS, "image");
+            image_elm.setAttribute("x", spec.x);
+            image_elm.setAttribute("y", spec.y);
+            image_elm.setAttribute("width", spec.width);
+            image_elm.setAttribute("height", spec.height);
+            image_elm.setAttributeNS("http://www.w3.org/1999/xlink", "href",  spec.src);
+            image_elm.setAttributeNS(null, 'visibility', 'visible');
+            image_elm.setAttribute("preserveAspectRatio", spec.aspect);
+            return image_elm;
+        };
+
+        that.getParentNodes = function(){
+            return ['x'];
+        };
+    
+        return that;
+    }
+};
 ////////////////////////////////////////////////////////////////////////////////
 
 bloqsnet.TEST_DATA = {
@@ -216,8 +267,8 @@ bloqsnet.TEST_DATA = {
                 y: 60
             },
             params: {
-                x: 35,
-                y: 100,
+                cx: 35,
+                cy: 100,
                 r: 25,
                 style: "fill: $990f67"
             },

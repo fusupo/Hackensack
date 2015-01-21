@@ -1,79 +1,80 @@
-
 @import url(http://fonts.googleapis.com/css?family=Lobster);
-
-html, body{ height:100%;
-          }
-
-.wrapper { display: flex;
-           flex-direction: column;
-           align-items: stretch;
-           height:100%;
-
-           background-color: #d3d3d3;
-         }
-
-.column1 { display:flex;
-           flex-direction:column;
-           flex: 1;
-
-           background-color: #bebebe;
-         }
-
-.column2 { display: flex;
-           flex-direction: column;
-           order: 1;
-           flex: 2;
-
-           background-color: #696969;
-         }
-
-.column3 { display:flex;
-           flex-direction: column;
-           order: 2;
-           flex: 1;
-
-           background-color: #d3d3d3;
-         }
-
-.row-A { display:flex;
-         flex-direction: row;
-         order: 1;
-         flex: 1;
-
-         background-color: #bebebe;
-       }
-
-.row-B { display: flex;
-         flex-direction: row;
-         order: 2;
-         flex: 1;
-
-         background-color: #696969;
-       }
+html,
+body {
+    height: 100%;
+}
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    height: 100%;
+    background-color: #d3d3d3;
+}
+.column1 {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    background-color: #bebebe;
+}
+.column2 {
+    display: flex;
+    flex-direction: column;
+    order: 1;
+    flex: 2;
+    background-color: #696969;
+}
+.column3 {
+    display: flex;
+    flex-direction: column;
+    order: 2;
+    flex: 1;
+    background-color: #d3d3d3;
+}
+.row-A {
+    display: flex;
+    flex-direction: row;
+    order: 1;
+    flex: 1;
+    background-color: #bebebe;
+}
+.row-B {
+    display: flex;
+    flex-direction: row;
+    order: 2;
+    flex: 1;
+    background-color: #696969;
+}
 /* */
 
-#library { flex: 1;
-          
-           background-color: #2f4f4f;
-         }
+#library {
+    flex: 1;
+    background-color: #2f4f4f;
+}
+#io {
+    flex: 1;
+    background-color: #708090;
+}
+#composition {
+    flex: 4;
+    background-color: #708090;
+}
+#render {
+    flex: 1;
+    background-color: #696969;
+}
+#params {
+    flex: 1;
+    background-color: #2f4f4f;
+}
+#context {
+    flex: 1;
+    background-color: #708090;
+}
+/* */
 
-#io { flex:1;
-
-      background-color: #708090;
-    }
-
-#composition { flex: 4;
-               background-color: #708090;
-             }
-
-#render { flex: 1;
-          background-color: #696969;
-        }
-
-#params { flex: 1;
-          background-color: #2f4f4f;
-        }
-
-#context { flex: 1;
-           background-color: #708090;
-         }
+.face {
+    fill: #A3B2C1;
+}
+.face.selected {
+    fill: #ff0000;
+}

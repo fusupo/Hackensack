@@ -11,6 +11,8 @@ var app = app || {};
 
         initialize: function(srcBloqs, compositionBloqs, settings) {
 
+            console.log('COMPOSITION VIEW INIT');
+
             this.srcBloqs = srcBloqs;
 
             //this.listenTo(srcBloqs, 'change', this.redraw);
@@ -32,16 +34,22 @@ var app = app || {};
             this.h = settings.h || parseInt(this.div.style("height"));
             this.box_w = settings.box_w || 100;
             this.box_h = settings.box_h || 40;
+
+            this.currentSelectedBloq = undefined;
+
             this.setupD3();
+
         },
 
         setupD3: function() {
+
             var win_w = this.w; // using parseInt here to drop the 'px'
             var win_h = this.h; // likewise
             var l_perc = 0.2;
             var r_perc = 0.8;
             var l_w = win_w * l_perc;
             var r_w = win_w * r_perc;
+
             this.stage = this.div.append("svg:svg")
                 .attr("viewBox", "0 0 " + win_w + " " + win_h)
                 .attr("preserveAspectRatio", "xMinYMin meet")
@@ -84,15 +92,17 @@ var app = app || {};
                 .attr("viewBox", "0 0 " + r_w + " " + win_h)
                 .attr("preserveAspectRatio", "xMinYMin meet")
                 .attr("x", l_w)
-                .attr("id", "composition-stage-svg");
+                .attr("id", "composition-stage-svg")
+                .call(this.stageDragBehavior());
             //.call(zoom2);
-            // this.stage_right
-            //     .append("svg:rect")
-            //     .attr("x", 0)
-            //     .attr("y", 0)
-            //     .attr("width", win_w / 2)
-            //     .attr("height", win_h)
-            //     .attr("fill", "#938475");
+
+            this.stage_right
+                .append("svg:rect")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", r_w)
+                .attr("height", win_h)
+                .attr("fill", "#938475");
 
             this.stage_right.append("g")
                 .attr({
@@ -106,7 +116,71 @@ var app = app || {};
 
         },
 
-        manifestDrag: function(d, e) {
+        setBloqSelection: function(b) {
+
+            d3.selectAll(".face").classed({
+                "selected": false
+            });
+
+            if (b !== undefined) {
+
+                this.trigger('bloqSelection', d3.select(b).datum());
+                console.log('barbaz 00');
+
+                d3.select(b).select(".face").classed({
+                    "selected": true
+                });
+
+            } else {
+
+                this.trigger('bloqSelection', undefined);
+                console.log('barbaz');
+            }
+
+            this.currentSelectedBloq = b;
+
+
+        },
+
+        ////////////////////
+        // DRAG BEHAVIORS //
+        ////////////////////
+
+        // STAGE DRAG BEHAVIOR
+        stageDragBehavior: function() {
+
+            var that = this;
+
+            return d3.behavior.drag()
+                .on("dragstart", function(d) {
+                    that.setBloqSelection(undefined);
+                    d3.event.sourceEvent.stopPropagation(); // silence other listeners
+                });
+
+        },
+
+        // MANIFEST DRAG BEHAVIOR
+        manifestDragBehavior: function() {
+
+            var that = this;
+
+            return d3.behavior.drag()
+                .on("dragstart", function(d) {
+                    d3.event.sourceEvent.stopPropagation(); // silence other listeners
+                })
+                .on("drag", function(d) {
+                    d3.event.sourceEvent.stopPropagation(); // silence other listeners
+                    that.manifestOnDrag(d, d3.event);
+                })
+                .on("dragend", function(d) {
+                    d3.event.sourceEvent.stopPropagation(); // silence other listeners
+                    that.manifestOnDragEnd(d, d3.event);
+                });
+
+        },
+
+        // MANIFEST ON DRAG
+        manifestOnDrag: function(d, e) {
 
             if (this.tempSrcBlock === null || this.tempSrcBlock === undefined) {
                 this.tempSrcBlock = this.stage.append("svg:rect")
@@ -117,12 +191,17 @@ var app = app || {};
                     .attr("height", 100)
                     .attr("fill", "#ff0000");
             }
+
             this.tempSrcBlock.attr("x", e.x);
             this.tempSrcBlock.attr("y", e.y);
+
         },
 
-        manifestDragEnd: function(d, e) {
+        // MANIFEST ON DRAG END
+        manifestOnDragEnd: function(d, e) {
+
             var m = d3.mouse(this.stage_right[0][0]);
+
             if ((m[0] > 0) && (m[0] < (this.w))) {
                 app.CompositionBloqs.add(new app.CompositionBloq({
                     id: "bloq-" + new Date().getTime(),
@@ -134,33 +213,78 @@ var app = app || {};
                     params: {}
                 }));
             }
+
             this.tempSrcBlock.remove();
             this.tempSrcBlock = null;
+
         },
 
-        resetManifest: function() {
+        // BLOQ DRAG BEHAVIOR
+        bloqDragBehavior: function() {
 
             var that = this;
-            var data = this.manifestdata();
-            var manifest_drag = d3.behavior.drag()
+            return d3.behavior.drag()
+                .origin(function() {
+                    var t = d3.select(this);
+                    return {
+                        x: t.attr("x") + d3.transform(t.attr("transform")).translate[0],
+                        y: t.attr("y") + d3.transform(t.attr("transform")).translate[1]
+                    };
+                })
+                .on("dragstart", function(d) {
+                    that.setBloqSelection(this);
+                    d3.event.sourceEvent.stopPropagation(); // silence other listeners
+                })
+                .on("drag", function(d) {
+                    that.updateLines();
+                    var musketeers = app.CompositionBloqs.findWhere({
+                        id: d3.select(this).attr('id')
+                    });
+                    musketeers.set({
+                        meta: {
+                            x: d3.event.x,
+                            y: d3.event.y
+                        }
+                    });
+                    d3.select(this)
+                        .attr("transform", "translate(" + d3.event.x + "," + d3.event.y + ")");
+                });
+        },
+
+        // TERMINAL DRAG BEHAVIOR
+        terminalDragBehavior: function() {
+
+            var that = this;
+            return d3.behavior.drag()
                 .on("dragstart", function(d) {
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
                 })
                 .on("drag", function(d) {
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
-                    that.manifestDrag(d, d3.event);
+                    //that.manifestDrag(d, d3.event);
                 })
                 .on("dragend", function(d) {
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
-                    that.manifestDragEnd(d, d3.event);
+                    //that.manifestDragEnd(d, d3.event);
                 });
+        },
+
+        ////////////////////////
+        // END DRAG BEHAVIORS //
+        ////////////////////////
+
+        resetManifest: function() {
+
+            var that = this;
+            var data = this.manifestdata();
+
             var g = this.stage_left.selectAll()
                 .data(data)
                 .enter().append("svg:g")
                 .attr("transform", function(d) {
                     return "translate(" + 50 + "," + (d.idx * 60) + ")";
                 })
-                .call(manifest_drag);
+                .call(this.manifestDragBehavior());
 
             g.append("svg:rect")
 
@@ -207,7 +331,8 @@ var app = app || {};
                     type: datapoint.get('type'),
                     id: datapoint.get('id'),
                     c: datapoint.get("c"), //['x', 'x'],
-                    p: datapoint.get("p") //['x']
+                    p: datapoint.get("p"), //['x']
+                    params: datapoint.get("params")
                 });
             });
 
@@ -229,7 +354,6 @@ var app = app || {};
                 x += matrix.e + 5;
                 var y = parseInt(t[0].getAttribute("y")) || 0;
                 y += matrix.f + 5;
-                if (term[0] === "b1") console.log(y);
                 return ([x, y]);
             };
 
@@ -341,43 +465,6 @@ var app = app || {};
             var box_h = this.box_h;
             var data = this.plotdata();
 
-            //  Drag Behavior 
-            var bloq_drag = d3.behavior.drag()
-                .origin(function() {
-                    var t = d3.select(this);
-                    return {
-                        x: t.attr("x") + d3.transform(t.attr("transform")).translate[0],
-                        y: t.attr("y") + d3.transform(t.attr("transform")).translate[1]
-                    };
-                })
-                .on("drag", function(d) {
-                    that.updateLines();
-                    var musketeers = app.CompositionBloqs.findWhere({
-                        id: d3.select(this).attr('id')
-                    });
-                    musketeers.set({
-                        meta: {
-                            x: d3.event.x,
-                            y: d3.event.y
-                        }
-                    });
-                    d3.select(this)
-                        .attr("transform", "translate(" + d3.event.x + "," + d3.event.y + ")");
-                });
-
-            var terminal_drag = d3.behavior.drag()
-                .on("dragstart", function(d) {
-                    d3.event.sourceEvent.stopPropagation(); // silence other listeners
-                })
-                .on("drag", function(d) {
-                    d3.event.sourceEvent.stopPropagation(); // silence other listeners
-                    //that.manifestDrag(d, d3.event);
-                })
-                .on("dragend", function(d) {
-                    d3.event.sourceEvent.stopPropagation(); // silence other listeners
-                    //that.manifestDragEnd(d, d3.event);
-                });
-
             //var rect = this.stage_right.selectAll("rect")
             //       .data(data);
 
@@ -402,7 +489,7 @@ var app = app || {};
                     },
                     "class": "composition_bloq"
                 })
-                .call(bloq_drag);
+                .call(this.bloqDragBehavior());
 
             // drop shadow
             g.append("svg:rect")
@@ -421,6 +508,9 @@ var app = app || {};
                     "width": box_w,
                     "height": box_h,
                     "fill": "#A3B2C1"
+                })
+                .classed({
+                    "face": true
                 });
 
             //  These are the terminals
@@ -448,7 +538,7 @@ var app = app || {};
                         return "term-" + i;
                     }
                 })
-                .call(terminal_drag);
+                .call(this.terminalDragBehavior());
 
             // then the terminals to parent node(s) (right sidw)
             var p = g.append("svg:g")
@@ -473,7 +563,7 @@ var app = app || {};
                         return "term-" + i;
                     }
                 })
-                .call(terminal_drag);
+                .call(this.terminalDragBehavior());
 
             //
 
@@ -504,6 +594,6 @@ var app = app || {};
         }
     });
 
-    app.CompositonView = new CompositionView(app.SrcBloqs, app.CompositionBloqs, {});
+    app.CompositionView = new CompositionView(app.SrcBloqs, app.CompositionBloqs, {});
 
 })(jQuery);
