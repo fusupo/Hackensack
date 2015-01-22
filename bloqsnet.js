@@ -39,13 +39,13 @@ bloqsnet.REGISTRY["base"] = {
             return xxx;
         };
 
-        that.getParentNodes = function(){
-            return undefined;
-        };
+        // that.getParentNodes = function(){
+        //     return undefined;
+        // };
 
-        that.getChildNodes = function(){
-            return undefined;
-        };
+        // that.getChildNodes = function(){
+        //     return undefined;
+        // };
         
         that.addChild = function (child) {
             spec.children.push(child);
@@ -63,8 +63,10 @@ bloqsnet.REGISTRY["base"] = {
 bloqsnet.MANIFEST.push("root");
 bloqsnet.REGISTRY["root"] = {
     def:{
-        params:[["width", "number"],
-                ["height", "number"]]
+        params: [["width", "number", "100%"],
+                 ["height", "number", "100%"]],
+        p: [0, 0],
+        c: [1, "n"]
     },
     func: function (spec) {
         
@@ -80,9 +82,9 @@ bloqsnet.REGISTRY["root"] = {
             return svg_elem;
         };
 
-        that.getChildNodes = function(){
-            return ['x'];
-        };
+        // that.getChildNodes = function(){
+        //     return ['x'];
+        // };
         
         return that;
 
@@ -94,10 +96,12 @@ bloqsnet.REGISTRY["root"] = {
 bloqsnet.MANIFEST.push("rect");
 bloqsnet.REGISTRY["rect"] = {
     def:{
-        params:[["x", "number"],
-                ["y", "number"],
-                ["width", "number"],
-                ["height", "number"]]
+        params: [["x", "number", 0],
+                 ["y", "number", 0],
+                 ["width", "number", 10],
+                 ["height", "number", 10]],
+        p: [1, 1],
+        c: [0, 0]
     },
     func: function (spec) {
 
@@ -128,9 +132,11 @@ bloqsnet.REGISTRY["rect"] = {
 bloqsnet.MANIFEST.push("circle");
 bloqsnet.REGISTRY["circle"] = {
     def: {
-        params:   [["cx", "number"],
-                   ["cy", "number"],
-                   ["r", "number"]]
+        params: [["cx", "number", 0],
+                 ["cy", "number", 0],
+                 ["r", "number", 10]],
+        p: [1, 1],
+        c: [0, 0]
     },
     func: function (spec) {
         
@@ -160,10 +166,13 @@ bloqsnet.REGISTRY["circle"] = {
 bloqsnet.MANIFEST.push("text");
 bloqsnet.REGISTRY["text"] = {
     def:{
-        params:[["x", "number"],
-                ["y", "number"],
-                ["style", "string"],
-                ["text", "string"]]},
+        params: [["x", "number", 0],
+                 ["y", "number", 0],
+                 ["style", "string", ""],
+                 ["text", "string", "<default text>"]],
+        p: [1, 1],
+        c: [0, 0]
+    },
     func: function (spec) {
         
         spec.type = 'text';
@@ -180,9 +189,9 @@ bloqsnet.REGISTRY["text"] = {
             return text_elm;
         };
 
-        that.getParentNodes = function(){
-            return ['x'];
-        };
+        // that.getParentNodes = function(){
+        //     return ['x'];
+        // };
         
         return that;
     }
@@ -193,12 +202,14 @@ bloqsnet.REGISTRY["text"] = {
 bloqsnet.MANIFEST.push("image");
 bloqsnet.REGISTRY["image"] = {
     def:{
-        params:[["x", "number"],
-                ["y", "number"],
-                ["width", "number"],
-                ["height", "number"],
-                ["src", "string"],
-                ["aspect", "string"]]
+        params: [["x", "number", 0],
+                 ["y", "number", 0],
+                 ["width", "number", "100%"],
+                 ["height", "number", "100%"],
+                 ["src", "string", ""],
+                 ["aspect", "string", "xMinYMin meet"]],
+        p: [1, 1],
+        c: [0, 0]
     },
     func: function (spec) {
         
@@ -218,9 +229,9 @@ bloqsnet.REGISTRY["image"] = {
             return image_elm;
         };
 
-        that.getParentNodes = function(){
-            return ['x'];
-        };
+        // that.getParentNodes = function(){
+        //     return ['x'];
+        // };
     
         return that;
     }

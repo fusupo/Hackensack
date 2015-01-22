@@ -2,6 +2,10 @@
 html,
 body {
     height: 100%;
+    overflow: hidden;
+}
+svg {
+    max-height: 100%;
 }
 .wrapper {
     display: flex;
