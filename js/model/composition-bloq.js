@@ -4,33 +4,45 @@ var app = app || {};
 (function() {
     'use strict';
 
-    // Todo Model
-    // ----------
-
-    // Our basic **Todo** model has `title`, `order`, and `completed` attributes.
     app.CompositionBloq = Backbone.Model.extend({
-        // Default attributes for the todo
-        // and ensure that each todo created has `title` and `completed` keys.
-        // defaults: {
-        //     id: '',
-        //     type: '',
-        //     x: 0,
-        //     y: 0
-        // }
 
-        initialize: function(point) {
-            this.set({
-                id: point.id,
-                x: point.x,
-                y: point.y
+        addConnection: function(side, idx, v, silent) {
+
+            silent = silent || false;
+
+            var terms = _.clone(this.get(side));
+            terms[idx] = v;
+            var temp = {};
+
+            var card = bloqsnet.REGISTRY[this.get("type")].def[side];
+            if (card[1] === "n") {
+                //console.log(terms);
+                terms = _.without(terms, "x");
+                terms.push("x");
+                // console.log(terms);
+            }
+
+            temp[side] = terms;
+            this.set(temp, {
+                silent: silent
             });
+
+        },
+
+        removeConnection: function(side, idx, silent) {
+
+            silent = silent || false;
+
+            var terms = _.clone(this.get(side));
+            terms[idx] = "x";
+            var temp = {};
+            temp[side] = terms;
+            this.set(temp, {
+                silent: silent
+            });
+
         }
 
-        // Toggle the `completed` state of this todo item.
-        // toggle: function () {
-        //     this.save({
-        // 	completed: !this.get('completed')
-        //     });
-        // }
     });
+
 })();

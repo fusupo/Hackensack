@@ -20,9 +20,9 @@ var app = app || {};
                 });
             }));
 
-            _.map(bloqsnet.TEST_DATA.bloqs, function(x) {
-                app.CompositionBloqs.add(x);
-            });
+            app.CompositionBloqs.reset(_.map(bloqsnet.TEST_DATA.bloqs, function(v, k) {
+                return new app.CompositionBloq(v);
+            }));
 
         }
 

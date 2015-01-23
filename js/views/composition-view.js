@@ -22,7 +22,7 @@ var app = app || {};
             this.compositionBloqs = compositionBloqs;
 
             this.listenTo(compositionBloqs, 'add', this.redraw);
-            this.listenTo(compositionBloqs, 'change', this.redraw);
+            this.listenTo(compositionBloqs, 'change change:p', this.redraw);
             this.listenTo(compositionBloqs, 'remove', this.redraw);
             this.listenTo(compositionBloqs, 'reset', this.redraw);
 
@@ -216,6 +216,7 @@ var app = app || {};
                     };
                 })
                 .on("dragstart", function(d) {
+                    console.log(d);
                     that.setBloqSelection(this);
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
                 })
@@ -278,6 +279,7 @@ var app = app || {};
 
             return d3.behavior.drag()
                 .on("dragstart", function(d) {
+
                     var other = app.CompositionBloqs.getConnectedTerm(d);
                     mouse_terms = other === "x" ? [d, "x"] : [other, "x"];
                     app.CompositionBloqs.disconnect(d);
@@ -372,7 +374,7 @@ var app = app || {};
         },
 
         plotdata: function() {
-
+            console.log('lines data');
             var data = [];
             this.compositionBloqs.forEach(function(datapoint) {
                 data.push({
@@ -385,7 +387,6 @@ var app = app || {};
                     params: datapoint.get("params")
                 });
             });
-
             return data;
 
         },
@@ -616,15 +617,17 @@ var app = app || {};
                 .attr({
                     "class": "term-" + side,
                     "transform": "translate(" + x + ", 0)"
-                })
-                .selectAll('.term')
+                });
+
+            var u = t.selectAll('.term')
                 .data(function(d) {
                     return _.map(d[side], function(u, idx) {
+                        console.log('oo');
                         return [d.id, side, idx];
                     });
                 });
 
-            t.enter().append("svg:rect")
+            u.enter().append("svg:rect")
                 .attr({
                     y: function(d, i) {
                         return 12 * i;
@@ -638,6 +641,8 @@ var app = app || {};
                 })
                 .call(this.terminalDragBehavior());
 
+            //d3.selectAll(".term-c").exit().remove();
+            u.exit().remove();
         }
     });
 

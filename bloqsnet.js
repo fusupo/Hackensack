@@ -15,6 +15,7 @@ bloqsnet.REGISTRY["base"] = {
 
         spec.type = 'base';
         spec.children = [];
+        spec.bullshit = [];
         spec.parent = undefined;
 
         var that = {};
@@ -240,9 +241,10 @@ bloqsnet.REGISTRY["image"] = {
 ////////////////////////////////////////////////////////////////////////////////
 
 bloqsnet.create = function(data, id) {
+
     
     var r = data[id];
-    var inst = bloqsnet.REGISTRY[r.type].func(r.params);
+    var inst = bloqsnet.REGISTRY[r.type].func(_.clone(r.params));
     _.each(r.c, function(child){
         if(child !== "x"){
             inst.addChild(bloqsnet.create(data, child));

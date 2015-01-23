@@ -26,7 +26,7 @@ var app = app || {};
                 mode: "xml",
                 lineWrapping: true
             });
-            //var myCodeMirror = CodeMirror(this.$el);
+
         },
 
         bloqSelection: function(id) {

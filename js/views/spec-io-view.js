@@ -17,7 +17,6 @@ var app = app || {};
             this.listenTo(app.CompositionView, 'bloqSelection', this.bloqSelection);
 
             this.currId = undefined;
-            this.renderTree = undefined;
 
             this.textarea = CodeMirror.fromTextArea(document.getElementById('spec-io-textarea'), {
                 lineNumbers: true,
@@ -35,12 +34,7 @@ var app = app || {};
 
             if (id !== undefined) {
                 this.currId = id;
-                var data = _.reduce(app.CompositionBloqs.toJSON(), function(memo, i) {
-                    memo[i.id] = i;
-                    return memo;
-                }, {});
 
-                this.renderTree = bloqsnet.create(data, id);
                 this.draw();
             } else {
                 this.currId = undefined;
@@ -62,11 +56,7 @@ var app = app || {};
 
         draw: function() {
 
-            // var rendered = this.renderTree.render_svg();
-
-            // var s = new XMLSerializer();
-            // var str = s.serializeToString(rendered);
-            var str = JSON.stringify(app.CompositionBloqs.toJSON()); //.stringify();
+            var str = JSON.stringify(app.CompositionBloqs.toJSON());
             this.textarea.setValue(str);
 
         }
