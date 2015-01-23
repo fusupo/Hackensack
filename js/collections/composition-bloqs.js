@@ -4,9 +4,9 @@ var app = app || {};
 (function($) {
     'use strict';
 
-    // ------------------------------ //
-    // Compositon Bloqs Collection    //
-    // ------------------------------ //
+    // ------------------------------- //
+    //  Compositon Bloqs Collection    //
+    // ------------------------------- //
 
     var CompositionBloqs = Backbone.Collection.extend({
 
@@ -36,7 +36,9 @@ var app = app || {};
 
         },
 
-        disconnect: function(term) {
+        disconnect: function(term, silent) {
+
+            silent = silent || false;
 
             var other_term = this.getConnectedTerm(term);
             if (other_term !== "x") {
@@ -56,10 +58,11 @@ var app = app || {};
                 this_bloq.set(this_obj, {
                     silent: true
                 });
-                other_bloq.set(other_obj);
+                other_bloq.set(other_obj, {
+                    silent: silent
+                });
             }
 
-            console.log(this.models);
         },
 
         getConnectedTerm: function(term) {
@@ -82,7 +85,7 @@ var app = app || {};
         },
 
         addConnection: function(a, b) {
-            console.log(a, b);
+
             if (a[0] !== b[0]) {
                 this.disconnect(a);
                 this.disconnect(b);
@@ -108,6 +111,27 @@ var app = app || {};
                 e_bloq.set(e_obj);
 
             }
+        },
+
+        deleteBloq: function(id) {
+
+            var bloq = this.get(id);
+            var disconnectTerms = function(that) {
+                return function(side) {
+                    var terms = bloq.get(side);
+                    _.each(terms, function(v, idx) {
+                        if (v !== "x") {
+                            that.disconnect([id, side, idx], true);
+                        }
+                    }, this);
+                };
+            }(this);
+
+            disconnectTerms("c");
+            disconnectTerms("p");
+
+            console.log(this.remove(bloq));
+            console.log(this.models);
         }
 
     });

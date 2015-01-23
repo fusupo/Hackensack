@@ -24,7 +24,7 @@ var app = app || {};
             this.listenTo(compositionBloqs, 'add', this.redraw);
             this.listenTo(compositionBloqs, 'change', this.redraw);
             this.listenTo(compositionBloqs, 'remove', this.redraw);
-            this.listenTo(compositionBloqs, 'reset', this.draw);
+            this.listenTo(compositionBloqs, 'reset', this.redraw);
 
             this.settings = settings || {};
 
@@ -165,72 +165,43 @@ var app = app || {};
                 })
                 .on("drag", function(d) {
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
-                    that.manifestOnDrag(d, d3.event);
+                    //that.manifestOnDrag(d, d3.event);
+                    if (that.tempSrcBloq === null || that.tempSrcBloq === undefined) {
+
+                        that.tempSrcBloq = that.stage.append("svg:g");
+
+                        that.d3Bloq(that.tempSrcBloq, that.box_w, that.box_h);
+
+                        // label
+                        // g.append("svg:text")
+                        //     .attr("y", 20)
+                        //     .attr("pointer-events", "none")
+                        //     .attr("font-family", "sans-serif")
+                        //     .attr("font-size", "20px")
+                        //     .attr("fill", "black")
+                        //     .text(function(d) {
+                        //         return d.type;
+                        //     });
+
+                    }
+
+                    that.tempSrcBloq.attr("transform", "translate(" + d3.event.x + "," + d3.event.y + ")");
                 })
                 .on("dragend", function(d) {
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
-                    that.manifestOnDragEnd(d, d3.event);
+                    //that.manifestOnDragEnd(d, d3.event);
+                    var m = d3.mouse(that.stage_right[0][0]);
+
+                    if ((m[0] > 0) && (m[0] < (that.w))) {
+                        app.CompositionBloqs.newBloq(d.type, [m[0], m[1]]);
+                    }
+
+                    that.tempSrcBloq.remove();
+                    that.tempSrcBloq = null;
                 });
 
         },
 
-        // MANIFEST ON DRAG
-        manifestOnDrag: function(evt, targ) {
-
-            if (this.tempSrcBlock === null || this.tempSrcBlock === undefined) {
-
-                this.tempSrcBlock = this.stage.append("svg:g");
-                // drop shadow
-                this.tempSrcBlock.append("svg:rect")
-                    .attr({
-                        "x": 1,
-                        "y": 2,
-                        "width": this.box_w,
-                        "height": this.box_h,
-                        "fill": "#435261",
-                        'class': 'dropshadow'
-                    });
-
-                // face
-                this.tempSrcBlock.append("svg:rect")
-                    .attr({
-                        "width": this.box_w,
-                        "height": this.box_h,
-                        "fill": "#A3B2C1"
-                    })
-                    .classed({
-                        "face": true
-                    });
-
-                // this.tempSrcBlock.append("svg:text")
-                //     .attr("y", 20)
-                //     .attr("pointer-events", "none")
-                //     .attr("font-family", "sans-serif")
-                //     .attr("font-size", "20px")
-                //     .attr("fill", "black")
-                //     .text(function(d) {
-                //         return d.type;
-                //     });;
-
-            }
-
-            this.tempSrcBlock.attr("transform", "translate(" + targ.x + "," + targ.y + ")");
-
-        },
-
-        // MANIFEST ON DRAG END
-        manifestOnDragEnd: function(d, e) {
-
-            var m = d3.mouse(this.stage_right[0][0]);
-
-            if ((m[0] > 0) && (m[0] < (this.w))) {
-                app.CompositionBloqs.newBloq(d.type, [m[0], m[1]]);
-            }
-
-            this.tempSrcBlock.remove();
-            this.tempSrcBlock = null;
-
-        },
 
         // BLOQ DRAG BEHAVIOR
         bloqDragBehavior: function() {
@@ -249,7 +220,8 @@ var app = app || {};
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
                 })
                 .on("drag", function(d) {
-                    that.updateLines();
+                    //that.updateLines();
+                    that.lines();
                     var bloqModel = app.CompositionBloqs.findWhere({
                         id: d3.select(this).attr('id')
                     });
@@ -261,6 +233,16 @@ var app = app || {};
                     });
                     d3.select(this)
                         .attr("transform", "translate(" + d3.event.x + "," + d3.event.y + ")");
+                });
+        },
+
+        closeButtBehavior: function() {
+
+            var that = this;
+            return d3.behavior.drag()
+                .on("dragstart", function(d) {
+                    app.CompositionBloqs.deleteBloq(d.id);
+                    d3.event.sourceEvent.stopPropagation(); // silence other listeners
                 });
         },
 
@@ -299,14 +281,14 @@ var app = app || {};
                     var other = app.CompositionBloqs.getConnectedTerm(d);
                     mouse_terms = other === "x" ? [d, "x"] : [other, "x"];
                     app.CompositionBloqs.disconnect(d);
-                    that.removeLines();
+                    //that.removeLines();
                     var mouse_pos = d3.mouse(that.stage_right[0][0]);
                     that.mouseLine = [
                         mouse_terms[0] !== "x" ? that.terminalPos(mouse_terms[0]) : mouse_pos,
                         mouse_terms[1] !== "x" ? that.terminalPos(mouse_terms[1]) : mouse_pos
                     ];
                     that.lines();
-                    that.updateLines();
+                    //that.updateLines();
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
                 })
                 .on("drag", function(d) {
@@ -315,7 +297,8 @@ var app = app || {};
                         mouse_terms[0] !== "x" ? that.terminalPos(mouse_terms[0]) : mouse_pos,
                         mouse_terms[1] !== "x" ? that.terminalPos(mouse_terms[1]) : mouse_pos
                     ];
-                    that.updateLines();
+                    //that.updateLines();
+                    that.lines();
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
                     //that.manifestDrag(d, d3.event);
                 })
@@ -357,28 +340,9 @@ var app = app || {};
             //     .attr("height", 50)
             //     .attr("fill", "#463810");
 
-            // drop shadow
-            g.append("svg:rect")
-                .attr({
-                    "x": 1,
-                    "y": 2,
-                    "width": box_w,
-                    "height": box_h,
-                    "fill": "#435261",
-                    'class': 'dropshadow'
-                });
+            this.d3Bloq(g, box_w, box_h);
 
-            // face
-            g.append("svg:rect")
-                .attr({
-                    "width": box_w,
-                    "height": box_h,
-                    "fill": "#A3B2C1"
-                })
-                .classed({
-                    "face": true
-                });
-
+            // label
             g.append("svg:text")
                 .attr("y", 20)
                 .attr("pointer-events", "none")
@@ -388,7 +352,6 @@ var app = app || {};
                 .text(function(d) {
                     return d.type;
                 });
-
         },
 
         ////////////////////////////////////
@@ -479,30 +442,19 @@ var app = app || {};
         // END DATA COMPOSITION METHODS //
         //////////////////////////////////
 
-        draw: function() {
-
-            if (this.plotdata().length > 0) {
-                this.plot({
-                    newPlot: true
-                });
-            }
-
-        },
-
         redraw: function(item, coll, o) {
 
-            if (this.plotdata().length > 0) {
-                this.plot({});
-                this.lines();
-            }
+            //if (this.plotdata().length > 0) {
+            this.plot({});
+            this.lines();
+            //}
 
         },
 
         lines: function() {
 
             var data = this.linesdata();
-            var r = d3.select('#composition-composite-svg')
-                .select('#composition-lines-group')
+            var r = d3.select('#composition-lines-group')
                 .selectAll('.composition-line')
                 .data(data);
 
@@ -544,99 +496,6 @@ var app = app || {};
             r.exit().remove();
         },
 
-        updateLines: function() {
-
-            var data = this.linesdata();
-            var r = d3.select('#composition-composite-svg')
-                .select('#composition-lines-group')
-                .selectAll('.composition-line')
-                .data(data);
-
-            r.enter().append("svg:line")
-                .attr({
-                    "x1": function(d, i) {
-                        return d[0][0];
-                    },
-                    "y1": function(d, i) {
-                        return d[0][1];
-                    },
-                    "x2": function(d, i) {
-                        return d[1][0];
-                    },
-                    "y2": function(d, i) {
-                        return d[1][1];
-                    },
-                    "stroke": "black",
-                    "class": "composition-line",
-                    "ponter-events": "none"
-                });
-
-            r.attr({
-                "x1": function(d, i) {
-                    return d[0][0];
-                },
-                "y1": function(d, i) {
-                    return d[0][1];
-                },
-                "x2": function(d, i) {
-                    return d[1][0];
-                },
-                "y2": function(d, i) {
-                    return d[1][1];
-                }
-            });
-
-
-            r.exit().remove();
-
-        },
-
-        removeLines: function() {
-
-            var data = this.linesdata();
-            var r = d3.select('#composition-composite-svg')
-                .select('#composition-lines-group')
-                .selectAll('.composition-line')
-                .data(data);
-
-            r.enter().append("svg:line")
-                .attr({
-                    "x1": function(d, i) {
-                        return d[0][0];
-                    },
-                    "y1": function(d, i) {
-                        return d[0][1];
-                    },
-                    "x2": function(d, i) {
-                        return d[1][0];
-                    },
-                    "y2": function(d, i) {
-                        return d[1][1];
-                    },
-                    "stroke": "black",
-                    "class": "composition-line",
-                    "ponter-events": "none"
-                });
-
-            r.attr({
-                "x1": function(d, i) {
-                    return d[0][0];
-                },
-                "y1": function(d, i) {
-                    return d[0][1];
-                },
-                "x2": function(d, i) {
-                    return d[1][0];
-                },
-                "y2": function(d, i) {
-                    return d[1][1];
-                }
-            });
-
-
-            r.exit().remove();
-
-        },
         plot: function(options) {
 
             var that = this;
@@ -648,19 +507,17 @@ var app = app || {};
             var box_h = this.box_h;
             var data = this.plotdata();
 
-            //var rect = this.stage_right.selectAll("rect")
-            //       .data(data);
-
             // UPDATE
             // Update old elements as needed.
             //--
 
             // ENTER
             // Create new elements as needed.
-            var r = d3.select('#composition-composite-svg')
-                .select('#composition-bloqs-group')
+            var r = d3.select('#composition-bloqs-group')
                 .selectAll('.composition_bloq')
-                .data(data);
+                .data(data, function(d) {
+                    return d.id;
+                });
 
             var g = r.enter().append("svg:g")
                 .attr({
@@ -674,85 +531,10 @@ var app = app || {};
                 })
                 .call(this.bloqDragBehavior());
 
-            // drop shadow
-            g.append("svg:rect")
-                .attr({
-                    "x": 1,
-                    "y": 2,
-                    "width": box_w,
-                    "height": box_h,
-                    "fill": "#435261",
-                    'class': 'dropshadow'
-                });
-
-            // face
-            g.append("svg:rect")
-                .attr({
-                    "width": box_w,
-                    "height": box_h,
-                    "fill": "#A3B2C1"
-                })
-                .classed({
-                    "face": true
-                });
-
-            //  These are the terminals
-
-            //  First the terminals to childnodes (left side)
-            var c = g.append("svg:g")
-                .attr({
-                    "class": "term-c",
-                    "transform": "translate(-10, 0)"
-                })
-                .selectAll('.term')
-                .data(function(d) {
-                    return _.map(d.c, function(c, idx) {
-                        return [d.id, "c", idx];
-                    });
-                });
-
-            c.enter().append("svg:rect")
-                .attr({
-                    y: function(d, i) {
-                        return 12 * i;
-                    },
-                    width: 10,
-                    height: 10,
-                    fill: "#333333",
-                    class: function(d, i) {
-                        return "term term-" + i;
-                    }
-                })
-                .call(this.terminalDragBehavior());
-
-            // then the terminals to parent node(s) (right sidw)
-            var p = g.append("svg:g")
-                .attr({
-                    "class": "term-p",
-                    "transform": "translate(" + box_w + ", 0)"
-                })
-                .selectAll('.term')
-                .data(function(d) {
-                    return _.map(d.p, function(p, idx) {
-                        return [d.id, "p", idx];
-                    });
-                });
-
-            p.enter().append("svg:rect")
-                .attr({
-                    y: function(d, i) {
-                        return 12 * i;
-                    },
-                    width: 10,
-                    height: 10,
-                    fill: "#333333",
-                    class: function(d, i) {
-                        return "term term-" + i;
-                    }
-                })
-                .call(this.terminalDragBehavior());
-
-            //
+            this.d3Bloq(g, box_w, box_h);
+            this.d3Terminals(g, "c", -10);
+            this.d3Terminals(g, "p", box_w);
+            this.d3CloseButt(g, box_w - 15, 5);
 
             // label
             g.append("svg:text")
@@ -777,6 +559,84 @@ var app = app || {};
             // EXIT
             // Remove old elements as needed.
             r.exit().remove();
+
+        },
+
+        //  RENDER HELPERS  //
+
+        d3Bloq: function(sel, w, h) {
+            this.d3DropShadow(sel, w, h);
+            this.d3Face(sel, w, h);
+        },
+
+        d3CloseButt: function(sel, x, y) {
+            // sel is presumably <g>
+            var g = sel.append("svg:g")
+                .attr("transform", "translate(" + x + ", " + y + ")");
+            g.append("svg:rect")
+                .attr({
+                    "width": 10,
+                    "height": 10,
+                    "fill": "#cccccc"
+                })
+                .call(this.closeButtBehavior());
+        },
+
+        d3DropShadow: function(sel, w, h) {
+
+            sel.append("svg:rect")
+                .attr({
+                    "x": 1,
+                    "y": 2,
+                    "width": w,
+                    "height": h,
+                    "fill": "#435261",
+                    'class': 'dropshadow'
+                });
+
+        },
+
+        d3Face: function(sel, w, h) {
+
+            sel.append("svg:rect")
+                .attr({
+                    "width": w,
+                    "height": h,
+                    "fill": "#A3B2C1"
+                })
+                .classed({
+                    "face": true
+                });
+
+        },
+
+        d3Terminals: function(sel, side, x) {
+
+            var t = sel.append("svg:g")
+                .attr({
+                    "class": "term-" + side,
+                    "transform": "translate(" + x + ", 0)"
+                })
+                .selectAll('.term')
+                .data(function(d) {
+                    return _.map(d[side], function(u, idx) {
+                        return [d.id, side, idx];
+                    });
+                });
+
+            t.enter().append("svg:rect")
+                .attr({
+                    y: function(d, i) {
+                        return 12 * i;
+                    },
+                    width: 10,
+                    height: 10,
+                    fill: "#333333",
+                    class: function(d, i) {
+                        return "term term-" + i;
+                    }
+                })
+                .call(this.terminalDragBehavior());
 
         }
     });
