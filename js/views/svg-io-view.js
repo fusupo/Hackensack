@@ -17,7 +17,6 @@ var app = app || {};
             this.listenTo(app.CompositionView, 'bloqSelection', this.bloqSelection);
 
             this.currId = undefined;
-            this.renderTree = undefined;
 
             this.textarea = CodeMirror.fromTextArea(document.getElementById('svg-io-textarea'), {
                 lineNumbers: true,
@@ -35,12 +34,6 @@ var app = app || {};
 
             if (id !== undefined) {
                 this.currId = id;
-                var data = _.reduce(app.CompositionBloqs.toJSON(), function(memo, i) {
-                    memo[i.id] = i;
-                    return memo;
-                }, {});
-
-                this.renderTree = bloqsnet.create(data, id);
                 this.draw();
             } else {
                 this.currId = undefined;
@@ -62,11 +55,15 @@ var app = app || {};
 
         draw: function() {
 
-            var rendered = this.renderTree.render_svg();
-
+            var rendered = app.CompositionBloqs.get_svg(this.currId);
             var s = new XMLSerializer();
             var str = s.serializeToString(rendered);
             this.textarea.setValue(str);
+
+            var that = this;
+            setTimeout(function() {
+                that.textarea.refresh();
+            }, 1);
 
         }
 

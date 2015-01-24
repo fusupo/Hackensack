@@ -16,6 +16,7 @@
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.0.1/css/bootstrap-colorpicker.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/codemirror.css">
     <!-- Optional theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
@@ -35,26 +36,34 @@
 
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs" role="tablist">
-                        <li role="presentation" class="active"><a href="#svg-io" aria-controls="svg-io" role="tab" data-toggle="tab">SVG</a>
+                        <li role="presentation" class="active"><a href="#spec-io" aria-controls="spec-io" role="tab" data-toggle="tab">Spec</a>
                         </li>
-                        <li role="presentation"><a href="#spec-io" aria-controls="spec-io" role="tab" data-toggle="tab">Spec</a>
+                        <li role="presentation"><a href="#svg-io" aria-controls="svg-io" role="tab" data-toggle="tab">SVG</a>
                         </li>
                     </ul>
 
                     <!-- Tab panes -->
                     <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane active" id="svg-io">
-                            <textarea id="svg-io-textarea"></textarea>
-                        </div>
-                        <div role="tabpanel" class="tab-pane" id="spec-io">
+                        <div role="tabpanel" class="tab-pane active" id="spec-io">
+                            <p>
+                                <button id="spec-io-reload" type="button" class="btn btn-primary btn-sm">
+                                    Reload <span class="glyphicon glyphicon-floppy-open" aria-hidden="true"></span>
+                                </button>
+                                <button id="spec-io-clear" type="button" class="btn btn-default btn-sm">
+                                    Clear <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                </button>
+                            </p>
                             <textarea id="spec-io-textarea"></textarea>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="svg-io">
+                            <textarea id="svg-io-textarea"></textarea>
                         </div>
                     </div>
 
                 </div>
             </div>
             <div id="render"></div>
-            <div id="context"></div>
+            <div id="env"></div>
         </div>
     </div>
 
@@ -78,6 +87,14 @@
         </div>
     </script>
 
+    <script type="text/template" id="params-textarea-item-template">
+        <div class="row">
+            <div class="form-group col-xs-10 col-lg-10 form-group-sm">
+                <textarea class="cm-control"></textarea>
+            </div>
+        </div>
+    </script>
+
     <script type="text/template" id="composition-stage-template">
         <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width=<%=win_w%> height=
             <%=win_h %> viewBox=
@@ -85,43 +102,47 @@
     </script>
     <!-- JS -->
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/json2/20140204/json2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/1.2.0/math.js"></script>
     <!-- CodeMirror -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/codemirror.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/mode/xml/xml.js"></script>
-    <scrip src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/mode/javascript/javascript.js">
-        </script>
-        <!--D3-->
-        <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-        <!-- Underscore -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
-        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.12/jquery.mousewheel.js"></script>
-        <!-- Bootsrtap -->
-        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-        <!-- Backbone -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.1.15/backbone.localStorage.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/mode/javascript/javascript.js">
+    </script>
+    <!--D3-->
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <!-- Underscore -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.12/jquery.mousewheel.js"></script>
+    <!-- Bootsrtap -->
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.0.1/js/bootstrap-colorpicker.js"></script>
+    <!-- Backbone -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.1.15/backbone.localStorage.js"></script>
 
-        <script src="/skewer"></script>
+    <script src="/skewer"></script>
 
-        <script src="bloqsnet.js"></script>
+    <script src="bloqsnet.js"></script>
 
-        <script src="js/model/src-bloq.js"></script>
-        <script src="js/model/composition-bloq.js"></script>
-        <!-- -->
-        <script src="js/collections/src-bloqs.js"></script>
-        <script src="js/collections/composition-bloqs.js"></script>
-        <!-- -->
-        <script src="js/views/composition-view.js"></script>
-        <script src="js/views/params-view.js"></script>
-        <script src="js/views/render-view.js"></script>
-        <script src="js/views/svg-io-view.js"></script>
-        <script src="js/views/spec-io-view.js"></script>
-        <!-- -->
-        <script src="js/views/app-view.js"></script>
-        <!-- -->
-        <script src="js/app.js"></script>
+    <script src="js/model/src-bloq.js"></script>
+    <script src="js/model/composition-bloq.js"></script>
+    <!-- -->
+    <script src="js/collections/src-bloqs.js"></script>
+    <script src="js/collections/composition-bloqs.js"></script>
+    <!-- -->
+    <script src="js/views/composition-view.js"></script>
+    <script src="js/views/params-view.js"></script>
+    <script src="js/views/render-view.js"></script>
+    <script src="js/views/spec-io-view.js"></script>
+    <script src="js/views/svg-io-view.js"></script>
+    <script src="js/views/env-view.js"></script>
+    <!-- -->
+    <script src="js/views/app-view.js"></script>
+    <!-- -->
+    <script src="js/app.js"></script>
 
 </body>
 

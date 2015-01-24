@@ -26,12 +26,20 @@ var app = app || {};
                 lineWrapping: true
             });
 
+            var that = this;
+            this.$("#spec-io-reload").on('click', function() {
+                app.CompositionBloqs.reload(JSON.parse(that.textarea.getValue()));
+            });
+
+            //this.$("#spec-io-clear").on("click", function() {
+            //     console.log("clear");
+            // });
+
         },
 
         bloqSelection: function(id) {
 
             this.clear();
-
             if (id !== undefined) {
                 this.currId = id;
 

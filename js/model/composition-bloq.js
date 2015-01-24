@@ -6,26 +6,60 @@ var app = app || {};
 
     app.CompositionBloq = Backbone.Model.extend({
 
-        addConnection: function(side, idx, v, silent) {
+        _resetTerminalsSide: function(side, silent) {
 
             silent = silent || false;
 
             var terms = _.clone(this.get(side));
-            terms[idx] = v;
+            var card = bloqsnet.REGISTRY[this.get("type")].def[side];
             var temp = {};
 
-            var card = bloqsnet.REGISTRY[this.get("type")].def[side];
             if (card[1] === "n") {
-                //console.log(terms);
                 terms = _.without(terms, "x");
                 terms.push("x");
-                // console.log(terms);
             }
 
             temp[side] = terms;
+
             this.set(temp, {
                 silent: silent
             });
+
+        },
+
+        _updateTerminal: function(side, idx, v, silent) {
+
+            silent = silent || false;
+
+            var terms = _.clone(this.get(side));
+            var temp = {};
+
+            terms[idx] = v;
+            temp[side] = terms;
+
+            this.set(temp, {
+                silent: silent
+            });
+
+        },
+
+        ////////////////////////////////////////////////////////////////////////
+
+        resetTerminals: function(silent) {
+
+            silent = silent || false;
+
+            this._resetTerminalsSide("c", true);
+            this._resetTerminalsSide("p", silent);
+
+        },
+
+        addConnection: function(side, idx, v, silent) {
+
+            silent = silent || false;
+
+            this._updateTerminal(side, idx, v, true);
+            this._resetTerminalsSide(side, silent);
 
         },
 
@@ -33,13 +67,7 @@ var app = app || {};
 
             silent = silent || false;
 
-            var terms = _.clone(this.get(side));
-            terms[idx] = "x";
-            var temp = {};
-            temp[side] = terms;
-            this.set(temp, {
-                silent: silent
-            });
+            this._updateTerminal(side, idx, "x", silent);
 
         }
 

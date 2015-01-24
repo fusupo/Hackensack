@@ -41,6 +41,9 @@ var app = app || {};
 
             this.setupD3();
 
+            app.CompositionBloqs.on("all", function(f) {
+                console.log(f);
+            });
         },
 
         setupD3: function() {
@@ -216,7 +219,6 @@ var app = app || {};
                     };
                 })
                 .on("dragstart", function(d) {
-                    console.log(d);
                     that.setBloqSelection(this);
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
                 })
@@ -307,11 +309,12 @@ var app = app || {};
                 .on("dragend", function(d, e, f) {
                     var mouse_pos = d3.mouse(that.stage_right[0][0]);
                     that.mouseLine = undefined;
-                    that.redraw();
                     var hit = that.hitTestTerms(mouse_pos);
                     if (hit !== undefined) {
                         app.CompositionBloqs.addConnection(mouse_terms[0], hit);
                     }
+                    app.CompositionBloqs.refreshTerminals();
+                    that.redraw();
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
                 });
         },
@@ -374,7 +377,6 @@ var app = app || {};
         },
 
         plotdata: function() {
-            console.log('lines data');
             var data = [];
             this.compositionBloqs.forEach(function(datapoint) {
                 data.push({
@@ -517,7 +519,7 @@ var app = app || {};
             var r = d3.select('#composition-bloqs-group')
                 .selectAll('.composition_bloq')
                 .data(data, function(d) {
-                    return d.id;
+                    return d.id + d.p.concat(d.c).join();
                 });
 
             var g = r.enter().append("svg:g")
@@ -565,24 +567,6 @@ var app = app || {};
 
         //  RENDER HELPERS  //
 
-        d3Bloq: function(sel, w, h) {
-            this.d3DropShadow(sel, w, h);
-            this.d3Face(sel, w, h);
-        },
-
-        d3CloseButt: function(sel, x, y) {
-            // sel is presumably <g>
-            var g = sel.append("svg:g")
-                .attr("transform", "translate(" + x + ", " + y + ")");
-            g.append("svg:rect")
-                .attr({
-                    "width": 10,
-                    "height": 10,
-                    "fill": "#cccccc"
-                })
-                .call(this.closeButtBehavior());
-        },
-
         d3DropShadow: function(sel, w, h) {
 
             sel.append("svg:rect")
@@ -611,6 +595,24 @@ var app = app || {};
 
         },
 
+        d3Bloq: function(sel, w, h) {
+            this.d3DropShadow(sel, w, h);
+            this.d3Face(sel, w, h);
+        },
+
+        d3CloseButt: function(sel, x, y) {
+            // sel is presumably <g>
+            var g = sel.append("svg:g")
+                .attr("transform", "translate(" + x + ", " + y + ")");
+            g.append("svg:rect")
+                .attr({
+                    "width": 10,
+                    "height": 10,
+                    "fill": "#cccccc"
+                })
+                .call(this.closeButtBehavior());
+        },
+
         d3Terminals: function(sel, side, x) {
 
             var t = sel.append("svg:g")
@@ -622,7 +624,6 @@ var app = app || {};
             var u = t.selectAll('.term')
                 .data(function(d) {
                     return _.map(d[side], function(u, idx) {
-                        console.log('oo');
                         return [d.id, side, idx];
                     });
                 });

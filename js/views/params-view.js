@@ -19,11 +19,13 @@ var app = app || {};
 
             this.paramsContainerTpl = _.template($('#params-container-template').html());
             this.paramsItemTpl = _.template($('#params-item-template').html());
+            this.paramsTextAreaItemTpl = _.template($('#params-textarea-item-template').html());
 
             this.currBloqModel = undefined;
 
             this.listenTo(app.CompositionView, 'bloqSelection', this.bloqSelection);
 
+            this.checkColor = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i;
         },
 
         update: function(e) {
@@ -59,34 +61,119 @@ var app = app || {};
             var container = $(this.paramsContainerTpl({}));
 
             _.each(params, function(p) {
-                var item = $(this.paramsItemTpl({
-                    label: p[0],
-                    val: this.currBloqModel.get("params")[p[0]]
-                })).bind("input", (function(e) {
-                    that.tryUpdateParam(p[0], e.target.value, p[1]);
-                })).on('mousewheel', function(e) {
-                    if (p[1] === "number") {
-                        e.target.value = e.target.value - e.deltaY;
-                        that.tryUpdateParam(p[0], e.target.value, p[1]);
-                    };
-                });
+                var item;
+
+                switch (p[1]) {
+                    case "number":
+                        item = $(this.paramsItemTpl({
+                            label: p[0],
+                            val: this.currBloqModel.get("params")[p[0]]
+                        })).bind("input", (function(e) {
+                            that.tryUpdateParamNumber(p[0], e.target.value, p[1]);
+                        })).on('mousewheel', function(e) {
+                            var raw_val = e.target.value;
+                            var val;
+                            if (typeof(raw_val) === "string" && raw_val.slice(-1) === "%") {
+                                val = raw_val.slice(0, -1);
+                                if (!isNaN(val)) {
+                                    val = parseFloat(val);
+                                    e.target.value = (val + e.deltaY) + "%";
+                                }
+                            } else if (!isNaN(raw_val)) {
+                                e.target.value = parseFloat(raw_val) + e.deltaY;
+                            }
+                            that.tryUpdateParamNumber(p[0], e.target.value, p[1]);
+                        });
+
+                        break;
+                    case "color":
+                        item = $(this.paramsItemTpl({
+                            label: p[0],
+                            val: this.currBloqModel.get("params")[p[0]]
+                        })).colorpicker().on('changeColor', function(ev) {
+                            that.tryUpdateParamColor(p[0], ev.color.toHex(), p[1]);
+                        });
+                        break;
+                    case "string":
+                        item = $(this.paramsItemTpl({
+                            label: p[0],
+                            val: this.currBloqModel.get("params")[p[0]]
+                        })).bind("input", function(e) {
+                            that.tryUpdateParamString(p[0], e.target.value, p[1]);
+                        });
+                        break;
+                    case "json":
+                        item = $(this.paramsTextAreaItemTpl({
+                            label: p[0],
+                            val: this.currBloqModel.get("params")[p[0]]
+                        }));
+                        console.log(this.currBloqModel.get("params")[p[0]]);
+                        var wtf = CodeMirror.fromTextArea(item.find(".cm-control")[0], {
+                            lineNumbers: true,
+                            matchBrackets: true,
+                            tabMode: "indent",
+                            mode: {
+                                name: "javascript",
+                                json: true
+                            },
+                            lineWrapping: true
+                        });
+                        wtf.on("change", function(instance, changeObj) {
+                            that.tryUpdateParamJSON(p[0], instance.getValue(), p[1]);
+                        });
+                        wtf.doc.setValue(this.currBloqModel.get("params")[p[0]]);
+                        wtf.setSize("100%", 200);
+                        setTimeout(function() {
+                            wtf.refresh();
+                        }, 1);
+                        break;
+                }
 
                 $(container).append(item);
+
             }, this);
 
             this.$el.append(container);
 
         },
 
-        tryUpdateParam: function(id, val) {
-            var p = _.clone(this.currBloqModel.get('params'));
+        commitUpdateParam: function(id, val) {
 
-            // validate!
-            p[id] = val;
+            var didUpdate = app.CompositionBloqs.updateParam(this.currBloqModel.get('id'), id, val);
 
-            this.currBloqModel.set({
-                params: p
-            });
+            if (didUpdate) {
+                var p = _.clone(this.currBloqModel.get('params'));
+                p[id] = val;
+
+                this.currBloqModel.set({
+                    params: p
+                });
+            }
+        },
+
+        tryUpdateParamNumber: function(id, val) {
+            //if (!isNaN(val)) {
+            this.commitUpdateParam(id, val);
+            //};
+        },
+
+        tryUpdateParamColor: function(id, val) {
+
+            //                            if (this.checkColor.test(val)) {
+            this.commitUpdateParam(id, val);
+            //}
+
+        },
+
+        tryUpdateParamString: function(id, val) {
+
+            this.commitUpdateParam(id, val);
+
+        },
+
+        tryUpdateParamJSON: function(id, val) {
+
+            this.commitUpdateParam(id, val);
 
         }
 

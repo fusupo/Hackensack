@@ -20,10 +20,6 @@ var app = app || {};
                 });
             }));
 
-            app.CompositionBloqs.reset(_.map(bloqsnet.TEST_DATA.bloqs, function(v, k) {
-                return new app.CompositionBloq(v);
-            }));
-
         }
 
     });

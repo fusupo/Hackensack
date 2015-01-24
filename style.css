@@ -1,4 +1,13 @@
 @import url(http://fonts.googleapis.com/css?family=Lobster);
+.CodeMirror {
+    border: 1px solid #eee;
+    height: auto;
+}
+.CodeMirror-scroll {
+    height: auto;
+    overflow-y: hidden;
+    overflow-x: auto;
+}
 html,
 body {
     height: 100%;
@@ -70,7 +79,7 @@ svg {
     flex: 1;
     background-color: #2f4f4f;
 }
-#context {
+#env {
     flex: 1;
     background-color: #708090;
 }
