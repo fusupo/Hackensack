@@ -123,23 +123,6 @@ var Base = function(spec){
 
     //
     
-    this.render_svg = function () {
-        var xxx = this.get_svg();
-        if(spec.children.length > 0) {
-            var g = document.createElementNS (bloqsnet.svgNS, "g");
-            for (var i = 0; i < spec.children.length; i++) {
-                var child = spec.children[i];
-                if(child !== "x"){
-                    g.appendChild(spec.children[i].render_svg());
-                }
-            }
-            xxx. appendChild (g);
-        }     
-        return xxx;
-    };
-
-    //
-    
     this.getParentNode = function(){
         return spec.parent;
     };
@@ -201,8 +184,6 @@ var Base = function(spec){
     
 };
 
-Base.prototype.get_svg = function () {};
-
 Base.prototype.updateLocalEnvironment = function(){};
 
 Base.prototype.def = {
@@ -214,11 +195,49 @@ bloqsnet.REGISTRY["base"] = Base;
 
 ////////////////////////////////////////
 
-var Root = function(spec){
-    spec.type = "root";
+var SVG_Proto = function(spec){
+    spec.type = spec.type || "svg_proto";
     Base.call(this, spec);
 };
-Root.prototype = Object.create(Base.prototype); // See note below
+SVG_Proto.prototype = Object.create(Base.prototype);
+SVG_Proto.prototype.constructor = SVG_Proto;
+
+SVG_Proto.prototype.render_svg = function () {
+    var xxx = this.get_svg();
+    if(this.spec.children.length > 0) {
+        var g = document.createElementNS (bloqsnet.svgNS, "g");
+        for (var i = 0; i < this.spec.children.length; i++) {
+            var child = this.spec.children[i];
+            if(child !== "x"){
+                g.appendChild(this.spec.children[i].render_svg());
+            }
+        }
+        xxx. appendChild (g);
+    }     
+    return xxx;
+};
+
+SVG_Proto.prototype.get_svg = function () {};
+
+SVG_Proto.prototype.def = {
+    display: false,
+    type: 'svg_proto'
+    // params: [["width", "number", "100%"],
+    //          ["height", "number", "100%"],
+    //          ["data", "json", "{}"]],
+    //p: [0, 0],
+    //c: [1, "n"]
+};
+
+bloqsnet.REGISTRY["svg_proto"] = SVG_Proto;
+
+////////////////////////////////////////
+
+var Root = function(spec){
+    spec.type = "root";
+    SVG_Proto.call(this, spec);
+};
+Root.prototype = Object.create(SVG_Proto.prototype); // See note below
 Root.prototype.constructor = Root;
 
 Root.prototype.updateLocalEnvironment = function(){
@@ -254,9 +273,9 @@ var Shape;
 
 var Rect = function(spec){
     spec.type = "rect";
-    Base.call(this, spec);
+    SVG_Proto.call(this, spec);
 };
-Rect.prototype = Object.create(Base.prototype);
+Rect.prototype = Object.create(SVG_Proto.prototype);
 Rect.prototype.constructor = Rect;
 
 Rect.prototype.get_svg = function(){
