@@ -11,7 +11,7 @@ var app = app || {};
             silent = silent || false;
 
             var terms = _.clone(this.get(side));
-            var card = bloqsnet.REGISTRY[this.get("type")].def[side];
+            var card = bloqsnet.REGISTRY[this.get("type")].prototype.def[side];
             var temp = {};
 
             if (card[1] === "n") {

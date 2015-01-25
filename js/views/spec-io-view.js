@@ -67,6 +67,11 @@ var app = app || {};
             var str = JSON.stringify(app.CompositionBloqs.toJSON());
             this.textarea.setValue(str);
 
+            var that = this;
+            setTimeout(function() {
+                that.textarea.refresh();
+            }, 1);
+
         }
 
     });

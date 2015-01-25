@@ -48,7 +48,7 @@ var Base = function(spec){
     };
 
     this.solveParams = function(){
-        var params_def = bloqsnet.REGISTRY[spec.type].def.params;
+        var params_def = bloqsnet.REGISTRY[spec.type].prototype.def.params;
         var res = {};
         _.each(params_def, function(p_def){
             var expr =  spec[p_def[0]];
@@ -77,7 +77,7 @@ var Base = function(spec){
 
     this.updateParam = function (p_name, val){
         var success = false;
-        var p = _.findWhere(bloqsnet.REGISTRY[spec.type].def.params, {0: p_name});
+        var p = _.findWhere(bloqsnet.REGISTRY[spec.type].prototype.def.params, {0: p_name});
         switch(p[1]){
         case "number":
             var res;
@@ -124,7 +124,6 @@ var Base = function(spec){
     //
     
     this.render_svg = function () {
-        
         var xxx = this.get_svg();
         if(spec.children.length > 0) {
             var g = document.createElementNS (bloqsnet.svgNS, "g");
@@ -166,7 +165,7 @@ var Base = function(spec){
     };
 
     this.resetTerminals = function () {
-        var card = bloqsnet.REGISTRY[spec.type].def["c"];
+        var card = bloqsnet.REGISTRY[spec.type].prototype.def["c"];
         var temp = {};
 
         if (card[1] === "n") {
@@ -203,13 +202,15 @@ var Base = function(spec){
 };
 
 Base.prototype.get_svg = function () {};
+
 Base.prototype.updateLocalEnvironment = function(){};
 
-bloqsnet.REGISTRY["base"] = {
-    def: {},
-    func: Base
+Base.prototype.def = {
+    display: false,
+    type: 'base'
 };
-bloqsnet.MANIFEST.push("base");
+
+bloqsnet.REGISTRY["base"] = Base;
 
 ////////////////////////////////////////
 
@@ -233,17 +234,21 @@ Root.prototype.get_svg = function () {
     return svg_elem;
 };
 
-bloqsnet.REGISTRY["root"] = {
-    def:{
-        params: [["width", "number", "100%"],
-                 ["height", "number", "100%"],
-                 ["data", "json", "{}"]],
-        p: [0, 0],
-        c: [1, "n"]
-    },
-    func: Root
+Root.prototype.def = {
+    display: true,
+    type: 'root',
+    params: [["width", "number", "100%"],
+             ["height", "number", "100%"],
+             ["data", "json", "{}"]],
+    p: [0, 0],
+    c: [1, "n"]
 };
-bloqsnet.MANIFEST.push("root");
+
+bloqsnet.REGISTRY["root"] = Root;
+
+////////////////////////////////////////
+
+var Shape;
 
 ////////////////////////////////////////
 
@@ -260,30 +265,36 @@ Rect.prototype.get_svg = function(){
     rect_elm.setAttribute("width", solution.width);
     rect_elm.setAttribute("height", solution.height);
     rect_elm.setAttribute("x", solution.x);
-    rect_elm.setAttribute("y", solution.y);
+    rect_elm.setAttribute("y", solution.y);;
+    rect_elm.setAttribute("rx", solution.rx);
+    rect_elm.setAttribute("ry", solution.ry);
     rect_elm.setAttribute("fill", solution.fill);
+    rect_elm.setAttribute("transform", solution.transform);
     return rect_elm;
 };
 
-bloqsnet.REGISTRY["rect"] = {
-    def:{
-        params: [["x", "number", 0],
-                 ["y", "number", 0],
-                 ["width", "number", 10],
-                 ["height", "number", 10],
-                 ["fill", "color", "#ff0000"]],
-        p: [1, 1],
-        c: [0, 0]
-    },
-    func: Rect
+Rect.prototype.def = {
+    display: true,
+    type: 'rect',
+    params: [["x", "number", 0],
+             ["y", "number", 0],
+             ["width", "number", 10],
+             ["height", "number", 10],
+             ["rx", "number", 0],
+             ["ry", "number", 0],
+             ["fill", "color", "#ffffff"],
+             ["transform", "string", "translate(0,0)"]],
+    p: [1, 1],
+    c: [0, 0]
 };
-bloqsnet.MANIFEST.push("rect");
+
+bloqsnet.REGISTRY["rect"] = Rect;
 
 ////////////////////////////////////////
 
 // bloqsnet.MANIFEST.push("circle");
 // bloqsnet.REGISTRY["circle"] = {
-    
+
 //     def: {
 //         params: [["cx", "number", 0],
 //                  ["cy", "number", 0],
@@ -292,11 +303,11 @@ bloqsnet.MANIFEST.push("rect");
 //         p: [1, 1],
 //         c: [0, 0]
 //     },
-    
+
 //     func: function (spec) {
-        
+
 //         spec.type = 'circle';
-        
+
 //         var that = bloqsnet.REGISTRY["base"].func(spec);
 
 //         that.get_svg = function () {
@@ -310,16 +321,16 @@ bloqsnet.MANIFEST.push("rect");
 //         };
 
 //         return that;
-        
+
 //     }
-    
+
 // };
 
 ////////////////////////////////////////
 
 // bloqsnet.MANIFEST.push("text");
 // bloqsnet.REGISTRY["text"] = {
-    
+
 //     def:{
 //         params: [["x", "number", 50],
 //                  ["y", "number", 50],
@@ -328,15 +339,15 @@ bloqsnet.MANIFEST.push("rect");
 //         p: [1, 1],
 //         c: [0, 0]
 //     },
-    
+
 //     func: function (spec) {
-        
+
 //         spec.type = 'text';
 
 //         var that = bloqsnet.REGISTRY["base"].func(spec);
 
 //         spec.font = "Lobster";
-        
+
 //         that.get_svg = function () {
 //             var solution = that.solveParams();
 //             var text_elm = document.createElementNS(bloqsnet.svgNS, "text");
@@ -349,16 +360,16 @@ bloqsnet.MANIFEST.push("rect");
 //         };
 
 //         return that;
-        
+
 //     }
-    
+
 // };
 
 ////////////////////////////////////////
 
 // bloqsnet.MANIFEST.push("image");
 // bloqsnet.REGISTRY["image"] = {
-    
+
 //     def:{
 //         params: [["x", "number", 0],
 //                  ["y", "number", 0],
@@ -369,9 +380,9 @@ bloqsnet.MANIFEST.push("rect");
 //         p: [1, 1],
 //         c: [0, 0]
 //     },
-    
+
 //     func: function (spec) {
-        
+
 //         spec.type = 'image';
 
 //         var that = bloqsnet.REGISTRY["base"].func(spec);
@@ -391,7 +402,7 @@ bloqsnet.MANIFEST.push("rect");
 
 //         return that;
 //     }
-    
+
 // };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -400,7 +411,7 @@ bloqsnet.create = function(data, id) {
 
     
     var r = data[id];
-    var inst = bloqsnet.REGISTRY[r.type].func(_.clone(r.params));
+    var inst = bloqsnet.REGISTRY[r.type](_.clone(r.params));
     _.each(r.c, function(child){
         if(child !== "x"){
             inst.addChild(bloqsnet.create(data, child));
@@ -421,7 +432,7 @@ bloqsnet.gimmeTheThing = function(){
         add: function(spec){
             var params = _.clone(spec.params);
             params.id = spec.id;
-            this.insts[spec.id] = new bloqsnet.REGISTRY[spec.type].func(params);
+            this.insts[spec.id] = new bloqsnet.REGISTRY[spec.type](params);
             return this.insts[spec.id];
         },
         rem: function(id){
@@ -474,7 +485,7 @@ bloqsnet.gimmeTheThing = function(){
             _.each(data, function(d){
                 var params = _.clone(d.params);
                 params.id = d.id;
-                var t_inst = new bloqsnet.REGISTRY[d.type].func(params);
+                var t_inst = new bloqsnet.REGISTRY[d.type](params);
                 this.insts[d.id] = t_inst;
             }, this);
             

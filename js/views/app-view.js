@@ -13,10 +13,13 @@ var app = app || {};
 
             console.log('APP VIEW INIT');
 
-            app.SrcBloqs.reset(_.map(bloqsnet.MANIFEST, function(v, k) {
+
+            app.SrcBloqs.reset(_.map(_.filter(bloqsnet.REGISTRY, function(r) {
+                return r.prototype.def.display;
+            }), function(v, k) {
                 return new app.SrcBloq({
                     idx: k,
-                    type: v
+                    type: v.prototype.def.type
                 });
             }));
 

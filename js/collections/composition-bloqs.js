@@ -44,7 +44,7 @@ var app = app || {};
 
         newBloq: function(type, pos) {
 
-            var def = bloqsnet.REGISTRY[type].def;
+            var def = bloqsnet.REGISTRY[type].prototype.def;
             var bloq_spec = {
                 id: _.uniqueId('b'),
                 type: type,

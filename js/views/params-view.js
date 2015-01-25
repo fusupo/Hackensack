@@ -41,7 +41,7 @@ var app = app || {};
 
                 if (id !== undefined) {
                     var bm = this.currBloqModel = app.CompositionBloqs.get(id);
-                    this.setParams(bloqsnet.REGISTRY[bm.get("type")].def.params);
+                    this.setParams(bloqsnet.REGISTRY[bm.get("type")].prototype.def.params);
                 } else {
                     this.currBloqModel = undefined;
                 }
