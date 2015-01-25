@@ -70,22 +70,22 @@
     <!-- Templates -->
 
     <script type="text/template" id="params-container-template">
-        <form class="form">
-        </form>
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        </div>
     </script>
 
     <script type="text/template" id="params-group-template">
         <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="headingOne">
+            <div class="panel-heading" role="tab" id="heading-<%=groupName %>">
                 <h4 class="panel-title">
-                  <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                    Collapsible Group Item #1
+                  <a <%=collapsed %> data-toggle="collapse" data-parent="#accordion" href="#collapse-<%=groupName %>" aria-expanded="<%=expanded %>" aria-controls="collapse-<%=groupName %>">
+                    <%=groupName %>
                   </a>
                 </h4>
             </div>
-            <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+            <div id="collapse-<%=groupName %>" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading-<%=groupName %>">
                 <div class="panel-body">
-                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+                    <form class="form"></form>
                 </div>
             </div>
         </div>
@@ -93,7 +93,7 @@
 
     <script type="text/template" id="params-item-template">
         <div class="row">
-            <div class="form-group col-xs-8 col-lg-8 form-group-sm">
+            <div class="form-group col-xs-10 col-lg-10 form-group-sm">
                 <div class="input-group">
                     <div class="input-group-addon">
                         <%=label %>
@@ -123,7 +123,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/1.2.0/math.js"></script>
     <!-- CodeMirror -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/codemirror.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/mode/xml/xml.js"></script>
+    <script src="https://cdnjs.c
+loudflare.com/ajax/libs/codemirror/4.11.0/mode/xml/xml.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/mode/javascript/javascript.js">
     </script>
     <!--D3-->

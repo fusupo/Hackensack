@@ -26,17 +26,18 @@ var app = app || {};
 
         update: function(id) {
             this.clear();
-            var env = app.CompositionBloqs.vm.get(id).getEnvironment();
-            console.log(env);
-            _.each(env, function(ctx) {
-                var gr = $('<div></div>');
-                gr.attr("style", 'border: 1px solid red;');
-                _.each(ctx, function(v, k, l) {
-                    var xxx = $("<div></div>").text(k + " : " + v);
-                    gr.append(xxx);
-                });
-                this.$el.append(gr);
-            }, this);
+            if (id != undefined) {
+                var env = app.CompositionBloqs.vm.get(id).getEnvironment();
+                _.each(env, function(ctx) {
+                    var gr = $('<div></div>');
+                    gr.attr("style", 'border: 1px solid red;');
+                    _.each(ctx, function(v, k, l) {
+                        var xxx = $("<div></div>").text(k + " : " + v);
+                        gr.append(xxx);
+                    });
+                    this.$el.append(gr);
+                }, this);
+            }
         },
 
         change: function(obj) {

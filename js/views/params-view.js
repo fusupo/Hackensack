@@ -18,6 +18,7 @@ var app = app || {};
             console.log('PARAMS VIEW INIT');
 
             this.paramsContainerTpl = _.template($('#params-container-template').html());
+            this.paramsGroupTpl = _.template($('#params-group-template').html());
             this.paramsItemTpl = _.template($('#params-item-template').html());
             this.paramsTextAreaItemTpl = _.template($('#params-textarea-item-template').html());
 
@@ -60,76 +61,92 @@ var app = app || {};
             var that = this;
             var container = $(this.paramsContainerTpl({}));
 
-            _.each(params, function(p) {
-                var item;
+            var groups = _.groupBy(params, function(p) {
+                return p[3];
+            });
 
-                switch (p[1]) {
-                    case "number":
-                        item = $(this.paramsItemTpl({
-                            label: p[0],
-                            val: this.currBloqModel.get("params")[p[0]]
-                        })).bind("input", (function(e) {
-                            that.tryUpdateParamNumber(p[0], e.target.value, p[1]);
-                        })).on('mousewheel', function(e) {
-                            var raw_val = e.target.value;
-                            var val;
-                            if (typeof(raw_val) === "string" && raw_val.slice(-1) === "%") {
-                                val = raw_val.slice(0, -1);
-                                if (!isNaN(val)) {
-                                    val = parseFloat(val);
-                                    e.target.value = (val + e.deltaY) + "%";
+            _.each(groups, function(g, k) {
+                var g_elm = $(this.paramsGroupTpl({
+                    groupName: k.replace(/ /g, "-"),
+                    expanded: "false", //k === "specific attributes" ? true : false,
+                    collapsed: "" //k === "specific attributes" ? "" : 'class="collapsed"'
+                }));
+
+                _.each(g, function(p) {
+                    var item;
+
+                    switch (p[1]) {
+                        case "number":
+                            item = $(this.paramsItemTpl({
+                                label: p[0],
+                                val: this.currBloqModel.get("params")[p[0]]
+                            })).bind("input", (function(e) {
+                                that.tryUpdateParamNumber(p[0], e.target.value, p[1]);
+                            }));
+
+                            item.find(".form-control").on('mousewheel', function(e) {
+                                var raw_val = e.target.value;
+                                var val;
+                                if (typeof(raw_val) === "string" && raw_val.slice(-1) === "%") {
+                                    val = raw_val.slice(0, -1);
+                                    if (!isNaN(val)) {
+                                        val = parseFloat(val);
+                                        e.target.value = (val + e.deltaY) + "%";
+                                    }
+                                } else if (!isNaN(raw_val)) {
+                                    e.target.value = parseFloat(raw_val) + e.deltaY;
                                 }
-                            } else if (!isNaN(raw_val)) {
-                                e.target.value = parseFloat(raw_val) + e.deltaY;
-                            }
-                            that.tryUpdateParamNumber(p[0], e.target.value, p[1]);
-                        });
+                                that.tryUpdateParamNumber(p[0], e.target.value, p[1]);
+                                return false;
+                            });
 
-                        break;
-                    case "color":
-                        item = $(this.paramsItemTpl({
-                            label: p[0],
-                            val: this.currBloqModel.get("params")[p[0]]
-                        })).colorpicker().on('changeColor', function(ev) {
-                            that.tryUpdateParamColor(p[0], ev.color.toHex(), p[1]);
-                        });
-                        break;
-                    case "string":
-                        item = $(this.paramsItemTpl({
-                            label: p[0],
-                            val: this.currBloqModel.get("params")[p[0]]
-                        })).bind("input", function(e) {
-                            that.tryUpdateParamString(p[0], e.target.value, p[1]);
-                        });
-                        break;
-                    case "json":
-                        item = $(this.paramsTextAreaItemTpl({
-                            label: p[0],
-                            val: this.currBloqModel.get("params")[p[0]]
-                        }));
-                        console.log(this.currBloqModel.get("params")[p[0]]);
-                        var wtf = CodeMirror.fromTextArea(item.find(".cm-control")[0], {
-                            lineNumbers: true,
-                            matchBrackets: true,
-                            tabMode: "indent",
-                            mode: {
-                                name: "javascript",
-                                json: true
-                            },
-                            lineWrapping: true
-                        });
-                        wtf.on("change", function(instance, changeObj) {
-                            that.tryUpdateParamJSON(p[0], instance.getValue(), p[1]);
-                        });
-                        wtf.doc.setValue(this.currBloqModel.get("params")[p[0]]);
-                        wtf.setSize("100%", 200);
-                        setTimeout(function() {
-                            wtf.refresh();
-                        }, 1);
-                        break;
-                }
+                            break;
+                        case "color":
+                            item = $(this.paramsItemTpl({
+                                label: p[0],
+                                val: this.currBloqModel.get("params")[p[0]]
+                            })).colorpicker().on('changeColor', function(ev) {
+                                that.tryUpdateParamColor(p[0], ev.color.toHex(), p[1]);
+                            });
+                            break;
+                        case "string":
+                            item = $(this.paramsItemTpl({
+                                label: p[0],
+                                val: this.currBloqModel.get("params")[p[0]]
+                            })).bind("input", function(e) {
+                                that.tryUpdateParamString(p[0], e.target.value, p[1]);
+                            });
+                            break;
+                        case "json":
+                            item = $(this.paramsTextAreaItemTpl({
+                                label: p[0],
+                                val: this.currBloqModel.get("params")[p[0]]
+                            }));
+                            var wtf = CodeMirror.fromTextArea(item.find(".cm-control")[0], {
+                                lineNumbers: true,
+                                matchBrackets: true,
+                                tabMode: "indent",
+                                mode: {
+                                    name: "javascript",
+                                    json: true
+                                },
+                                lineWrapping: true
+                            });
+                            wtf.on("change", function(instance, changeObj) {
+                                that.tryUpdateParamJSON(p[0], instance.getValue(), p[1]);
+                            });
+                            wtf.doc.setValue(this.currBloqModel.get("params")[p[0]]);
+                            wtf.setSize("100%", 200);
+                            setTimeout(function() {
+                                wtf.refresh();
+                            }, 1);
+                            break;
+                    }
 
-                $(container).append(item);
+                    $(g_elm).find(".panel-body .form").append(item);
+
+                }, this);
+                $(container).append(g_elm);
 
             }, this);
 

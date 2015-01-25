@@ -164,11 +164,9 @@ var app = app || {};
 
             return d3.behavior.drag()
                 .on("dragstart", function(d) {
-                    console.log("dragstart");
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
                 })
                 .on("drag", function(d) {
-                    console.log("drag");
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
                     //that.manifestOnDrag(d, d3.event);
                     if (that.tempSrcBloq === null || that.tempSrcBloq === undefined) {

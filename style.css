@@ -49,6 +49,7 @@ svg {
     order: 1;
     flex: 1;
     background-color: #bebebe;
+    height: 0px;
 }
 .row-B {
     display: flex;
@@ -78,6 +79,8 @@ svg {
 #params {
     flex: 1;
     background-color: #2f4f4f;
+    overflow-y: scroll;
+    min-height: 100px;
 }
 #env {
     flex: 1;

@@ -158,8 +158,6 @@ var Base = function(spec){
         
     };
 
-    //
-    
     this.setLocalEnvironment = function(data){
         spec.local_env = data;
         spec.env = [spec.local_env];
@@ -198,6 +196,20 @@ bloqsnet.REGISTRY["base"] = Base;
 var SVG_Proto = function(spec){
     spec.type = spec.type || "svg_proto";
     Base.call(this, spec);
+
+    var that = this;
+    
+    var setAttribute = function(svg_elm, key, val){
+        if(val !== ""){
+            svg_elm.setAttribute(key, val);
+        }
+    };
+
+    this.setAttributes = function(svg_elem, attrs){
+        _.each(attrs, function(attr, k, l){
+            setAttribute(svg_elem, k, attr);
+        });
+    };
 };
 SVG_Proto.prototype = Object.create(Base.prototype);
 SVG_Proto.prototype.constructor = SVG_Proto;
@@ -222,14 +234,150 @@ SVG_Proto.prototype.get_svg = function () {};
 SVG_Proto.prototype.def = {
     display: false,
     type: 'svg_proto'
-    // params: [["width", "number", "100%"],
-    //          ["height", "number", "100%"],
-    //          ["data", "json", "{}"]],
-    //p: [0, 0],
-    //c: [1, "n"]
 };
 
 bloqsnet.REGISTRY["svg_proto"] = SVG_Proto;
+
+////////////////////////////////////////
+
+var svg_conditional_processing_attributes = [
+    ["requiredExtensions", "string", "", "svg conditional processing attributes"],
+    ["requiredFeatures", "string", "", "svg conditional processing attributes"],
+    ["systemLanguage", "string", "", "svg conditional processing attributes"]
+];
+
+var svg_core_attributes = [
+    ["id", "string", "", "svg core attributes"],
+    ["xml:base", "string", "", "svg core attributes"],
+    ["xml:lang", "string", "", "svg core attributes"],
+    ["xml:space", "string", "", "svg core attributes"],    
+];
+
+
+////////////////////////////////////////
+
+var SVG_svg = function(spec){
+    spec.type = "svg_svg";
+    SVG_Proto.call(this, spec);
+};
+SVG_svg.prototype = Object.create(SVG_Proto.prototype);
+SVG_svg.prototype.constructor = SVG_svg;
+
+SVG_svg.prototype.get_svg = function(){
+    var solution = this.solveParams();
+    var rect_elm = document.createElementNS(bloqsnet.svgNS, "svg");
+    this.setAttributes(rect_elm, solution);
+    return rect_elm;
+};
+
+SVG_svg.prototype.def = {
+    display: true,
+    type: 'svg_svg',
+    params: [["version", "number", 1.1, "specific attributes"], //enum 1.0 | 1.1
+             ["baseProfile", "string", "none", "specific attributes"],
+             ["x", "number", 0, "specific attributes"],
+             ["y", "number", 0, "specific attributes"],
+             ["width", "number", 0, "specific attributes"],
+             ["height", "number", 0, "specific attributes"],
+             ["preserveAspectRatio", "string", "xMidYMid meet", "specific attributes"], //enum xMinYMin | xMidYMin | xMidYMin | xMinYMid | ...etc also "meet" or "slice"
+             ["contentScriptType", "string", "application/ecmascript", "specific attributes"],
+             ["contentStyleType", "string", "text/css", "specific attributes"],
+             ["viewBox", "string", "0 0 0 0", "specific attributes"]]
+        .concat(
+            svg_conditional_processing_attributes,
+            svg_core_attributes
+        ),
+    p: [1, 1],
+    c: [1, "n"]
+};
+
+bloqsnet.REGISTRY['svg_svg'] = SVG_svg;
+
+////////////////////////////////////////
+
+var Shape;
+
+////////////////////////////////////////
+
+var SVG_rect = function(spec){
+    spec.type = "svg_rect";
+    SVG_Proto.call(this, spec);
+};
+SVG_rect.prototype = Object.create(SVG_Proto.prototype);
+SVG_rect.prototype.constructor = SVG_rect;
+
+SVG_rect.prototype.get_svg = function(){
+    var solution = this.solveParams();
+    var rect_elm = document.createElementNS(bloqsnet.svgNS, "rect");
+    this.setAttributes(rect_elm, solution);
+    return rect_elm;
+};
+
+SVG_rect.prototype.def = {
+    display: true,
+    type: 'svg_rect',
+    params: [["x", "number", 0, "specific attributes"],
+             ["y", "number", 0, "specific attributes"],
+             ["width", "number", 10, "specific attributes"],
+             ["height", "number", 10, "specific attributes"],
+             ["rx", "number", 0, "specific attributes"],
+             ["ry", "number", 0, "specific attributes"],
+             ["fill", "color", "#ffffff", "specific attributes"],
+             ["transform", "string", "translate(0,0)", "specific attributes"]]
+        .concat(
+            svg_conditional_processing_attributes,
+            svg_core_attributes
+            //graphical_event_attributes,
+            //presentation_attributes,
+            // - class,
+            // - style,
+            // - externalResourcesRequired,
+        ),
+    p: [1, 1],
+    c: [0, 0]
+};
+
+bloqsnet.REGISTRY["svg_rect"] = SVG_rect;
+
+////////////////////////////////////////
+
+var SVG_ellipse = function(spec){
+    spec.type = "svg_ellipse";
+    SVG_Proto.call(this, spec);
+};
+SVG_ellipse.prototype = Object.create(SVG_Proto.prototype);
+SVG_ellipse.prototype.constructor = SVG_ellipse;
+
+SVG_ellipse.prototype.get_svg = function(){
+    var solution = this.solveParams();
+    var ellipse_elm = document.createElementNS(bloqsnet.svgNS, "ellipse");
+    this.setAttributes(ellipse_elm, solution);
+    return ellipse_elm;
+};
+
+SVG_ellipse.prototype.def = {
+    display: true,
+    type: 'svg_ellipse',
+    params: [["cx", "number", 0, "specific attributes"],
+             ["cy", "number", 0, "specific attributes"],
+             ["rx", "number", 10, "specific attributes"],
+             ["ry", "number", 5, "specific attributes"],
+             ["fill", "color", "#ffffff", "specific attributes"],
+             ["transform", "string", "translate(0,0)", "specific attributes"]]
+        .concat(
+            svg_conditional_processing_attributes,
+            svg_core_attributes
+            //graphical_event_attributes,
+            //presentation_attributes,
+            // - class,
+            // - style,
+            // - externalResourcesRequired,
+        ),
+    p: [1, 1],
+    c: [0, 0]
+};
+
+bloqsnet.REGISTRY["svg_ellipse"] = SVG_ellipse;
 
 ////////////////////////////////////////
 
@@ -247,67 +395,21 @@ Root.prototype.updateLocalEnvironment = function(){
 Root.prototype.get_svg = function () {
     var solution = this.solveParams();
     var svg_elem = document.createElementNS(bloqsnet.svgNS, "svg");
-    svg_elem.setAttribute("width", solution.width);
-    svg_elem.setAttribute("height", solution.height);
-    svg_elem.setAttribute("style", "background-color: #999999");
+    this.setAttributes(svg_elem, solution);
     return svg_elem;
 };
 
 Root.prototype.def = {
     display: true,
     type: 'root',
-    params: [["width", "number", "100%"],
-             ["height", "number", "100%"],
-             ["data", "json", "{}"]],
+    params: [["width", "number", "100%", "specific attributes"],
+             ["height", "number", "100%", "specific attributes"],
+             ["data", "json", "{}", "specific attributes"]],
     p: [0, 0],
     c: [1, "n"]
 };
 
 bloqsnet.REGISTRY["root"] = Root;
-
-////////////////////////////////////////
-
-var Shape;
-
-////////////////////////////////////////
-
-var Rect = function(spec){
-    spec.type = "rect";
-    SVG_Proto.call(this, spec);
-};
-Rect.prototype = Object.create(SVG_Proto.prototype);
-Rect.prototype.constructor = Rect;
-
-Rect.prototype.get_svg = function(){
-    var solution = this.solveParams();
-    var rect_elm = document.createElementNS(bloqsnet.svgNS, "rect");
-    rect_elm.setAttribute("width", solution.width);
-    rect_elm.setAttribute("height", solution.height);
-    rect_elm.setAttribute("x", solution.x);
-    rect_elm.setAttribute("y", solution.y);;
-    rect_elm.setAttribute("rx", solution.rx);
-    rect_elm.setAttribute("ry", solution.ry);
-    rect_elm.setAttribute("fill", solution.fill);
-    rect_elm.setAttribute("transform", solution.transform);
-    return rect_elm;
-};
-
-Rect.prototype.def = {
-    display: true,
-    type: 'rect',
-    params: [["x", "number", 0],
-             ["y", "number", 0],
-             ["width", "number", 10],
-             ["height", "number", 10],
-             ["rx", "number", 0],
-             ["ry", "number", 0],
-             ["fill", "color", "#ffffff"],
-             ["transform", "string", "translate(0,0)"]],
-    p: [1, 1],
-    c: [0, 0]
-};
-
-bloqsnet.REGISTRY["rect"] = Rect;
 
 ////////////////////////////////////////
 
