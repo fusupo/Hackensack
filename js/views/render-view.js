@@ -52,7 +52,7 @@ var app = app || {};
             if (rendered.is("svg")) {
                 this.$el.append(rendered);
             } else {
-                var svg = $(bloqsnet.REGISTRY["root"].func({
+                var svg = $(new bloqsnet.REGISTRY["root"].func({
                     "width": "100%",
                     "height": "100%"
                 }).render_svg());
