@@ -10,98 +10,133 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Skewer</title>
+    <title>Hackensack</title>
 
-    <link rel="stylesheet" type="text/css" href="style.css">
 
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.0.1/css/bootstrap-colorpicker.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/codemirror.css">
+
+    <link rel="stylesheet" href="lib/css/jquery-ui.css">
+
+    <link rel="stylesheet" href="lib/css/jquery-ui.theme.css">
+    <!--<link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+-->
+    <link rel="stylesheet" href="lib/css/w2ui-1.4.2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.12.0/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.6.0/spectrum.min.css">
     <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+
+    <link rel="stylesheet" type="text/css" href="style.css">
 
 </head>
 
 <body>
-    <div id="app" class="wrapper">
-        <div class="row row-A">
-            <div id="composition">
-            </div>
-            <div id="params"></div>
+
+    <body>
+        <div id="myLayoutA" style="height: 50%"></div>
+        <div style="height:1px;"></div>
+        <div id="myLayoutB" style="height: 50%"></div>
+    </body>
+
+    <div id="composition">
+    </div>
+    <div id="params">
+    </div>
+
+    <div id="render">
+    </div>
+    <div id="env">
+    </div>
+
+    <div id="tabs">
+        <ul>
+            <li><a href="#svg-io">SVG</a>
+            </li>
+            <li>
+                <a href="#spec-io">Spec</a>
+            </li>
+        </ul>
+        <div id="svg-io">
+            <textarea id="svg-io-textarea"></textarea>
         </div>
-        <div class="row row-B">
-            <div id="io">
-                <div role="tabpanel">
-
-                    <!-- Nav tabs -->
-                    <ul class="nav nav-tabs" role="tablist">
-                        <li role="presentation" class="active"><a href="#spec-io" aria-controls="spec-io" role="tab" data-toggle="tab">Spec</a>
-                        </li>
-                        <li role="presentation"><a href="#svg-io" aria-controls="svg-io" role="tab" data-toggle="tab">SVG</a>
-                        </li>
-                    </ul>
-
-                    <!-- Tab panes -->
-                    <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane active" id="spec-io">
-                            <p>
-                                <button id="spec-io-reload" type="button" class="btn btn-primary btn-sm">
-                                    Reload <span class="glyphicon glyphicon-floppy-open" aria-hidden="true"></span>
-                                </button>
-                                <button id="spec-io-clear" type="button" class="btn btn-default btn-sm">
-                                    Clear <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                </button>
-                            </p>
-                            <textarea id="spec-io-textarea"></textarea>
-                        </div>
-                        <div role="tabpanel" class="tab-pane" id="svg-io">
-                            <textarea id="svg-io-textarea"></textarea>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-            <div id="render"></div>
-            <div id="env"></div>
+        <div id="spec-io">
+            <p>
+                <button id="spec-io-reload" type="button">
+                    Reload
+                </button>
+                <button id="spec-io-clear" type="button">
+                    Clear
+                </button>
+            </p>
+            <textarea id="spec-io-textarea"></textarea>
         </div>
     </div>
+    <!-- <div id="app" class="wrapper">
+        <div class="app-row-A">
+
+            
+        </div>
+        <div class="app-row-B">
+            <div id="io">
+                <div role="tabpanel">-->
+
+    <!-- Nav tabs -->
+    <!--<ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#spec-io" aria-controls="spec-io" role="tab" data-toggle="tab">Spec</a>
+        </li>
+        <li role="presentation"><a href="#svg-io" aria-controls="svg-io" role="tab" data-toggle="tab">SVG</a>
+        </li>
+    </ul>-->
+
+    <!-- Tab panes -->
+    <!--
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="spec-io">
+            
+            <textarea id="spec-io-textarea"></textarea>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="svg-io">
+            <textarea id="svg-io-textarea"></textarea>
+        </div>
+    </div>
+
+    </div>
+    </div>
+    <div id="render"></div>
+    <div id="env"></div>
+    </div>
+    </div>-->
 
     <!-- Templates -->
 
     <script type="text/template" id="params-container-template">
-        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        <div id="params-container">
         </div>
     </script>
 
     <script type="text/template" id="params-group-template">
-        <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="heading-<%=groupName %>">
-                <h4 class="panel-title">
-                  <a <%=collapsed %> data-toggle="collapse" data-parent="#accordion" href="#collapse-<%=groupName %>" aria-expanded="<%=expanded %>" aria-controls="collapse-<%=groupName %>">
-                    <%=groupName %>
-                  </a>
-                </h4>
-            </div>
-            <div id="collapse-<%=groupName %>" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading-<%=groupName %>">
-                <div class="panel-body">
-                    <form class="form"></form>
-                </div>
-            </div>
+        <h3><%= groupName %></h3>
+        <div id=<%=groupId %>>
+            <form>
+            </form>
         </div>
     </script>
 
     <script type="text/template" id="params-item-template">
-        <div class="row">
-            <div class="form-group col-xs-10 col-lg-10 form-group-sm">
-                <div class="input-group">
-                    <div class="input-group-addon">
-                        <%=label %>
-                    </div>
-                    <input type="text" class="form-control" value=<%=val %>>
-                </div>
-            </div>
-        </div>
+        <p>
+            <label>
+                <%=label %>
+            </label>
+            <input class=".form-control" value=<%=val %>>
+        </p>
+    </script>
+
+    <script type="text/template" id="params-color-item-template">
+        <p>
+            <label>
+                <%=label %>
+            </label>
+            <input type="text" class=".form-control" />
+        </p>
     </script>
 
     <script type="text/template" id="params-textarea-item-template">
@@ -120,12 +155,11 @@
     <!-- JS -->
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/json2/20140204/json2.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/1.2.0/math.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/1.2.0/math.min.js"></script>
     <!-- CodeMirror -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/codemirror.js"></script>
-    <script src="https://cdnjs.c
-loudflare.com/ajax/libs/codemirror/4.11.0/mode/xml/xml.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/mode/javascript/javascript.js">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/mode/javascript/javascript.min.js">
     </script>
     <!--D3-->
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
@@ -133,12 +167,13 @@ loudflare.com/ajax/libs/codemirror/4.11.0/mode/xml/xml.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="lib/js/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.12/jquery.mousewheel.js"></script>
-    <!-- Bootsrtap -->
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.0.1/js/bootstrap-colorpicker.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/spectrum/1.6.0/spectrum.min.js"></script>
+    <!-- W2 -->
+    <script src="lib/js/w2ui-1.4.2.min.js"></script>
     <!-- Backbone -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.1.15/backbone.localStorage.js"></script>
 
     <script src="/skewer"></script>

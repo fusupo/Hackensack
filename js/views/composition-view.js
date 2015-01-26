@@ -7,7 +7,7 @@ var app = app || {};
 
     var CompositionView = Backbone.View.extend({
 
-        el: "#composition",
+        el: '#composition',
 
         initialize: function(srcBloqs, compositionBloqs, settings) {
 
@@ -15,8 +15,6 @@ var app = app || {};
 
             this.srcBloqs = srcBloqs;
 
-            //this.listenTo(srcBloqs, 'change', this.redraw);
-            //this.listenTo(srcBloqs, 'remove', this.redraw);
             this.listenTo(srcBloqs, 'reset', this.resetManifest);
 
             this.compositionBloqs = compositionBloqs;
@@ -27,23 +25,29 @@ var app = app || {};
             this.listenTo(compositionBloqs, 'reset', this.redraw);
 
             this.settings = settings || {};
-
-            var divname = this.settings.div || this.el;
-            this.div = d3.select(divname);
-
-            this.w = settings.w || parseInt(this.div.style("width"));
-            this.h = settings.h || parseInt(this.div.style("height"));
-            this.box_w = settings.box_w || 100;
-            this.box_h = settings.box_h || 40;
-
             this.currentSelectedBloq = undefined;
             this.mouseLine = undefined;
 
+            // app.CompositionBloqs.on("all", function(f) {
+            //     console.log(f);
+            // });
+            // console.log(this.$el.width());
+
+
+        },
+
+        finalizeInitialization: function() {
+
+            var divname = "composition"; //this.settings.div || this.el;
+            this.div = d3.select(this.el);
+
+            this.w = this.settings.w || parseInt(this.$el.width());
+            this.h = this.settings.h || parseInt(this.$el.height());
+            this.box_w = this.settings.box_w || 100;
+            this.box_h = this.settings.box_h || 40;
+
             this.setupD3();
 
-            app.CompositionBloqs.on("all", function(f) {
-                console.log(f);
-            });
         },
 
         setupD3: function() {
@@ -52,8 +56,8 @@ var app = app || {};
             var win_h = this.h; // likewise
             var l_perc = 0.2;
             var r_perc = 0.8;
-            var l_w = win_w * l_perc;
-            var r_w = win_w * r_perc;
+            var l_w = (this.box_w + 25); //win_w * l_perc;
+            var r_w = win_w - l_w; //win_w * r_perc;
 
             this.stage = this.div.append("svg:svg")
                 .attr("viewBox", "0 0 " + win_w + " " + win_h)
@@ -107,7 +111,7 @@ var app = app || {};
                 .attr("y", 0)
                 .attr("width", r_w)
                 .attr("height", win_h)
-                .attr("fill", "#938475");
+                .attr("id", "composition-stage-bg");
 
             this.stage_right.append("g")
                 .attr({
@@ -336,7 +340,7 @@ var app = app || {};
                 .data(data)
                 .enter().append("svg:g")
                 .attr("transform", function(d) {
-                    return "translate(" + 50 + "," + (d.idx * 60) + ")";
+                    return "translate(" + 10 + "," + (10 + d.idx * (box_h + 10)) + ")";
                 })
                 .call(this.manifestDragBehavior());
 
@@ -349,10 +353,11 @@ var app = app || {};
 
             // label
             g.append("svg:text")
-                .attr("y", 20)
+                .attr("x", 5)
+                .attr("y", 15)
                 .attr("pointer-events", "none")
-                .attr("font-family", "sans-serif")
-                .attr("font-size", "20px")
+                .attr("font-family", "Source Code Pro")
+                .attr("font-size", "12px")
                 .attr("fill", "black")
                 .text(function(d) {
                     return d.type;
@@ -519,7 +524,7 @@ var app = app || {};
             var r = d3.select('#composition-bloqs-group')
                 .selectAll('.composition_bloq')
                 .data(data, function(d) {
-                    return d.id + d.p.concat(d.c).join();
+                    return d.id + d.p.concat(d.c).join(); // create uniq id...must recognize (child) terminal data change
                 });
 
             var g = r.enter().append("svg:g")
@@ -543,10 +548,10 @@ var app = app || {};
             g.append("svg:text")
                 .attr({
                     "x": 5,
-                    "y": 15,
+                    "y": 14,
                     "pointer-events": "none",
-                    "font-family": "sans-serif",
-                    "font-size": "12px",
+                    "font-family": "Source Code Pro",
+                    "font-size": "10px",
                     "fill": "black"
                 })
                 .text(function(d) {

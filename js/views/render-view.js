@@ -7,7 +7,8 @@ var app = app || {};
 
     var RenderView = Backbone.View.extend({
 
-        el: "#render",
+        el: '#render',
+        //el: "#render",
 
         initialize: function() {
 
@@ -19,6 +20,8 @@ var app = app || {};
             this.currId = undefined;
 
         },
+
+        finalizeInitialization: function() {},
 
         bloqSelection: function(id) {
 

@@ -7,7 +7,8 @@ var app = app || {};
 
     var IOSpecView = Backbone.View.extend({
 
-        el: "#spec-io",
+        el: '#spec-io',
+        // el: "#spec-io",
 
         initialize: function() {
 
@@ -18,14 +19,6 @@ var app = app || {};
 
             this.currId = undefined;
 
-            this.textarea = CodeMirror.fromTextArea(document.getElementById('spec-io-textarea'), {
-                lineNumbers: true,
-                matchBrackets: true,
-                tabMode: "indent",
-                mode: "json",
-                lineWrapping: true
-            });
-
             var that = this;
             this.$("#spec-io-reload").on('click', function() {
                 app.CompositionBloqs.reload(JSON.parse(that.textarea.getValue()));
@@ -34,6 +27,21 @@ var app = app || {};
             //this.$("#spec-io-clear").on("click", function() {
             //     console.log("clear");
             // });
+
+        },
+
+        finalizeInitialization: function() {
+
+            this.textarea = CodeMirror.fromTextArea(document.getElementById('spec-io-textarea'), {
+                lineNumbers: true,
+                matchBrackets: true,
+                tabMode: "indent",
+                mode: {
+                    name: "javascript",
+                    json: true
+                },
+                lineWrapping: true
+            });
 
         },
 

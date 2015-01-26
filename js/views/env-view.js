@@ -7,7 +7,8 @@ var app = app || {};
 
     var EnvView = Backbone.View.extend({
 
-        el: "#env",
+        el: '#env',
+        //el: "#env",
 
         initialize: function() {
 
@@ -17,6 +18,8 @@ var app = app || {};
             this.listenTo(app.CompositionView, 'bloqSelection', this.update);
 
         },
+
+        finalizeInitialization: function() {},
 
         clear: function() {
 
@@ -28,11 +31,12 @@ var app = app || {};
             this.clear();
             if (id != undefined) {
                 var env = app.CompositionBloqs.vm.get(id).getEnvironment();
-                _.each(env, function(ctx) {
+                _.each(env, function(ctx, idx) {
                     var gr = $('<div></div>');
-                    gr.attr("style", 'border: 1px solid red;');
+                    gr.addClass("env-vars env-vars-" + idx);
                     _.each(ctx, function(v, k, l) {
                         var xxx = $("<div></div>").text(k + " : " + v);
+                        xxx.addClass("env-var");
                         gr.append(xxx);
                     });
                     this.$el.append(gr);

@@ -7,7 +7,7 @@ var app = app || {};
 
     var ParamsView = Backbone.View.extend({
 
-        el: "#params",
+        el: '#params',
 
         // events: {
         //     "input input": "update"
@@ -20,6 +20,7 @@ var app = app || {};
             this.paramsContainerTpl = _.template($('#params-container-template').html());
             this.paramsGroupTpl = _.template($('#params-group-template').html());
             this.paramsItemTpl = _.template($('#params-item-template').html());
+            this.paramsColorItemTpl = _.template($('#params-color-item-template').html());
             this.paramsTextAreaItemTpl = _.template($('#params-textarea-item-template').html());
 
             this.currBloqModel = undefined;
@@ -27,6 +28,11 @@ var app = app || {};
             this.listenTo(app.CompositionView, 'bloqSelection', this.bloqSelection);
 
             this.checkColor = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i;
+
+        },
+
+        finalizeInitialization: function() {
+
         },
 
         update: function(e) {
@@ -66,10 +72,10 @@ var app = app || {};
             });
 
             _.each(groups, function(g, k) {
+                var groupId = "params-group-" + (k.replace(/ /g, "-"));
                 var g_elm = $(this.paramsGroupTpl({
-                    groupName: k.replace(/ /g, "-"),
-                    expanded: "false", //k === "specific attributes" ? true : false,
-                    collapsed: "" //k === "specific attributes" ? "" : 'class="collapsed"'
+                    groupName: k,
+                    groupId: groupId
                 }));
 
                 _.each(g, function(p) {
@@ -82,9 +88,7 @@ var app = app || {};
                                 val: this.currBloqModel.get("params")[p[0]]
                             })).bind("input", (function(e) {
                                 that.tryUpdateParamNumber(p[0], e.target.value, p[1]);
-                            }));
-
-                            item.find(".form-control").on('mousewheel', function(e) {
+                            })).on('mousewheel', function(e) {
                                 var raw_val = e.target.value;
                                 var val;
                                 if (typeof(raw_val) === "string" && raw_val.slice(-1) === "%") {
@@ -102,12 +106,7 @@ var app = app || {};
 
                             break;
                         case "color":
-                            item = $(this.paramsItemTpl({
-                                label: p[0],
-                                val: this.currBloqModel.get("params")[p[0]]
-                            })).colorpicker().on('changeColor', function(ev) {
-                                that.tryUpdateParamColor(p[0], ev.color.toHex(), p[1]);
-                            });
+                            item = this.createColorControl(p);
                             break;
                         case "string":
                             item = $(this.paramsItemTpl({
@@ -143,7 +142,7 @@ var app = app || {};
                             break;
                     }
 
-                    $(g_elm).find(".panel-body .form").append(item);
+                    $(g_elm).find('form').append(item);
 
                 }, this);
                 $(container).append(g_elm);
@@ -152,7 +151,29 @@ var app = app || {};
 
             this.$el.append(container);
 
+
+            $(container).accordion({
+                collapsible: true
+            });
         },
+
+        /////////////////////////////////////////////////////////////////////////
+
+        createColorControl: function(p) {
+            var that = this;
+            return $(this.paramsColorItemTpl({
+                label: p[0],
+                val: this.currBloqModel.get("params")[p[0]]
+            })).spectrum({
+                color: p[2],
+                move: function(tinycolor) {
+                    console.log($(this).find('.form-control').val());
+                    that.tryUpdateParamColor(p[0], tinycolor.toHexString(), p[1]);
+                }
+            });
+        },
+
+        /////////////////////////////////////////////////////////////////////////
 
         commitUpdateParam: function(id, val) {
 

@@ -282,7 +282,7 @@ SVG_svg.prototype.def = {
              ["preserveAspectRatio", "string", "xMidYMid meet", "specific attributes"], //enum xMinYMin | xMidYMin | xMidYMin | xMinYMid | ...etc also "meet" or "slice"
              ["contentScriptType", "string", "application/ecmascript", "specific attributes"],
              ["contentStyleType", "string", "text/css", "specific attributes"],
-             ["viewBox", "string", "0 0 0 0", "specific attributes"]]
+             ["viewBox", "string", "", "specific attributes"]]
         .concat(
             svg_conditional_processing_attributes,
             svg_core_attributes
@@ -561,10 +561,10 @@ bloqsnet.gimmeTheThing = function(){
             delete this.insts[id];
             this.rst_trm();
         },
-        con: function(id, idx, trg){
+        con: function(id, idx, trg_id){
             // from child to parent
             var p_bloq = this.insts[id];
-            var c_bloq = this.insts[trg];
+            var c_bloq = this.insts[trg_id];
             c_bloq.swapChild(idx, p_bloq);
             p_bloq.addParent(c_bloq);
             this.rst_trm();
@@ -572,35 +572,13 @@ bloqsnet.gimmeTheThing = function(){
         get: function(id){
             return this.insts[id];    
         },
-        discon: function(id1, id2){
-            var findIfHasChild = function(id, that){
-                return _.find(that.insts, function(i){
-                    return _.find(i.getChildNodes(), function(cn){
-                        return cn === "x" ? false : cn.get_id() === id;
-                    }, that);
-                }, that);
-            };
-            var findChildAndDisconnect = function(qux, id, that){
-                var idx;
-                var baz = _.find(qux.getChildNodes(), function(cn, i){
-                    if(cn !== "x" && cn.get_id() === id){
-                        idx = i;
-                        return true;
-                    }else{
-                        return false;
-                    }});
-                
-                baz.addParent("x");
-                qux.swapChild(idx, "x");
-            };
-            var foo = findIfHasChild(id1, this);
-            
-            if(foo !== undefined){
-                findChildAndDisconnect(foo,id1,this);
-            }else{
-                foo = findIfHasChild(id2, this);
-                findChildAndDisconnect(foo,id2, this);
-            }
+        discon: function(id, idx, trg_id){
+            // from child to parent
+            var p_bloq = this.insts[id];
+            var c_bloq = this.insts[trg_id];
+            c_bloq.swapChild(idx, "x");
+            p_bloq.addParent("x");
+            this.rst_trm();
         },
         crt: function(data, id){
             _.each(data, function(d){

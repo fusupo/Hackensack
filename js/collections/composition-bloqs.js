@@ -85,7 +85,13 @@ var app = app || {};
                 this_bloq.removeConnection(term[1], term[2], true);
                 other_bloq.removeConnection(other_term[1], other_term[2], silent);
 
-                this.vm.discon(term[0], other_term[0]);
+                // expects c-->p
+                if (term[1] === "c") {
+                    this.vm.discon(other_term[0], other_term[1], term[0]);
+                } else {
+                    this.vm.discon(term[0], term[1], other_term[0]);
+                }
+
             }
         },
 

@@ -7,7 +7,8 @@ var app = app || {};
 
     var IOSVGView = Backbone.View.extend({
 
-        el: "#svg-io",
+        el: '#svg-io',
+        //el: "#svg-io",
 
         initialize: function() {
 
@@ -18,11 +19,17 @@ var app = app || {};
 
             this.currId = undefined;
 
+        },
+
+        finalizeInitialization: function() {
+
             this.textarea = CodeMirror.fromTextArea(document.getElementById('svg-io-textarea'), {
                 lineNumbers: true,
                 matchBrackets: true,
                 tabMode: "indent",
-                mode: "xml",
+                mode: {
+                    name: "xml"
+                },
                 lineWrapping: true
             });
 
