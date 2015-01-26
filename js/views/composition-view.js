@@ -104,7 +104,6 @@ var app = app || {};
                 .attr("id", "composition-stage-svg")
                 .call(this.stageDragBehavior());
             //.call(zoom2);
-
             this.stage_right
                 .append("svg:rect")
                 .attr("x", 0)
@@ -232,14 +231,20 @@ var app = app || {};
                     var bloqModel = app.CompositionBloqs.findWhere({
                         id: d3.select(this).attr('id')
                     });
-                    bloqModel.set({
-                        meta: {
-                            x: d3.event.x,
-                            y: d3.event.y
-                        }
-                    });
+
                     d3.select(this)
                         .attr("transform", "translate(" + d3.event.x + "," + d3.event.y + ")");
+                })
+                .on("dragend", function() {
+                    var bloqModel = app.CompositionBloqs.findWhere({
+                        id: d3.select(this).attr('id')
+                    });
+                    bloqModel.set({
+                        meta: {
+                            x: d3.mouse(this.nearestViewportElement)[0] - d3.mouse(this)[0],
+                            y: d3.mouse(this.nearestViewportElement)[1] - d3.mouse(this)[1]
+                        }
+                    });
                 });
         },
 
