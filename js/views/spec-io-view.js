@@ -71,18 +71,35 @@ var app = app || {};
         },
 
         draw: function() {
+            
+            var json = app.CompositionBloqs.toJSON();
 
-            var str = JSON.stringify(app.CompositionBloqs.toJSON());
-            this.textarea.setValue(str);
+            console.log(json);
+            (function filter(obj) {
+                if(typeof(obj)!== "string"){
+                    $.each(obj, function(key, value){
+                        if (value === "" || value === null){
+                            delete obj[key];
+                        } else if (Object.prototype.toString.call(value) === '[object Object]') {
+                            filter(value);
+                        } else if ($.isArray(value)) {
+                            $.each(value, function (k,v) { filter(v); });
+                        }
+                    });
+                }
+            })(json);
+             console.log(json);
+             var str = JSON.stringify(json);
+             this.textarea.setValue(str);
 
-            var that = this;
-            setTimeout(function() {
-                that.textarea.refresh();
-            }, 1);
+             var that = this;
+             setTimeout(function() {
+                 that.textarea.refresh();
+             }, 1);
 
-        }
+            }
 
-    });
+        });
 
     app.IOSpecView = new IOSpecView();
 
