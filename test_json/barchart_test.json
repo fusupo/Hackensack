@@ -1,0 +1,73 @@
+[{
+  "id": "b16",
+  "type": "root",
+  "meta": {
+    "x": 499,
+    "y": 109
+  },
+  "params": {
+    "width": "100%",
+    "height": "100%",
+    "data": "{\"y\":[44,85,24,80,39],\n\"x\":[\"apples\",\"bananas\",\"oranges\",\"peaches\",\"cherries\"]}"
+  },
+  "p": [],
+  "c": ["b20", "b19", "x"]
+}, {
+  "id": "b18",
+  "type": "svg_rect",
+  "meta": {
+    "x": 57,
+    "y": 97
+  },
+  "params": {
+    "x": "b20_idx*50",
+    "y": "100-b20_d",
+    "width": "24",
+    "height": "b20_d",
+    "rx": "0",
+    "ry": 0,
+    "fill": "#745050",
+    "transform": "translate(0,0)"
+  },
+  "p": ["b20"],
+  "c": []
+}, {
+  "id": "b20",
+  "type": "svg_each",
+  "meta": {
+    "x": 260,
+    "y": 106
+  },
+  "params": {
+    "list": "y"
+  },
+  "p": ["b16"],
+  "c": ["b18", "x"]
+}, {
+  "id": "b19",
+  "type": "svg_each",
+  "meta": {
+    "x": 273,
+    "y": 199
+  },
+  "params": {
+    "list": "x"
+  },
+  "p": ["b16"],
+  "c": ["b21"]
+}, {
+  "id": "b21",
+  "type": "svg_text",
+  "meta": {
+    "x": 43,
+    "y": 209
+  },
+  "params": {
+    "text": "b19_d",
+    "x": "b19_idx*50-10",
+    "y": "110",
+    "fill": "#ffffff"
+  },
+  "p": ["b19"],
+  "c": []
+}]

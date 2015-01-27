@@ -74,7 +74,7 @@ var app = app || {};
             
             var json = app.CompositionBloqs.toJSON();
 
-            console.log(json);
+           // console.log(json);
             (function filter(obj) {
                 if(typeof(obj)!== "string"){
                     $.each(obj, function(key, value){
@@ -88,7 +88,7 @@ var app = app || {};
                     });
                 }
             })(json);
-             console.log(json);
+             //console.log(json);
              var str = JSON.stringify(json);
              this.textarea.setValue(str);
 

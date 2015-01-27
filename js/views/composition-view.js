@@ -28,10 +28,10 @@ var app = app || {};
             this.currentSelectedBloq = undefined;
             this.mouseLine = undefined;
             this.zoom_scale = 1;
-            app.CompositionBloqs.on("all", function(f) {
-                console.log(f);
-            });
-            console.log(this.$el.width());
+            //app.CompositionBloqs.on("all", function(f) {
+            //    console.log(f);
+            //});
+            //console.log(this.$el.width());
 
 
         },
