@@ -2,18 +2,169 @@ var bloqsnet = bloqsnet || {};
 bloqsnet.MANIFEST = [];
 bloqsnet.REGISTRY = {};
 bloqsnet.svgNS = "http://www.w3.org/2000/svg";
-// var fonts = {'Lobster' : {"font-family": "'Lobster', cursive",
-//                           "src": "http://fonts.googleapis.com/css?family=Lobster"}
-//             };
 
+////////////////////////////////////////////////////////////////////////////////
+
+bloqsnet.gimmeTheThing = function(callbacks){
+    
+    return {
+        
+        inst: undefined,
+        insts: {},
+        callbacks: callbacks,
+        
+        new: function(type, meta){
+            var id = _.uniqueId('b');
+            var def = bloqsnet.REGISTRY[type].prototype.def;
+            var params = _.reduce(def.params, function(memo, p) {
+                memo[p[0]] = p[2];
+                return memo;
+            }, {});
+            return new bloqsnet.REGISTRY[type]({
+                id: id,
+                type:type,
+                meta: meta,
+                params: params
+            });
+        },
+        add: function(type, pos){
+            var meta = {
+                x: pos[0],
+                y: pos[1]
+            };
+            
+            var b = this.new(type, meta);
+            this.insts[b.get_id()] = b;
+
+            this._call_back('add', b);
+        },
+        rem: function(id){
+            var bloq = this.insts[id];
+            bloq.kill();
+            delete this.insts[id];
+        },
+        con: function(a, b){
+            if (a[0] !== b[0] && a[1] != b[1]) {
+                this.dscon(a);
+                this.dscon(b);
+
+                // from child to parent
+                var st = a[1] === "p" ? a : b;
+                var et = a[1] === "p" ? b : a;
+                var p_bloq = this.insts[st[0]];
+                var c_bloq = this.insts[et[0]];
+                
+                c_bloq.swapChild(et[2], p_bloq);
+                p_bloq.addParent(c_bloq);
+                //this.rst_trm();
+                
+                this._call_back('change');
+            }
+        },
+        get: function(id){
+            return this.insts[id];    
+        },
+        dscon_chld: function(id, idx){
+            // from parent to child
+            var p_bloq = this.insts[id];
+            var c_bloq = p_bloq.getChildNodes()[idx];
+            c_bloq !== "x" ? c_bloq.addParent("x") : null;
+            p_bloq.swapChild(idx, "x");
+            //this.rst_trm();
+        },
+        dscon_prnt: function(id, idx){
+            // from child to parent
+            var c_bloq = this.insts[id];
+            var p_bloq = c_bloq.getParentNode();
+            if(p_bloq !== undefined && p_bloq !== "x") p_bloq.swapChild(idx, "x");
+            c_bloq.addParent("x");
+            //this.rst_trm();
+        },
+        dscon: function(term){
+            if (term[1] === "c") {
+                this.dscon_chld(term[0],term[2]);
+            } else {
+                this.dscon_prnt(term[0],term[2]);
+            }
+            
+            this._call_back('change');
+        },
+        getConnectedTerm: function(term){
+            var t;
+            if(term[1] === "c"){
+                t = this.insts[term[0]].getChildNodes()[term[2]];
+                t = t === undefined ? t : t === "x" ? "x" : [t.get_id(), "p", 0];
+            }else{
+                var n = this.insts[term[0]];
+                t = n.getParentNode();
+                if(t !== "x"){
+                    var idx = 0;
+                    _.find(t.getChildNodes(), function(c, i){
+                        idx = i;
+                        return c === n;
+                    });
+                    t = [t.get_id(), "c", idx];
+                }
+            }
+            return t;
+        },
+        crt: function(data, id){
+            _.each(data, function(d){
+                var params = _.clone(d.params);
+                params.id = d.id;
+                var t_inst = new bloqsnet.REGISTRY[d.type](params);
+                this.insts[d.id] = t_inst;
+            }, this);
+            
+            _.each(data, function(d){
+                _.each(d.c, function (c, idx){
+                    if(c!=="x"){
+                        this.con(c, idx, d.id);
+                    }
+                }, this);
+            }, this);
+            
+            this.inst = this.insts[id];
+            
+            this._call_back('reset', this._inst);
+        },
+        rndr: function(id){
+            return this.insts[id].render_svg();
+        },
+        updt_par: function(id, p_name, val){
+            return this.insts[id].updateParam(p_name, val);
+        },
+        updt_mta: function(id, p_name, val){
+            return this.insts[id].updateMeta(p_name, val);
+        },
+        rst_trm: function(){
+            _.each(this.insts, function(i){
+                i.resetTerminals();
+            });
+            this._call_back('change');
+        },
+        //////////////////////////////
+        _call_back: function(cbk_id, params){
+            if(this.callbacks[cbk_id] !== undefined){
+                this.callbacks[cbk_id](params);
+            }
+        }
+    };
+    
+};
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
 var Base = function(spec){
 
     // init spec
     spec.type = spec.type || 'base';
-    spec.children = [];
-    spec.parent = undefined;
+    spec.children = bloqsnet.REGISTRY[spec.type].prototype.def.c[0] > 0 ? ["x"] : undefined;
+    spec.parent = bloqsnet.REGISTRY[spec.type].prototype.def.p[0] > 0 ? "x" : undefined;
     spec.local_env = {"foo":"bar"};
     spec.env = [spec.local_env];
     
@@ -33,12 +184,18 @@ var Base = function(spec){
         return spec.id;
     };
 
+    this.get_params = function(){
+        return spec.params;
+    };
+    // this.get = function(k){
+    //     return spec[k];
+    // };
     //
 
     // initialize empty params
     _.each(bloqsnet.REGISTRY[spec.type].prototype.def.params, function(p){
-        if(!_.has(spec, p[0])){
-            spec[p[0]] = "";
+        if(!_.has(spec.params, p[0])){
+            spec.params[p[0]] = "";
         }
     });
     
@@ -57,7 +214,6 @@ var Base = function(spec){
     };
     
     this.env_val = function(var_name, env){
-
         return this.collapse_env()[var_name];
 
     };
@@ -79,7 +235,7 @@ var Base = function(spec){
         var params_def = bloqsnet.REGISTRY[spec.type].prototype.def.params;
         var res = {};
         _.each(params_def, function(p_def){
-            var expr =  spec[p_def[0]];
+            var expr =  spec.params[p_def[0]];
             switch(p_def[1]){
             case "number":
                 if(typeof(expr) === "string"){
@@ -115,16 +271,16 @@ var Base = function(spec){
                 res = this.solve(val);
             }
             if(res !== undefined){
-                spec[p_name] = val;
+                spec.params[p_name] = val;
                 success = true;
             }
             break;
         case "string":
-            spec[p_name] = val;
+            spec.params[p_name] = val;
             success = true;
             break;
         case "color":
-            spec[p_name] = val;
+            spec.params[p_name] = val;
             success = true;
             break;
         case "json":
@@ -136,7 +292,7 @@ var Base = function(spec){
                 json = undefined;
             }
             if (json !== undefined) {
-                spec[p_name] = val;
+                spec.params[p_name] = val;
                 success = true;
             }
             break;
@@ -149,6 +305,11 @@ var Base = function(spec){
         return success;
     };
 
+    this.updateMeta = function (p_name, val){
+        spec.meta[p_name] = val;
+        return true;
+    };
+    
     //
     
     this.getParentNode = function(){
@@ -207,10 +368,67 @@ var Base = function(spec){
             }
         });
     };
+
+    this.kill = function(){
+        if(spec.parent !== undefined && spec.parent !== "x"){
+            var idx = -1;
+            _.find(spec.parent.getChildNodes(), function(c, i){
+                idx = i;
+                return c === this;
+            });
+            spec.parent.swapChild(idx, "x");
+        }
+        spec.parent = "x";
+        _.each(spec.children, function(c, idx){
+            if(c !== "x"){
+            c.addParent("x");
+            spec.children[idx] = "x";
+            }
+        });
+    };
     
 };
 
 Base.prototype.updateLocalEnvironment = function(){};
+
+Base.prototype.toJSON = function(){
+    return _.reduce(this.spec, function(m, s, k){
+        switch(k){
+        case "parent":
+            if(s !== undefined){
+                if(s === "x"){
+                    m["p"] = ["x"];
+                }else{
+                    m["p"] = [s.get_id()];
+                }
+            }else{
+                m["p"] = [];
+            }
+            break;
+        case "children":
+            if(s !== undefined){
+                m["c"] = _.map(s, function(c){
+                    if(c === "x"){
+                        return "x";
+                    }else{
+                        return c.get_id();
+                    }
+                });
+            }else{
+                m["c"] = [];
+            }
+            break;
+        case "env":
+            break;
+        case "local_env":
+            break;
+        default:
+            m[k] = s;
+            break;
+        }
+        return m;
+    }, {});
+};
 
 Base.prototype.def = {
     display: false,
@@ -219,7 +437,9 @@ Base.prototype.def = {
 
 bloqsnet.REGISTRY["base"] = Base;
 
-////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//                                                                 SVG_PROTO  //
+////////////////////////////////////////////////////////////////////////////////
 
 var SVG_Proto = function(spec){
     spec.type = spec.type || "svg_proto";
@@ -244,15 +464,16 @@ SVG_Proto.prototype.constructor = SVG_Proto;
 
 SVG_Proto.prototype.render_svg = function () {
     var xxx = this.get_svg();
-    if(this.spec.children.length > 0) {
-        var g = document.createElementNS (bloqsnet.svgNS, "g");
+    if(this.spec.children != undefined && this.spec.children.length > 0) {
+        //var g = document.createElementNS (bloqsnet.svgNS, "g");
         for (var i = 0; i < this.spec.children.length; i++) {
             var child = this.spec.children[i];
             if(child !== "x"){
-                g.appendChild(this.spec.children[i].render_svg());
+                    //g.appendChild(this.spec.children[i].render_svg());
+                xxx.appendChild(this.spec.children[i].render_svg());
             }
         }
-        xxx. appendChild (g);
+            //xxx. appendChild (g);
     }     
     return xxx;
 };
@@ -266,7 +487,7 @@ SVG_Proto.prototype.def = {
 
 bloqsnet.REGISTRY["svg_proto"] = SVG_Proto;
 
-////////////////////////////////////////
+//                              DEFINING DEFAULT PARAM GROUPS (per svg spec)  //
 
 var svg_conditional_processing_attributes = [
     ["requiredExtensions", "string", "", "svg conditional processing attributes"],
@@ -282,7 +503,9 @@ var svg_core_attributes = [
 ];
 
 
-////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//                                                                   SVG_SVG  //
+////////////////////////////////////////////////////////////////////////////////
 
 var SVG_svg = function(spec){
     spec.type = "svg_svg";
@@ -293,9 +516,9 @@ SVG_svg.prototype.constructor = SVG_svg;
 
 SVG_svg.prototype.get_svg = function(){
     var solution = this.solveParams();
-    var rect_elm = document.createElementNS(bloqsnet.svgNS, "svg");
-    this.setAttributes(rect_elm, solution);
-    return rect_elm;
+    var svg_elm = document.createElementNS(bloqsnet.svgNS, "svg");
+    this.setAttributes(svg_elm, solution);
+    return svg_elm;
 };
 
 SVG_svg.prototype.def = {
@@ -321,11 +544,47 @@ SVG_svg.prototype.def = {
 
 bloqsnet.REGISTRY['svg_svg'] = SVG_svg;
 
-////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//                                                                     SVG_G  //
+////////////////////////////////////////////////////////////////////////////////
+
+var SVG_g = function(spec){
+    spec.type = "svg_g";
+    SVG_Proto.call(this, spec);
+};
+SVG_g.prototype = Object.create(SVG_Proto.prototype);
+SVG_g.prototype.constructor = SVG_g;
+
+SVG_g.prototype.get_svg = function(){
+    var solution = this.solveParams();
+    var g_elm = document.createElementNS(bloqsnet.svgNS, "g");
+    this.setAttributes(g_elm, solution);
+    return g_elm;
+};
+
+SVG_g.prototype.def = {
+    display: true,
+    type: 'svg_g',
+    params: [["transform", "string", "translate(0,0)", "specific attributes"]]
+        .concat(
+            svg_conditional_processing_attributes,
+            svg_core_attributes
+        ),
+    p: [1, 1],
+    c: [1, "n"]
+};
+
+bloqsnet.REGISTRY['svg_g'] = SVG_g;
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                 SVG_SHAPE  //
+////////////////////////////////////////////////////////////////////////////////
 
 var Shape;
 
-////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//                                                                  SVG_RECT  //
+////////////////////////////////////////////////////////////////////////////////
 
 var SVG_rect = function(spec){
     spec.type = "svg_rect";
@@ -367,7 +626,53 @@ SVG_rect.prototype.def = {
 
 bloqsnet.REGISTRY["svg_rect"] = SVG_rect;
 
-////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//                                                                SVG_CIRCLE  //
+////////////////////////////////////////////////////////////////////////////////
+
+var SVG_circle = function(spec){
+    spec.type = "svg_circle";
+    SVG_Proto.call(this, spec);
+};
+SVG_circle.prototype = Object.create(SVG_Proto.prototype);
+SVG_circle.prototype.constructor = SVG_circle;
+
+SVG_circle.prototype.get_svg = function(){
+    var solution = this.solveParams();
+    var circle_elm = document.createElementNS(bloqsnet.svgNS, "circle");
+    circle_elm.setAttribute("cx", solution.cx);
+    circle_elm.setAttribute("cy", solution.cy);
+    circle_elm.setAttribute("r", solution.r);
+    circle_elm.setAttribute("fill", solution.fill);
+    return circle_elm;
+};
+
+SVG_circle.prototype.def = {
+    display: true,
+    type: 'svg_circle',
+    params: [["cx", "number", 0, "specific attributes"],
+             ["cy", "number", 0, "specific attributes"],
+             ["r", "number", 10, "specific attributes"],
+             ["fill", "color", "#ffffff", "specific attributes"],
+             ["transform", "string", "translate(0,0)", "specific attributes"]]
+        .concat(
+            svg_conditional_processing_attributes,
+            svg_core_attributes
+            //graphical_event_attributes,
+            //presentation_attributes,
+            // - class,
+            // - style,
+            // - externalResourcesRequired,
+        ),
+    p: [1, 1],
+    c: [0, 0]
+};
+
+bloqsnet.REGISTRY["svg_circle"] = SVG_circle;
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                               SVG_ELLIPSE  //
+////////////////////////////////////////////////////////////////////////////////
 
 var SVG_ellipse = function(spec){
     spec.type = "svg_ellipse";
@@ -407,7 +712,9 @@ SVG_ellipse.prototype.def = {
 
 bloqsnet.REGISTRY["svg_ellipse"] = SVG_ellipse;
 
-////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//                                                                  SVG_TEXT  //
+////////////////////////////////////////////////////////////////////////////////
 
 var SVG_text = function(spec){
     spec.type = "svg_text";
@@ -423,6 +730,7 @@ SVG_text.prototype.get_svg = function(){
     text_elm.setAttribute("x", solution.x);
     text_elm.setAttribute("y", solution.y);
     text_elm.setAttribute("fill", solution.fill);
+    text_elm.setAttribute("opacity", solution.opacity);
     text_elm.textContent = solution.text;
 
     return text_elm;
@@ -434,7 +742,8 @@ SVG_text.prototype.def = {
     params: [["text", "string", "default", "specific attributes"],
              ["x", "number", 10, "specific attributes"],
              ["y", "number", 10, "specific attributes"],
-             ["fill", "color", "#ffffff", "specific attributes"]]
+             ["fill", "color", "#ffffff", "specific attributes"],
+             ["opacity", "number", "1", "specific attributes"]]
         .concat(
             svg_conditional_processing_attributes,
             svg_core_attributes
@@ -449,44 +758,72 @@ SVG_text.prototype.def = {
 };
 
 bloqsnet.REGISTRY["svg_text"] = SVG_text;
-// bloqsnet.MANIFEST.push("text");
-// bloqsnet.REGISTRY["text"] = {
 
-//     def:{
-//         params: [["x", "number", 50],
-//                  ["y", "number", 50],
-//                  ["style", "string", ""],
-//                  ["text", "string", "default_text"]],
-//         p: [1, 1],
-//         c: [0, 0]
-//     },
+////////////////////////////////////////////////////////////////////////////////
+//                                                               SVG_ANIMATE  //
+////////////////////////////////////////////////////////////////////////////////
 
-//     func: function (spec) {
+var SVG_animate = function(spec){
+    spec.type = "svg_animate";
+    SVG_Proto.call(this, spec);
+};
+SVG_animate.prototype = Object.create(SVG_Proto.prototype);
+SVG_animate.prototype.constructor = SVG_animate;
 
-//         spec.type = 'text';
+SVG_animate.prototype.render_svg = function () {
+    var returnSVG;
+    if(this.spec.children.length > 0) {
+        var child = this.spec.children[0];
+        if(child !== "x"){
+            var thisSVG = this.get_svg();
+            returnSVG = child.render_svg();
+            returnSVG.appendChild(thisSVG);
+        }
+    }
+    return returnSVG;
+};
 
-//         var that = bloqsnet.REGISTRY["base"].func(spec);
+SVG_animate.prototype.get_svg = function(){
+    var solution = this.solveParams();
+    var anim_elm = document.createElementNS(bloqsnet.svgNS, "animate");
+    this.setAttributes(anim_elm, solution);
 
-//         spec.font = "Lobster";
+    return anim_elm;
+};
 
-//         that.get_svg = function () {
-//             var solution = that.solveParams();
-//             var text_elm = document.createElementNS(bloqsnet.svgNS, "text");
-//             text_elm.setAttribute("style", "fXSont-family:" + solution.font + ";");
-//             text_elm.setAttribute("x", solution.x);
-//             text_elm.setAttribute("y", solution.y);
-//             text_elm.textContent = solution.text;
+SVG_animate.prototype.def = {
+    display: true,
+    type: 'svg_animate',
+    params: [["attributeName", "string", "", "specific attributes"],
+             ["attributeType", "string", "auto", "specific attributes"],
+             
+             ["from", "string", "", "specific attributes"],
+             ["to", "string", "", "specific attributes"],
+             ["by", "string", "", "specific attributes"],
+             
+             ["begin", "string", "", "specific attributes"],
+             ["dur", "string", "1", "specific attributes"],
+             ["end", "string", "", "specific attributes"],
+             ["repeatCount", "string", "indefinite", "specific attributes"],
+             ["fill", "string", "remove", "specific attributes"]] // enum : "remove" | "freeze"
+        .concat(
+            svg_conditional_processing_attributes,
+            svg_core_attributes
+            //graphical_event_attributes,
+            //presentation_attributes,
+            // - class,
+            // - style,
+            // - externalResourcesRequired,
+        ),
+    p: [1, 1],
+    c: [1, 1]
+};
 
-//             return text_elm;
-//         };
-
-//         return that;
-
-//     }
-
-// };
-
-////////////////////////////////////////
+bloqsnet.REGISTRY["svg_animate"] = SVG_animate;
+       
+////////////////////////////////////////////////////////////////////////////////
+//                                                                      ROOT  //
+////////////////////////////////////////////////////////////////////////////////
 
 var Root = function(spec){
     spec.type = "root";
@@ -496,7 +833,7 @@ Root.prototype = Object.create(SVG_Proto.prototype); // See note below
 Root.prototype.constructor = Root;
 
 Root.prototype.updateLocalEnvironment = function(){
-    this.setLocalEnvironment(JSON.parse(this.spec.data));
+    this.setLocalEnvironment(JSON.parse(this.spec.params.data));
 };
 
 Root.prototype.get_svg = function () {
@@ -518,7 +855,9 @@ Root.prototype.def = {
 
 bloqsnet.REGISTRY["root"] = Root;
 
-////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//                                                                  SVG_EACH  //
+////////////////////////////////////////////////////////////////////////////////
 
 var SVG_each = function(spec){
     spec.type = "svg_each";
@@ -527,26 +866,12 @@ var SVG_each = function(spec){
 SVG_each.prototype = Object.create(SVG_Proto.prototype);
 SVG_each.prototype.constructor = SVG_each;
 
-// Root.prototype.updateLocalEnvironment = function(){
-//     this.setLocalEnvironment(JSON.parse(this.spec.data));
-// };
-
 SVG_each.prototype.render_svg = function () {
-     var xxx = this.get_svg();
-    // if(this.spec.children.length > 0) {
-    //     var g = document.createElementNS (bloqsnet.svgNS, "g");
-    //     for (var i = 0; i < this.spec.children.length; i++) {
-    //         var child = this.spec.children[i];
-    //         if(child !== "x"){
-    //             g.appendChild(child.render_svg());
-    //         }
-    //     }
-    //     xxx. appendChild (g);
-    // }
+    var xxx = this.get_svg();
     if(this.spec.children.length > 0) {
         var child = this.spec.children[0];
         if(child !== "x"){
-            _.each(this.env_val(this.spec.list), function(d, idx){
+            _.each(this.env_val(this.spec.params.list), function(d, idx){
                 var obj = {};
                 obj[this.spec.id + "_d"] = d;
                 obj[this.spec.id + "_idx"] = idx;
@@ -575,42 +900,9 @@ SVG_each.prototype.def = {
 
 bloqsnet.REGISTRY["svg_each"] = SVG_each;
 
-
-// bloqsnet.MANIFEST.push("circle");
-// bloqsnet.REGISTRY["circle"] = {
-
-//     def: {
-//         params: [["cx", "number", 0],
-//                  ["cy", "number", 0],
-//                  ["r", "number", 10],
-//                  ["fill", "color", "#ff0000"]],
-//         p: [1, 1],
-//         c: [0, 0]
-//     },
-
-//     func: function (spec) {
-
-//         spec.type = 'circle';
-
-//         var that = bloqsnet.REGISTRY["base"].func(spec);
-
-//         that.get_svg = function () {
-//             var solution = that.solveParams();
-//             var circle_elm = document.createElementNS(bloqsnet.svgNS, "circle");
-//             circle_elm.setAttribute("cx", solution.cx);
-//             circle_elm.setAttribute("cy", solution.cy);
-//             circle_elm.setAttribute("r", solution.r);
-//             circle_elm.setAttribute("fill", solution.fill);
-//             return circle_elm;
-//         };
-
-//         return that;
-
-//     }
-
-// };
-
-////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//                                                                 SVG_IMAGE  //
+////////////////////////////////////////////////////////////////////////////////
 
 // bloqsnet.MANIFEST.push("image");
 // bloqsnet.REGISTRY["image"] = {
@@ -649,93 +941,5 @@ bloqsnet.REGISTRY["svg_each"] = SVG_each;
 //     }
 
 // };
-
-////////////////////////////////////////////////////////////////////////////////
-
-bloqsnet.create = function(data, id) {
-
-    
-    var r = data[id];
-    var inst = bloqsnet.REGISTRY[r.type](_.clone(r.params));
-    _.each(r.c, function(child){
-        if(child !== "x"){
-            inst.addChild(bloqsnet.create(data, child));
-        }
-    });
-
-    return inst;
-    
-};
-
-bloqsnet.gimmeTheThing = function(){
-    
-    return {
-        
-        inst: undefined,
-        insts: {},
-
-        add: function(spec){
-            var params = _.clone(spec.params);
-            params.id = spec.id;
-            this.insts[spec.id] = new bloqsnet.REGISTRY[spec.type](params);
-            return this.insts[spec.id];
-        },
-        rem: function(id){
-            // not: the unwiring logic still resides in the host
-            delete this.insts[id];
-            this.rst_trm();
-        },
-        con: function(id, idx, trg_id){
-            // from child to parent
-            var p_bloq = this.insts[id];
-            var c_bloq = this.insts[trg_id];
-            c_bloq.swapChild(idx, p_bloq);
-            p_bloq.addParent(c_bloq);
-            this.rst_trm();
-        },
-        get: function(id){
-            return this.insts[id];    
-        },
-        discon: function(id, idx, trg_id){
-            // from child to parent
-            var p_bloq = this.insts[id];
-            var c_bloq = this.insts[trg_id];
-            c_bloq.swapChild(idx, "x");
-            p_bloq.addParent("x");
-            this.rst_trm();
-        },
-        crt: function(data, id){
-            _.each(data, function(d){
-                var params = _.clone(d.params);
-                params.id = d.id;
-                var t_inst = new bloqsnet.REGISTRY[d.type](params);
-                this.insts[d.id] = t_inst;
-            }, this);
-            
-            _.each(data, function(d){
-                _.each(d.c, function (c, idx){
-                    if(c!=="x"){
-                        this.con(c, idx, d.id);
-                    }
-                }, this);
-            }, this);
-            
-            this.inst = this.insts[id];
-            return this._inst;
-        },
-        rndr: function(id){
-            return this.insts[id].render_svg();
-        },
-        updt_par: function(id, p_name, val){
-            return this.insts[id].updateParam(p_name, val);
-        },
-        rst_trm: function(){
-            _.each(this.insts, function(i){
-                i.resetTerminals();
-            });
-        }
-    };
-    
-};
 
 ////////////////////////////////////////////////////////////////////////////////

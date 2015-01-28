@@ -63,14 +63,16 @@ var app = app || {};
         draw: function() {
 
             var rendered = app.CompositionBloqs.get_svg(this.currId);
-            var s = new XMLSerializer();
-            var str = s.serializeToString(rendered);
-            this.textarea.setValue(str);
+            if (rendered !== undefined) {
+                var s = new XMLSerializer();
+                var str = s.serializeToString(rendered);
+                this.textarea.setValue(str);
 
-            var that = this;
-            setTimeout(function() {
-                that.textarea.refresh();
-            }, 1);
+                var that = this;
+                setTimeout(function() {
+                    that.textarea.refresh();
+                }, 1);
+            }
 
         }
 

@@ -28,12 +28,10 @@ var app = app || {};
             this.currentSelectedBloq = undefined;
             this.mouseLine = undefined;
             this.zoom_scale = 1;
-            //app.CompositionBloqs.on("all", function(f) {
-            //    console.log(f);
-            //});
-            //console.log(this.$el.width());
-
-
+            app.CompositionBloqs.on("all", function(f) {
+                console.log(f);
+            });
+            
         },
 
         finalizeInitialization: function() {
@@ -112,7 +110,6 @@ var app = app || {};
                         targ_y = Math.round(Math.max( Math.min(targ_y, 0), ((-stage_h * targ_scale) + win_h)));
                         zoom2.translate([targ_x, targ_y]);
                         zoom2.scale(targ_scale);
-                        console.log(targ_y, (stage_h*d3.event.scale), d3.event.scale, (win_h/stage_h), win_h);
                         d3.select('#composition-stage-svg').attr("transform", "translate(" + targ_x + ", "+ targ_y + ")scale(" + targ_scale + ")");
                         d3.select('#navigator-box').attr("transform", "translate(" + (- targ_x) + ", "+ (- targ_y) + ")scale(" + (1/targ_scale) + ")");
                         d3.event.sourceEvent.stopPropagation();
@@ -327,16 +324,12 @@ var app = app || {};
                     that.lines();    
                 })
                 .on("dragend", function() {
-                    var bloqModel = app.CompositionBloqs.findWhere({
-                        id: d3.select(this).attr('id')
-                    });
+                    
                     var targ_x = Math.round(d3.mouse(this.nearestViewportElement)[0] - d3.mouse(this)[0]);
                     var targ_y = Math.round(d3.mouse(this.nearestViewportElement)[1] - d3.mouse(this)[1]);
-                    bloqModel.set({
-                        meta: {
-                            x: targ_x,
-                            y: targ_y
-                        }
+                    app.CompositionBloqs.updateMeta(d3.select(this).attr('id'), {
+                        x: targ_x,
+                        y: targ_y
                     });
                 });
         },
@@ -348,7 +341,13 @@ var app = app || {};
                 .on("dragstart", function(d) {
                     app.CompositionBloqs.deleteBloq(d.id);
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
-                });
+                })
+                .on("drag", function(d){
+                    d3.event.sourceEvent.stopPropagation(); // silence other listeners  
+                })
+                .on("dragend", function(d){
+                    d3.event.sourceEvent.stopPropagation(); // silence other listeners  
+                })
         },
 
         hitTestTerms: function(point) {
@@ -483,15 +482,17 @@ var app = app || {};
 
         plotdata: function() {
             var data = [];
-            this.compositionBloqs.forEach(function(datapoint) {
+            var bloqs = this.compositionBloqs.getBloqs();
+            _.each(bloqs, function(d) {
+                var datapoint = d.toJSON();
                 data.push({
-                    x: datapoint.get('meta').x,
-                    y: datapoint.get('meta').y,
-                    type: datapoint.get('type'),
-                    id: datapoint.get('id'),
-                    c: datapoint.get("c"), //['x', 'x'],
-                    p: datapoint.get("p"), //['x']
-                    params: datapoint.get("params")
+                    x: datapoint['meta'].x,
+                    y: datapoint['meta'].y,
+                    type: datapoint['type'],
+                    id: datapoint['id'],
+                    c: datapoint["c"], //['x', 'x'],
+                    p: datapoint["p"], //['x']
+                    params: datapoint["params"]
                 });
             });
             return data;
@@ -519,8 +520,10 @@ var app = app || {};
         linesdata: function() {
 
             var edge_terms = [];
-            app.CompositionBloqs.forEach(function(b) {
-                var p = b.get("p");
+            var bloqs = this.compositionBloqs.getBloqs();
+            _.each(bloqs, function(b) {
+                b = b.toJSON();
+                var p = b.p;
                 if (p !== undefined) {
                     _.each(p, function(targ_id, idx, l) {
                         var this_term = [b.id, "p", idx];

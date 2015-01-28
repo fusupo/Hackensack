@@ -47,8 +47,8 @@ var app = app || {};
                 this.clearParams();
 
                 if (id !== undefined) {
-                    var bm = this.currBloqModel = app.CompositionBloqs.get(id);
-                    this.setParams(bloqsnet.REGISTRY[bm.get("type")].prototype.def.params);
+                    var bm = this.currBloqModel = app.CompositionBloqs.getBloq(id);
+                    this.setParams(bloqsnet.REGISTRY[bm.get_type()].prototype.def.params);
                 } else {
                     this.currBloqModel = undefined;
                 }
@@ -85,7 +85,7 @@ var app = app || {};
                         case "number":
                             item = $(this.paramsItemTpl({
                                 label: p[0],
-                                val: this.currBloqModel.get("params")[p[0]]
+                                val: this.currBloqModel.get_params()[p[0]]
                             })).bind("input", (function(e) {
                                 that.tryUpdateParamNumber(p[0], e.target.value, p[1]);
                             })).on('mousewheel', function(e) {
@@ -111,7 +111,7 @@ var app = app || {};
                         case "string":
                             item = $(this.paramsItemTpl({
                                 label: p[0],
-                                val: this.currBloqModel.get("params")[p[0]]
+                                val: this.currBloqModel.get_params()[p[0]]
                             })).bind("input", function(e) {
                                 that.tryUpdateParamString(p[0], e.target.value, p[1]);
                             });
@@ -119,7 +119,7 @@ var app = app || {};
                         case "json":
                             item = $(this.paramsTextAreaItemTpl({
                                 label: p[0],
-                                val: this.currBloqModel.get("params")[p[0]]
+                                val: this.currBloqModel.get_params()[p[0]]
                             }));
                             var wtf = CodeMirror.fromTextArea(item.find(".cm-control")[0], {
                                 lineNumbers: true,
@@ -134,7 +134,7 @@ var app = app || {};
                             wtf.on("change", function(instance, changeObj) {
                                 that.tryUpdateParamJSON(p[0], instance.getValue(), p[1]);
                             });
-                            wtf.doc.setValue(this.currBloqModel.get("params")[p[0]]);
+                            wtf.doc.setValue(this.currBloqModel.get_params()[p[0]]);
                             wtf.setSize("100%", 200);
                             setTimeout(function() {
                                 wtf.refresh();
@@ -163,7 +163,7 @@ var app = app || {};
             var that = this;
             return $(this.paramsColorItemTpl({
                 label: p[0],
-                val: this.currBloqModel.get("params")[p[0]]
+                val: this.currBloqModel.get_params()[p[0]]
             })).spectrum({
                 color: p[2],
                 move: function(tinycolor) {
@@ -177,16 +177,17 @@ var app = app || {};
 
         commitUpdateParam: function(id, val) {
 
-            var didUpdate = app.CompositionBloqs.updateParam(this.currBloqModel.get('id'), id, val);
+            var didUpdate = app.CompositionBloqs.updateParam(this.currBloqModel.get_id(), id, val);
 
-            if (didUpdate) {
-                var p = _.clone(this.currBloqModel.get('params'));
-                p[id] = val;
+            // if (didUpdate) {
+            //     var p = _.clone(this.currBloqModel.get_params());
+            //     p[id] = val;
 
-                this.currBloqModel.set({
-                    params: p
-                });
-            }
+            //     this.currBloqModel.set({
+            //         params: p
+            //     });
+            // }
+            app.CompositionBloqs.trigger('change', this.currBloqModel);
         },
 
         tryUpdateParamNumber: function(id, val) {

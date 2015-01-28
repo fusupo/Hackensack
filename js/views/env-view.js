@@ -30,7 +30,7 @@ var app = app || {};
         update: function(id) {
             this.clear();
             if (id != undefined) {
-                var env = app.CompositionBloqs.vm.get(id).getEnvironment();
+                var env = app.vm.get(id).getEnvironment();
                 _.each(env, function(ctx, idx) {
                     var gr = $('<div></div>');
                     gr.addClass("env-vars env-vars-" + idx);
@@ -45,7 +45,7 @@ var app = app || {};
         },
 
         change: function(obj) {
-            this.update(obj.id);
+            //this.update(obj.get_id());
         }
 
     });
