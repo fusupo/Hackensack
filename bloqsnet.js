@@ -13,19 +13,24 @@ bloqsnet.gimmeTheThing = function(callbacks){
         insts: {},
         callbacks: callbacks,
         
-        new: function(type, meta){
-            var id = _.uniqueId('b');
-            var def = bloqsnet.REGISTRY[type].prototype.def;
-            var params = _.reduce(def.params, function(memo, p) {
-                memo[p[0]] = p[2];
-                return memo;
-            }, {});
-            return new bloqsnet.REGISTRY[type]({
-                id: id,
-                type:type,
-                meta: meta,
-                params: params
-            });
+        new: function(id, type, meta, params){
+            id = id || _.uniqueId('b');
+            if(this.insts[id] === undefined){
+                var def = bloqsnet.REGISTRY[type].prototype.def;
+                var params = params || _.reduce(def.params, function(memo, p) {
+                    memo[p[0]] = p[2];
+                    return memo;
+                }, {});
+                return new bloqsnet.REGISTRY[type]({
+                    id: id,
+                    type:type,
+                    meta: meta,
+                    params: params
+                });
+            }else{
+                this.insts[id];
+            }
+            
         },
         add: function(type, pos){
             var meta = {
@@ -33,7 +38,7 @@ bloqsnet.gimmeTheThing = function(callbacks){
                 y: pos[1]
             };
             
-            var b = this.new(type, meta);
+            var b = this.new(null, type, meta, null);
             this.insts[b.get_id()] = b;
 
             this._call_back('add', b);
@@ -56,9 +61,12 @@ bloqsnet.gimmeTheThing = function(callbacks){
                 
                 c_bloq.swapChild(et[2], p_bloq);
                 p_bloq.addParent(c_bloq);
-                //this.rst_trm();
                 
+                this.rst_trm();
+
                 this._call_back('change');
+                //change:terminal(s)?
+                //change:connection?
             }
         },
         get: function(id){
@@ -110,16 +118,16 @@ bloqsnet.gimmeTheThing = function(callbacks){
         },
         crt: function(data, id){
             _.each(data, function(d){
-                var params = _.clone(d.params);
-                params.id = d.id;
-                var t_inst = new bloqsnet.REGISTRY[d.type](params);
-                this.insts[d.id] = t_inst;
+
+                var b = this.new(d.id, d.type, _.clone(d.meta), _.clone(d.params));
+                this.insts[b.get_id()] = b;
+
             }, this);
             
             _.each(data, function(d){
                 _.each(d.c, function (c, idx){
                     if(c!=="x"){
-                        this.con(c, idx, d.id);
+                         this.con([d.id, "c", idx], [c, "p", 0]); //c, idx, d.id);
                     }
                 }, this);
             }, this);
@@ -163,9 +171,13 @@ var Base = function(spec){
 
     // init spec
     spec.type = spec.type || 'base';
+    spec.meta = spec.meta || {};
+    spec.params = spec.params || {};
+
     spec.children = bloqsnet.REGISTRY[spec.type].prototype.def.c[0] > 0 ? ["x"] : undefined;
     spec.parent = bloqsnet.REGISTRY[spec.type].prototype.def.p[0] > 0 ? "x" : undefined;
-    spec.local_env = {"foo":"bar"};
+
+    spec.local_env = {};
     spec.env = [spec.local_env];
     
     // private member variable
@@ -448,7 +460,9 @@ var SVG_Proto = function(spec){
     var that = this;
     
     var setAttribute = function(svg_elm, key, val){
-        if(val !== ""){
+        // NOTE: the undefined check here is a stopgap
+        // it really should be mitigated further upstream
+        if(val !== undefined && val !== ""){
             svg_elm.setAttribute(key, val);
         }
     };

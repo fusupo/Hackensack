@@ -1,0 +1,171 @@
+[{
+    "id": "b16",
+    "type": "root",
+    "meta": {
+        "x": 894,
+        "y": 69
+    },
+    "params": {
+        "width": "100%",
+        "height": "100%",
+        "data": "{\"series\":[99,12,24,45,12],\n\"x\":[\"apples\",\"bananas\",\"oranges\",\"peaches\",\"cherries\"],\n\"z\":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]}"
+    },
+    "p": [],
+    "c": ["b30", "x"]
+}, {
+    "id": "b18",
+    "type": "svg_rect",
+    "meta": {
+        "x": 60,
+        "y": 195
+    },
+    "params": {
+        "x": "b20_idx*50+12",
+        "y": "100-b20_d",
+        "width": "24",
+        "height": "10",
+        "rx": "0",
+        "ry": 0,
+        "fill": "#745050",
+        "transform": "translate(0,0)"
+    },
+    "p": ["b37"],
+    "c": []
+}, {
+    "id": "b20",
+    "type": "svg_each",
+    "meta": {
+        "x": 490,
+        "y": 179
+    },
+    "params": {
+        "list": "series"
+    },
+    "p": ["b30"],
+    "c": ["b35", "x"]
+}, {
+    "id": "b19",
+    "type": "svg_each",
+    "meta": {
+        "x": 493,
+        "y": 298
+    },
+    "params": {
+        "list": "x"
+    },
+    "p": ["b30"],
+    "c": ["b21"]
+}, {
+    "id": "b21",
+    "type": "svg_text",
+    "meta": {
+        "x": 58,
+        "y": 306
+    },
+    "params": {
+        "text": "b19_d",
+        "x": "b19_idx*50",
+        "y": "110",
+        "fill": "#ffffff"
+    },
+    "p": ["b19"],
+    "c": []
+}, {
+    "id": "b30",
+    "type": "svg_g",
+    "meta": {
+        "x": 716,
+        "y": 176
+    },
+    "params": {
+        "transform": "translate(75,50)"
+    },
+    "p": ["b16"],
+    "c": ["b26", "b20", "b19", "x"]
+}, {
+    "id": "b32",
+    "type": "svg_rect",
+    "meta": {
+        "x": 83,
+        "y": 33
+    },
+    "params": {
+        "x": "-10",
+        "y": "-20",
+        "width": "50*size(series)+20",
+        "height": "140",
+        "rx": 0,
+        "ry": 0,
+        "fill": "#46474f",
+        "transform": "translate(0,0)"
+    },
+    "p": ["b26"],
+    "c": []
+}, {
+    "id": "b26",
+    "type": "svg_g",
+    "meta": {
+        "x": 377,
+        "y": 56
+    },
+    "params": {
+        "transform": "translate(0,0)"
+    },
+    "p": ["b30"],
+    "c": ["b32", "b28", "x"]
+}, {
+    "id": "b28",
+    "type": "svg_rect",
+    "meta": {
+        "x": 94,
+        "y": 114
+    },
+    "params": {
+        "x": "-5",
+        "y": "-15",
+        "width": "50*size(series)+10",
+        "height": "130",
+        "rx": 0,
+        "ry": 0,
+        "fill": "#908888",
+        "transform": "translate(0,0)"
+    },
+    "p": ["b26"],
+    "c": []
+}, {
+    "id": "b35",
+    "type": "svg_animate",
+    "meta": {
+        "x": 335,
+        "y": 190
+    },
+    "params": {
+        "attributeType": "auto",
+        "dur": "1",
+        "repeatCount": "indefinite",
+        "fill": "remove",
+        "attributeName": "height",
+        "from": "0",
+        "to": "b20_d"
+    },
+    "p": ["b20"],
+    "c": ["b37"]
+}, {
+    "id": "b37",
+    "type": "svg_animate",
+    "meta": {
+        "x": 201,
+        "y": 196
+    },
+    "params": {
+        "attributeType": "auto",
+        "dur": "1",
+        "repeatCount": "indefinite",
+        "fill": "remove",
+        "attributeName": "y",
+        "from": "100",
+        "to": "100-b20_d"
+    },
+    "p": ["b35"],
+    "c": ["b18"]
+}]

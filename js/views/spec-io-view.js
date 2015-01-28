@@ -72,7 +72,9 @@ var app = app || {};
 
         draw: function() {
             
-            var json = app.CompositionBloqs.toJSON();
+            var json = _.map(app.CompositionBloqs.getBloqs(), function(b){
+                    return b.toJSON();
+            });
 
            // console.log(json);
             (function filter(obj) {

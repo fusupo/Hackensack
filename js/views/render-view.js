@@ -55,7 +55,7 @@ var app = app || {};
             if (rendered.is("svg")) {
                 this.$el.append(rendered);
             } else {
-                var svg = $(app.vm.new('root', {}).render_svg());
+                var svg = $(app.vm.new("test-render", "root", {}).render_svg());
                 svg.append(rendered);
                 this.$el.append(svg);
             }
