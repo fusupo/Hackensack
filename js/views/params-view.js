@@ -82,6 +82,7 @@ var app = app || {};
                     var item;
 
                     switch (p[1]) {
+                            
                         case "number":
                             item = $(this.paramsItemTpl({
                                 label: p[0],
@@ -103,11 +104,12 @@ var app = app || {};
                                 that.tryUpdateParamNumber(p[0], e.target.value, p[1]);
                                 return false;
                             });
-
                             break;
+                            
                         case "color":
                             item = this.createColorControl(p);
                             break;
+                            
                         case "string":
                             item = $(this.paramsItemTpl({
                                 label: p[0],
@@ -116,6 +118,7 @@ var app = app || {};
                                 that.tryUpdateParamString(p[0], e.target.value, p[1]);
                             });
                             break;
+                            
                         case "json":
                             item = $(this.paramsTextAreaItemTpl({
                                 label: p[0],
@@ -187,7 +190,7 @@ var app = app || {};
             //         params: p
             //     });
             // }
-            app.CompositionBloqs.trigger('change', this.currBloqModel);
+            app.CompositionBloqs.trigger('change:param', this.currBloqModel);
         },
 
         tryUpdateParamNumber: function(id, val) {

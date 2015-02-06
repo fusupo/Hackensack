@@ -15,6 +15,7 @@ var app = app || {};
             console.log('RENDER VIEW INIT');
 
             this.listenTo(app.CompositionBloqs, 'change', this.bloqChange);
+            this.listenTo(app.CompositionBloqs, 'change:param', this.bloqChange);
             this.listenTo(app.CompositionView, 'bloqSelection', this.bloqSelection);
 
             this.currId = undefined;
@@ -49,8 +50,8 @@ var app = app || {};
         },
 
         draw: function() {
-
-            var rendered = $(app.CompositionBloqs.get_svg(this.currId));
+//console.log("draw");
+            var rendered = app.CompositionBloqs.get_svg(this.currId);
 
             if (rendered.is("svg")) {
                 this.$el.append(rendered);

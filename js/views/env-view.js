@@ -14,7 +14,7 @@ var app = app || {};
 
             console.log('ENV VIEW INIT');
 
-            this.listenTo(app.CompositionBloqs, 'change', this.change);
+            this.listenTo(app.CompositionBloqs, 'change:param', this.change);
             this.listenTo(app.CompositionView, 'bloqSelection', this.update);
 
         },
@@ -45,7 +45,7 @@ var app = app || {};
         },
 
         change: function(obj) {
-            //this.update(obj.get_id());
+            this.update(obj.get_id());
         }
 
     });

@@ -14,7 +14,7 @@ var app = app || {};
 
             console.log('IO SVG VIEW INIT');
 
-            this.listenTo(app.CompositionBloqs, 'change', this.bloqChange);
+            this.listenTo(app.CompositionBloqs, 'change:param', this.bloqChange);
             this.listenTo(app.CompositionView, 'bloqSelection', this.bloqSelection);
 
             this.currId = undefined;
@@ -65,8 +65,8 @@ var app = app || {};
             var rendered = app.CompositionBloqs.get_svg(this.currId);
             if (rendered !== undefined) {
                 var s = new XMLSerializer();
-                var str = s.serializeToString(rendered);
-                this.textarea.setValue(str);
+                //var str = s.serializeToString(rendered.prop('outerHTML'));
+                this.textarea.setValue(rendered.prop('outerHTML'));
 
                 var that = this;
                 setTimeout(function() {

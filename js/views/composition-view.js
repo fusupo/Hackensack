@@ -20,7 +20,7 @@ var app = app || {};
             this.compositionBloqs = compositionBloqs;
 
             this.listenTo(compositionBloqs, 'add', this.redraw);
-            this.listenTo(compositionBloqs, 'change change:p', this.redraw);
+            this.listenTo(compositionBloqs, 'change', this.redraw);
             this.listenTo(compositionBloqs, 'remove', this.redraw);
             this.listenTo(compositionBloqs, 'reset', this.redraw);
 
