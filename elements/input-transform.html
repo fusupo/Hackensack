@@ -1,0 +1,128 @@
+<link rel="import" href="../components/bower_components/polymer/polymer.html">
+<link rel="import" href="../components/bower_components/core-ajax/core-ajax.html">
+
+<polymer-element name="input-transform" attributes="valueObj">
+  <template>
+    <div vertical layout style="border-style: solid; border-width: 1px;">
+      <div horizontal layout>
+        <div flex one>
+          <label>translate</label>
+        </div>
+        <div flex three>
+          <label>x</label>
+          <input
+             id="transX"
+             type="number"
+             step="1"
+             size=3
+             min=-999
+             max=999
+             value="{{transX}}"
+             on-input="{{updateVal}}">
+          <label>y</label>
+          <input
+             id="transY"
+             type="number"
+             step="1"
+             size=3
+             min=-999
+             max=999
+             value="{{transY}}"
+             on-input="{{updateVal}}">
+        </div>
+      </div>
+      <div horizontal layout>
+        <div flex one>
+          <label>scale</label>
+        </div>
+        <div flex three>
+          <label>x</label>
+          <input
+             id="scaleX"
+             type="number"
+             step="1"
+             size=3
+             min=-999
+             max=999
+             value="{{scaleX}}"
+             on-input="{{updateVal}}">
+          <label>y</label>
+          <input
+             id="scaleY"
+             type="number"
+             step="1"
+             size=3
+             min=-999
+             max=999
+             value="{{scaleY}}"
+             on-input="{{updateVal}}">
+        </div>
+      </div>
+      <div horizontal layout>
+        <div flex one>
+          <label>rotate</label>
+        </div>
+        <div flex three>
+          <label>a</label>
+          <input
+             id="rotA"
+             type="number"
+             step="1"
+             size=3
+             min=-999
+             max=999
+             value="{{rotA}}"
+             on-input="{{updateVal}}">
+          <label>x</label>
+          <input
+             id="rotX"
+             type="number"
+             step="1"
+             size=3
+             min=-999
+             max=999
+             value="{{rotX}}"
+             on-input="{{updateVal}}">
+          <label>y</label>
+          <input
+             id="rotY"
+             type="number"
+             step="1"
+             size=3
+             min=-999
+             max=999
+             value="{{rotY}}"
+             on-input="{{updateVal}}">
+        </div>
+      </div>
+      <div horizontal layout>
+        <div flex one>
+          <label>skew</label>
+        </div>
+        <div flex three>
+          <label>x</label>
+          <input
+             id="skewX"
+             type="number"
+             step="1"
+             size=3
+             min=-999
+             max=999
+             value="{{skewX}}"
+             on-input="{{updateVal}}">
+          <label>y</label>
+          <input
+             id="skewY"
+             type="number"
+             step="1"
+             size=3
+             min=-999
+             max=999
+             value="{{skewY}}"
+             on-input="{{updateVal}}">
+        </div>
+      </div>
+    </div>
+  </template>
+  <script src="input-transform.js"></script>
+</polymer-element>

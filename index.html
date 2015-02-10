@@ -18,23 +18,23 @@
 
     <link rel="stylesheet" href="lib/css/jquery-ui.theme.css">
     <!--<link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
--->
+          -->
     <link rel="stylesheet" href="lib/css/w2ui-1.4.2.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.12.0/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.6.0/spectrum.min.css">
     <!-- Optional theme -->
 
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
 
 </head>
 
 <body>
 
-  <div id="myLayoutA" style="height: 50%"></div>
-  <div style="height:1px;"></div>
-  <div id="myLayoutB" style="height: 50%"></div>
-  
-  <div id="composition">
+    <div id="myLayoutA" style="height: 50%"></div>
+    <div style="height:1px;"></div>
+    <div id="myLayoutB" style="height: 50%"></div>
+
+    <div id="composition">
     </div>
     <div id="params">
     </div>
@@ -67,41 +67,6 @@
             <textarea id="spec-io-textarea"></textarea>
         </div>
     </div>
-    <!-- <div id="app" class="wrapper">
-        <div class="app-row-A">
-
-            
-        </div>
-        <div class="app-row-B">
-            <div id="io">
-                <div role="tabpanel">-->
-
-    <!-- Nav tabs -->
-    <!--<ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="active"><a href="#spec-io" aria-controls="spec-io" role="tab" data-toggle="tab">Spec</a>
-        </li>
-        <li role="presentation"><a href="#svg-io" aria-controls="svg-io" role="tab" data-toggle="tab">SVG</a>
-        </li>
-    </ul>-->
-
-    <!-- Tab panes -->
-    <!--
-    <div class="tab-content">
-        <div role="tabpanel" class="tab-pane active" id="spec-io">
-            
-            <textarea id="spec-io-textarea"></textarea>
-        </div>
-        <div role="tabpanel" class="tab-pane" id="svg-io">
-            <textarea id="svg-io-textarea"></textarea>
-        </div>
-    </div>
-
-    </div>
-    </div>
-    <div id="render"></div>
-    <div id="env"></div>
-    </div>
-    </div>-->
 
     <!-- Templates -->
 
@@ -127,6 +92,24 @@
         </p>
     </script>
 
+    <script type="text/template" id="params-percpx-item-template">
+        <p>
+            <label>
+                <%=label %>
+            </label>
+            <input-percpx class=".form-control" value=<%=val %>>
+        </p>
+    </script>
+
+    <script type="text/template" id="params-transform-item-template">
+        <p>
+            <label>
+                <%=label %>
+            </label>
+            <input-transform class=".form-control" valueObj='<%=val %>'>
+        </p>
+    </script>
+
     <script type="text/template" id="params-color-item-template">
         <p>
             <label>
@@ -139,6 +122,9 @@
     <script type="text/template" id="params-textarea-item-template">
         <div class="row">
             <div class="form-group col-xs-10 col-lg-10 form-group-sm">
+                <label>
+                    <%=label %>
+                </label>
                 <textarea class="cm-control"></textarea>
             </div>
         </div>
@@ -150,6 +136,11 @@
                 <%=view_box %> "preserveAspectRatio"="xMinYMin meet" "class"="stage" "id", "composition-composite-svg">
     </script>
     <!-- JS -->
+
+    <!-- Custom Elements -->
+    <script src="components/bower_components/webcomponentsjs/webcomponents.js"></script>
+    <link rel="import" href="elements/input-percpx.html">
+    <link rel="import" href="elements/input-transform.html">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/json2/20140204/json2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/1.2.0/math.min.js"></script>
@@ -175,9 +166,10 @@
 
     <script src="/skewer"></script>
 
-    <script src="bloqsnet.js"></script>
+    <script src="bloqsnet/dist/built.js"></script>
 
     <script src="js/model/src-bloq.js"></script>
+
     <!-- -->
     <script src="js/collections/src-bloqs.js"></script>
     <script src="js/collections/composition-bloqs.js"></script>

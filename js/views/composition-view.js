@@ -28,9 +28,9 @@ var app = app || {};
             this.currentSelectedBloq = undefined;
             this.mouseLine = undefined;
             this.zoom_scale = 1;
-            app.CompositionBloqs.on("all", function(f) {
-                console.log(f);
-            });
+            //app.CompositionBloqs.on("all", function(f) {
+            //    console.log(f);
+            //});
             
         },
 
