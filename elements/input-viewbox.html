@@ -1,0 +1,42 @@
+<link rel="import" href="../components/bower_components/polymer/polymer.html">
+<link rel="import" href="../components/bower_components/core-ajax/core-ajax.html">
+
+<polymer-element name="input-viewbox" attributes="value">
+  <template>
+      <div horizontal layout>
+        <div flex one>
+          <label>x</label>
+          <input
+             id="x"
+             size=3
+             value="{{x}}"
+             on-input="{{updateVal}}">
+        </div>
+        <div flex one>
+          <label>y</label>
+          <input
+             id="y"
+             size=3
+             value="{{y}}"
+             on-input="{{updateVal}}">
+        </div>
+        <div flex one>
+          <label>w</label>
+          <input
+             id="w"
+             size=3
+             value="{{w}}"
+             on-input="{{updateVal}}">
+        </div>
+        <div flex one>
+          <label>h</label>
+          <input
+             id="h"
+             size=3
+             value="{{h}}"
+             on-input="{{updateVal}}">
+        </div>
+      </div>
+  </template>
+  <script src="input-viewbox.js"></script>
+</polymer-element>
