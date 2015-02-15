@@ -12,10 +12,12 @@ SVG_circle.prototype.constructor = SVG_circle;
 SVG_circle.prototype.get_svg = function() {
     var solution = this.solveParams();
     var circle_elm = document.createElementNS(bloqsnet.svgNS, "circle");
-    circle_elm.setAttribute("cx", solution.cx);
-    circle_elm.setAttribute("cy", solution.cy);
-    circle_elm.setAttribute("r", solution.r);
-    circle_elm.setAttribute("fill", solution.fill);
+    
+    this.setAttributes(circle_elm, solution);
+    // this.setAttribute("cx", solution.cx);
+    // this.setAttribute("cy", solution.cy);
+    // this.setAttribute("r", solution.r);
+    // this.setAttribute("fill", solution.fill);
     return circle_elm;
 };
 
@@ -23,21 +25,20 @@ SVG_circle.prototype.def = {
     display: true,
     type: 'svg_circle',
     params: [
-        ["cx", "number", 0, "specific attributes"],
-        ["cy", "number", 0, "specific attributes"],
-        ["r", "number", 10, "specific attributes"],
-        ["fill", "color", "#ffffff", "specific attributes"],
-        ["transform", "string", "translate(0,0)", "specific attributes"]
-    ]
-        .concat(
-            svg_conditional_processing_attributes,
-            svg_core_attributes
-            //graphical_event_attributes,
-            //presentation_attributes,
-            // - class,
-            // - style,
-            // - externalResourcesRequired,
-        ),
+        paramObj(["cx", "percpx",  "0px", "specific attributes", true]),
+        paramObj(["cy", "percpx",  "0px", "specific attributes", true]),
+        paramObj(["r", "percpx", "10px", "specific attributes", true]),
+        paramObj(["fill", "color", "#ffffff", "specific attributes", true]),
+        paramObj(["transform", "transform", {}, "specific attributes", true])
+    ].concat(
+        svg_conditional_processing_attributes,
+        svg_core_attributes
+        //graphical_event_attributes,
+        //presentation_attributes,
+        // - class,
+        // - style,
+        // - externalResourcesRequired,
+    ),
     p: [1, 1],
     c: [0, 0]
 };

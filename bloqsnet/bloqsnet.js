@@ -144,7 +144,6 @@ json_param.prototype.update = function(val, env){
     try {
         this.solved = JSON.parse(val);
     } catch (err) {
-        console.log(err);
         this.solved = undefined;
     }
     if (this.solved !== undefined) {
@@ -186,6 +185,62 @@ color_param.prototype.update = function(val, env){
     return success;
 };
 bloqsnet.PARA_REGISTRY["color"] = color_param;
+
+//////// PRESERVE ASPECT RATIO
+
+var par_param =  function(spec, initVal){
+    BaseParam.call(this, spec, initVal);
+    //this.value = this.spec.choices[0];
+};
+par_param.prototype = Object.create(BaseParam.prototype);
+par_param.prototype.constructor = par_param;
+par_param.prototype.update = function(val, env){
+    var success = false;
+    this.solved = val;
+    this.value = val;
+    success = true;
+    return success;
+};
+bloqsnet.PARA_REGISTRY["preserveAspectRatio"] = par_param;
+
+//////// VIEWBOX
+
+var vb_param =  function(spec, initVal){
+    BaseParam.call(this, spec, initVal);
+    //this.value = this.spec.choices[0];
+};
+vb_param.prototype = Object.create(BaseParam.prototype);
+vb_param.prototype.constructor = vb_param;
+vb_param.prototype.update = function(val, env){
+    var success = false;
+    this.solved = undefined;
+    
+
+    var preSolved = _.reduce(val.split(' '), function(m, e, k){
+        var s = undefined;
+        if (e.slice(-1) === "%") {
+            s = this.solve_expr(e.slice(0, -1), env) + "%";
+        }else if (val.slice(-2) === "px"){
+            s = this.solve_expr(e.slice(0, -2), env) + "px";
+        }else{
+            s = this.solve_expr(e, env);
+        }
+        
+        if(s !== undefined) m.push(s);
+
+        return m;
+    }, [], this);
+
+    if (preSolved.length === 4) {
+        
+        this.value = val;
+        this.solved = preSolved.join(' ');
+        success = true;
+    }
+    
+    return success;
+};
+bloqsnet.PARA_REGISTRY["viewBox"] = vb_param;
 
 ////////////////////////////////////////////////////////////////////////////////
 

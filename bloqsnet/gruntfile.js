@@ -24,13 +24,17 @@ module.exports = function(grunt) {
                     'bloqs/svg_svg.js',
                     'bloqs/svg_g.js',
                     'bloqs/svg_rect.js',
-                    // 'bloqs/svg_circle.js',
-                    // 'bloqs/svg_ellpise.js',
-                    // 'bloqs/svg_text.js',
-                    // 'bloqs/svg_animate.js',
-                    // 'bloqs/svg_image.js',
+                    'bloqs/svg_circle.js',
+
+                    'bloqs/svg_ellipse.js',
+                    
+                    'bloqs/svg_text.js',
+                        //'bloqs/svg_animate.js',
+                        //'bloqs/svg_image.js',
+                    
                     'bloqs/bn_root.js',
-                    // 'bloqs/svg_each.js'
+
+                        //'bloqs/svg_each.js'
                 ],
                 dest: 'dist/built.js'
             }

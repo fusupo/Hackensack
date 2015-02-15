@@ -52,7 +52,7 @@
                 <a href="#spec-io">Spec</a>
             </li>
         </ul>
-        <div id="svg-io">
+        <div id="svg-io">          
             <textarea id="svg-io-textarea"></textarea>
         </div>
         <div id="spec-io">
@@ -88,10 +88,19 @@
             <label>
                 <%=label %>
             </label>
-            <input class=".form-control" value=<%=val %>>
+            <input class=".form-control" value='<%=val %>'>
         </p>
     </script>
 
+        <script type="text/template" id="params-enum-item-template">
+        <p>
+            <label>
+                <%=label %>
+            </label>
+            <select class=".form-control">
+        </p>
+        </script>
+        
     <script type="text/template" id="params-percpx-item-template">
         <p>
             <label>
@@ -130,6 +139,24 @@
         </div>
     </script>
 
+    <script type="text/template" id="params-preserveaspectratio-item-template">
+        <p>
+          <label>
+            <%=label %>
+          </label>
+          <input-preserveaspectratio class=".form-control" value='<%=val %>'></input-preserveaspectratio>
+        </p>
+    </script>
+
+    <script type="text/template" id="params-viewbox-item-template">
+        <p>
+          <label>
+            <%=label %>
+          </label>
+          <input-viewbox class=".form-control" value='<%=val %>'></input-viewbox>
+        </p>
+    </script>
+        
     <script type="text/template" id="composition-stage-template">
         <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width=<%=win_w%> height=
             <%=win_h %> viewBox=
@@ -141,6 +168,8 @@
     <script src="components/bower_components/webcomponentsjs/webcomponents.js"></script>
     <link rel="import" href="elements/input-percpx.html">
     <link rel="import" href="elements/input-transform.html">
+    <link rel="import" href="elements/input-preserveaspectratio.html">
+    <link rel="import" href="elements/input-viewbox.html">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/json2/20140204/json2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/1.2.0/math.min.js"></script>
@@ -156,7 +185,7 @@
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="lib/js/jquery-ui.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.12/jquery.mousewheel.js"></script>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.12/jquery.mousewheel.js"></script>-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.6.0/spectrum.min.js"></script>
     <!-- W2 -->
     <script src="lib/js/w2ui-1.4.2.min.js"></script>

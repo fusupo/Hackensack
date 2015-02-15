@@ -19,17 +19,18 @@ SVG_svg.prototype.get_svg = function() {
 SVG_svg.prototype.def = {
     display: true,
     type: 'svg_svg',
+    categories: ['container', 'structural'],
     params: [
-        paramObj(["version", "enum", ["1.1", "1.0"], "specific attributes", true]),
-        paramObj(["baseProfile", "string", "none", "specific attributes", true]),
-        paramObj(["x", "number", 0, "specific attributes", true]),
-        paramObj(["y", "number", 0, "specific attributes", true]),
-        paramObj(["width", "number", 0, "specific attributes", true]),
-        paramObj(["height", "number", 0, "specific attributes", true]),
-        paramObj(["preserveAspectRatio", "string", "xMidYMid meet", "specific attributes", true]), //enum xMinYMin | xMidYMin | xMidYMin | xMinYMid | ...etc also "meet" or "slice"
-        paramObj(["contentScriptType", "string", "application/ecmascript", "specific attributes", true]),
-        paramObj(["contentStyleType", "string", "text/css", "specific attributes", true]),
-        paramObj(["viewBox", "string", "", "specific attributes", true])
+        //paramObj(["version", "enum", ["1.1", "1.0"], "specific attributes", true]),
+        //paramObj(["baseProfile", "string", "none", "specific attributes", true]),
+        paramObj(["x", "percpx", '0px', "specific attributes", true]),
+        paramObj(["y", "percpx", '0px', "specific attributes", true]),
+        paramObj(["width", "percpx", '100%', "specific attributes", true]),
+        paramObj(["height", "percpx", '100%', "specific attributes", true]),
+        paramObj(["preserveAspectRatio", "preserveAspectRatio", "xMidYMid meet", "specific attributes", true]), //enum xMinYMin | xMidYMin | xMidYMin | xMinYMid | ...etc also "meet" or "slice"
+        //paramObj(["contentScriptType", "string", "application/ecmascript", "specific attributes", true]),
+        //paramObj(["contentStyleType", "string", "text/css", "specific attributes", true]),
+        paramObj(["viewBox", "viewBox", "0 0 100 100", "specific attributes", true])
     ].concat(
         svg_conditional_processing_attributes,
         svg_core_attributes

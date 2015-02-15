@@ -4,6 +4,13 @@ Polymer('input-percpx', {
         this.value = this.scalar + this.$.unit.value;
         this.fire("change", this.value);
     },
+    mw: function(e){
+        var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+        var newVal = parseFloat(this.scalar) + delta;
+        this.scalar = newVal;//.toString();
+
+        this.updateVal();
+    },
     ready: function() {
         if(this.value.slice(-1) === "%"){
             this.scalar = this.value.slice(0,-1);
