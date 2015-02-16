@@ -162,9 +162,26 @@ var transform_param =  function(spec, initVal){
 transform_param.prototype = Object.create(BaseParam.prototype);
 transform_param.prototype.constructor = transform_param;
 transform_param.prototype.update = function(val, env){
+    // too lazy to implement the error checking at the moment
+    // better do it eventually tho
     var success = false;
+    this.solved = [];
+    _.each(val, function(p){
+        var sp = {};
+        _.each(p, function(v, k){
+            if(k !== "type"){
+                console.log(v);
+                var vs = typeof(v) === "string" ? this.solve_expr(v, env) : v;
+                console.log(vs);
+                sp[k] = vs;
+            }else{
+                sp[k] = v;
+            }
+        }, this);
+        this.solved.push(sp);
+    }, this);
+    
     this.value = val;
-    this.solved = val;
     success = true;
     return success;
 };
@@ -215,7 +232,6 @@ vb_param.prototype.update = function(val, env){
     var success = false;
     this.solved = undefined;
     
-
     var preSolved = _.reduce(val.split(' '), function(m, e, k){
         var s = undefined;
         if (e.slice(-1) === "%") {
@@ -458,15 +474,6 @@ var Base = function(spec) {
 
     spec.env_dirty = true;
     spec.solution = {};
-
-    // // initialize empty params
-    // _.each(bloqsnet.REGISTRY[spec.type].prototype.def.params, function(p) {
-    //     if (!_.has(spec.params, p.name)) {
-    //         spec.params[p.name] = "";
-    //     }
-    // });
-
-    // //
     
     //                                                private member variable  //
     var that = this;
@@ -489,7 +496,7 @@ var Base = function(spec) {
 
     //                                             privileged member function  //
     this.solve_expr = function(expr) {
-
+        console.log('solev expr -- ' + expr);
         var start = (new Date).getTime();
         
         var node = math.parse(expr);
@@ -506,7 +513,6 @@ var Base = function(spec) {
             });
             
             if(xxx){
-                //console.log('************************');
                 try {
                     res = math.eval(expr, spec.env);
                 } catch (err) {
@@ -529,6 +535,7 @@ var Base = function(spec) {
         spec.env = collapse_env();
         var params_def = bloqsnet.REGISTRY[spec.type].prototype.def.params;
         spec.solution = _.reduce(params_def, function(m, p_def) {
+            console.log(m + ' --> ' + p_def);
             var raw_val = spec.params[p_def.name].value;
             var success = spec.params[p_def.name].update(raw_val, spec.env);
             m[p_def.name] = spec.params[p_def.name].solved;
@@ -786,7 +793,6 @@ var SVG_Proto = function(spec) {
     };
 
     this.sully_cached_svg_down = function() {
-        //console.log('sully_svg_children:' + this.spec.id);
         this.cached_svg = undefined;
         _.each(this.spec.children, function(c) {
             if (c !== "x") {
@@ -796,7 +802,6 @@ var SVG_Proto = function(spec) {
     };
 
     this.sully_cached_svg_up = function() {
-        //console.log('sully_svg_parent:' + this.spec.id);
         this.cached_svg = undefined;
 
         if (this.spec.parent != undefined && this.spec.parent !== "x") {
@@ -813,12 +818,9 @@ SVG_Proto.prototype.updateParam = function(p_name, val) {
     this.sully_cached_svg_up();
     this.sully_cached_svg_down();
     Base.prototype.updateParam.call(this, p_name, val);
-    //Base.prototype.updateParam(p_name, val);
 };
 
 SVG_Proto.prototype.render_svg = function() {
-    //console.log("render: " + this.spec.id);
-
     if (this.cached_svg === undefined) {
         this.cached_svg = this.get_svg();
         if (this.spec.children != undefined && this.spec.children.length > 0) {
@@ -830,7 +832,6 @@ SVG_Proto.prototype.render_svg = function() {
             }
         }
     }
-
     return this.cached_svg;
 };
 
@@ -984,7 +985,7 @@ SVG_rect.prototype.def = {
         paramObj(["rx", "percpx", "0px", "specific attributes", true]),
         paramObj(["ry", "percpx", "0px", "specific attributes", true]),
         paramObj(["fill", "color", "#ffffff", "specific attributes", true]),
-        paramObj(["transform", "transform", '[]', "specific attributes", true])
+        paramObj(["transform", "transform", [], "specific attributes", true])
     ].concat(
         svg_conditional_processing_attributes,
         svg_core_attributes
@@ -1031,7 +1032,7 @@ SVG_circle.prototype.def = {
         paramObj(["cy", "percpx",  "0px", "specific attributes", true]),
         paramObj(["r", "percpx", "10px", "specific attributes", true]),
         paramObj(["fill", "color", "#ffffff", "specific attributes", true]),
-        paramObj(["transform", "transform", '[]', "specific attributes", true])
+        paramObj(["transform", "transform", [], "specific attributes", true])
     ].concat(
         svg_conditional_processing_attributes,
         svg_core_attributes
@@ -1076,7 +1077,7 @@ SVG_ellipse.prototype.def = {
         paramObj(["rx", "percpx", "10px", "specific attributes", true]),
         paramObj(["ry", "percpx", "5px", "specific attributes", true]),
         paramObj(["fill", "color", "#ffffff", "specific attributes", true]),
-        paramObj(["transform", "transform", "[]", "specific attributes", true])
+        paramObj(["transform", "transform", [], "specific attributes", true])
     ].concat(
             svg_conditional_processing_attributes,
             svg_core_attributes

@@ -63,7 +63,6 @@ var SVG_Proto = function(spec) {
     };
 
     this.sully_cached_svg_down = function() {
-        //console.log('sully_svg_children:' + this.spec.id);
         this.cached_svg = undefined;
         _.each(this.spec.children, function(c) {
             if (c !== "x") {
@@ -73,7 +72,6 @@ var SVG_Proto = function(spec) {
     };
 
     this.sully_cached_svg_up = function() {
-        //console.log('sully_svg_parent:' + this.spec.id);
         this.cached_svg = undefined;
 
         if (this.spec.parent != undefined && this.spec.parent !== "x") {
@@ -90,12 +88,9 @@ SVG_Proto.prototype.updateParam = function(p_name, val) {
     this.sully_cached_svg_up();
     this.sully_cached_svg_down();
     Base.prototype.updateParam.call(this, p_name, val);
-    //Base.prototype.updateParam(p_name, val);
 };
 
 SVG_Proto.prototype.render_svg = function() {
-    //console.log("render: " + this.spec.id);
-
     if (this.cached_svg === undefined) {
         this.cached_svg = this.get_svg();
         if (this.spec.children != undefined && this.spec.children.length > 0) {
@@ -107,7 +102,6 @@ SVG_Proto.prototype.render_svg = function() {
             }
         }
     }
-
     return this.cached_svg;
 };
 

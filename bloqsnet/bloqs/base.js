@@ -14,15 +14,6 @@ var Base = function(spec) {
 
     spec.env_dirty = true;
     spec.solution = {};
-
-    // // initialize empty params
-    // _.each(bloqsnet.REGISTRY[spec.type].prototype.def.params, function(p) {
-    //     if (!_.has(spec.params, p.name)) {
-    //         spec.params[p.name] = "";
-    //     }
-    // });
-
-    // //
     
     //                                                private member variable  //
     var that = this;
@@ -45,7 +36,7 @@ var Base = function(spec) {
 
     //                                             privileged member function  //
     this.solve_expr = function(expr) {
-
+        console.log('solev expr -- ' + expr);
         var start = (new Date).getTime();
         
         var node = math.parse(expr);
@@ -62,7 +53,6 @@ var Base = function(spec) {
             });
             
             if(xxx){
-                //console.log('************************');
                 try {
                     res = math.eval(expr, spec.env);
                 } catch (err) {
@@ -85,6 +75,7 @@ var Base = function(spec) {
         spec.env = collapse_env();
         var params_def = bloqsnet.REGISTRY[spec.type].prototype.def.params;
         spec.solution = _.reduce(params_def, function(m, p_def) {
+            console.log(m + ' --> ' + p_def);
             var raw_val = spec.params[p_def.name].value;
             var success = spec.params[p_def.name].update(raw_val, spec.env);
             m[p_def.name] = spec.params[p_def.name].solved;

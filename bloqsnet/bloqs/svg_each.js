@@ -41,8 +41,8 @@ SVG_each.prototype.def = {
     display: true,
     type: 'svg_each',
     params: [
-        ["transform", "string", "translate(0,0)", "specific attributes"],
-        ["list", "string", "", "specific attributes"]
+        ["transform", "transform", [], "specific attributes", true],
+        ["list", "string", "", "specific attributes", false]
     ],
     p: [1, 1],
     c: [1, 1]

@@ -159,10 +159,10 @@ var app = app || {};
                             break;
                             
                         case "transform":
-                            console.log(JSON.stringify(this.currBloqModel.get_params()[p.name]));
+                            var data = this.currBloqModel.get_params()[p.name];
                             item = $(this.paramsTransformItemTpl({
                                 label: p.name,
-                                val: JSON.stringify(this.currBloqModel.get_params()[p.name])//this.currBloqModel.get_params()[p.name]
+                                val: JSON.stringify(data)
                             })).bind("change", function(e){
                                 that.commitUpdateParam(p.name, e.originalEvent.detail);
                             });

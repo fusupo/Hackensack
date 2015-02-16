@@ -27,7 +27,7 @@ SVG_ellipse.prototype.def = {
         paramObj(["rx", "percpx", "10px", "specific attributes", true]),
         paramObj(["ry", "percpx", "5px", "specific attributes", true]),
         paramObj(["fill", "color", "#ffffff", "specific attributes", true]),
-        paramObj(["transform", "transform", "[]", "specific attributes", true])
+        paramObj(["transform", "transform", [], "specific attributes", true])
     ].concat(
             svg_conditional_processing_attributes,
             svg_core_attributes

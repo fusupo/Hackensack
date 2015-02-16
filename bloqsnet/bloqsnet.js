@@ -162,9 +162,26 @@ var transform_param =  function(spec, initVal){
 transform_param.prototype = Object.create(BaseParam.prototype);
 transform_param.prototype.constructor = transform_param;
 transform_param.prototype.update = function(val, env){
+    // too lazy to implement the error checking at the moment
+    // better do it eventually tho
     var success = false;
+    this.solved = [];
+    _.each(val, function(p){
+        var sp = {};
+        _.each(p, function(v, k){
+            if(k !== "type"){
+                console.log(v);
+                var vs = typeof(v) === "string" ? this.solve_expr(v, env) : v;
+                console.log(vs);
+                sp[k] = vs;
+            }else{
+                sp[k] = v;
+            }
+        }, this);
+        this.solved.push(sp);
+    }, this);
+    
     this.value = val;
-    this.solved = val;
     success = true;
     return success;
 };
@@ -215,7 +232,6 @@ vb_param.prototype.update = function(val, env){
     var success = false;
     this.solved = undefined;
     
-
     var preSolved = _.reduce(val.split(' '), function(m, e, k){
         var s = undefined;
         if (e.slice(-1) === "%") {

@@ -94,14 +94,10 @@ Polymer({
         this.spec = new Array();
     },
     ready: function() {
-            //this si pretty janky
+        
+        //this si pretty janky
         var targ = JSON.parse(this.valueObj);
-        console.log(this.valueObj);
-        console.log(targ);
         this.spec = targ;
         
-        //this.spec = [];
-        //this.spec = this.spec || [];
-        //console.log( this.spec );
     }
 });
