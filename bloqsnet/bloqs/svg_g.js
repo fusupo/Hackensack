@@ -21,7 +21,7 @@ SVG_g.prototype.def = {
     display: true,
     type: 'svg_g',
     params: [
-        paramObj(["transform", "transform", {}, "specific attributes", true])
+        paramObj(["transform", "transform", [], "specific attributes", true])
     ].concat(
         svg_conditional_processing_attributes,
         svg_core_attributes

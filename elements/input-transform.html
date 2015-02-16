@@ -1,9 +1,9 @@
 <link rel="import" href="../components/bower_components/polymer/polymer.html">
 <link rel="import" href="../components/bower_components/core-ajax/core-ajax.html">
 
-<polymer-element name="input-transform" attributes="valueObj">
+<polymer-element name="input-transform" attributes="valueObj spec">
   <template>
-    <div vertical layout style="border-style: solid; border-width: 1px;">
+    <template id="transTpl">
       <div horizontal layout>
         <div flex one>
           <label>translate</label>
@@ -17,7 +17,7 @@
              size=3
              min=-999
              max=999
-             value="{{transX}}"
+             value="{{m.x}}"
              on-input="{{updateVal}}">
           <label>y</label>
           <input
@@ -27,10 +27,15 @@
              size=3
              min=-999
              max=999
-             value="{{transY}}"
+             value="{{m.y}}"
              on-input="{{updateVal}}">
+          
+          <button on-click="{{remVal}}">-</button>
         </div>
       </div>
+    </template>
+
+    <template id="scaleTpl">
       <div horizontal layout>
         <div flex one>
           <label>scale</label>
@@ -44,7 +49,7 @@
              size=3
              min=-999
              max=999
-             value="{{scaleX}}"
+             value="{{m.x}}"
              on-input="{{updateVal}}">
           <label>y</label>
           <input
@@ -54,10 +59,15 @@
              size=3
              min=-999
              max=999
-             value="{{scaleY}}"
+             value="{{m.y}}"
              on-input="{{updateVal}}">
+          
+          <button on-click="{{remVal}}">-</button>
         </div>
       </div>
+    </template>
+
+    <template id="rotTpl">
       <div horizontal layout>
         <div flex one>
           <label>rotate</label>
@@ -71,7 +81,7 @@
              size=3
              min=-999
              max=999
-             value="{{rotA}}"
+             value="{{m.r}}"
              on-input="{{updateVal}}">
           <label>x</label>
           <input
@@ -81,7 +91,7 @@
              size=3
              min=-999
              max=999
-             value="{{rotX}}"
+             value="{{m.x}}"
              on-input="{{updateVal}}">
           <label>y</label>
           <input
@@ -91,10 +101,15 @@
              size=3
              min=-999
              max=999
-             value="{{rotY}}"
+             value="{{m.y}}"
              on-input="{{updateVal}}">
+          
+          <button on-click="{{remVal}}">-</button>
         </div>
       </div>
+    </template>
+
+    <template id="skewXTpl">
       <div horizontal layout>
         <div flex one>
           <label>skew</label>
@@ -108,8 +123,20 @@
              size=3
              min=-999
              max=999
-             value="{{skewX}}"
+             value="{{m.x}}"
              on-input="{{updateVal}}">
+          
+          <button on-click="{{remVal}}">-</button>
+        </div>
+      </div>
+    </template>
+
+    <template id="skewYTpl">
+      <div horizontal layout>
+        <div flex one>
+          <label>skew</label>
+        </div>
+        <div flex three>
           <label>y</label>
           <input
              id="skewY"
@@ -118,10 +145,29 @@
              size=3
              min=-999
              max=999
-             value="{{skewY}}"
+             value="{{m.y}}"
              on-input="{{updateVal}}">
+          <button on-click="{{remVal}}">-</button>
         </div>
       </div>
+    </template>
+
+    <button on-click="{{plusTranslate}}">+ translate</button>
+    <button on-click="{{plusScale}}">+ scale</button>
+    <button on-click="{{plusRotate}}">+ rotate</button>
+    <button on-click="{{plusSkewX}}">+ skewX</button>
+    <button on-click="{{plusSkewY}}">+ skewY</button>
+    
+    <div id="container" vertical layout style="border-style: solid; border-width: 1px;">
+     
+     <template repeat="{{m in spec}}">
+       <template if="{{m.type == 'trans'}}" ref="transTpl"></template>
+       <template if="{{m.type == 'scale'}}" ref="scaleTpl"></template>
+       <template if="{{m.type == 'rot'}}" ref="rotTpl"></template>
+       <template if="{{m.type == 'skewX'}}" ref="skewXTpl"></template>
+       <template if="{{m.type == 'skewY'}}" ref="skewYTpl"></template>
+     </template>
+     
     </div>
   </template>
   <script src="input-transform.js"></script>

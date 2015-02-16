@@ -26,24 +26,28 @@ var SVG_Proto = function(spec) {
                 switch(k){
                     case "transform":
                         var val = "";
-                        if(attr.translate !== undefined)
-                            val += "translate(" + attr.translate[0] + ", " + attr.translate[1] + ") ";
-                        
-                        if(attr.scale !== undefined)
-                            val += "scale(" + attr.scale[0] + ", " + attr.scale[1] + ") ";
-                        
-                        if(attr.rotate !== undefined){
-                            val += "rotate(" + attr.rotate[0];
-                            if(attr.rotate[1] !== undefined)
-                                val += ", " + attr.rotate[1] + ", " + attr.rotate[2];
-                            val += ") ";
-                        }
-                        
-                        if(attr.skewX !== undefined)
-                            val += "skewX(" + attr.skewX + ") ";
-                        
-                        if(attr.skewY !== undefined)
-                            val += "skewY(" + attr.skewY + ") ";
+                        _.each(attr, function(a, ak){
+                            switch(a.type){
+                                case "trans":
+                                    val += "translate(" + a.x + ", " + a.y + ") ";
+                                    break;
+                                case "scale":
+                                    val += "scale(" + a.x + ", " + a.y + ") ";
+                                    break;
+                                case "rot":
+                                    val += "rotate(" + a.r;
+                                    if(a.x !== undefined)
+                                        val += ", " + a.x + ", " + a.y;
+                                    val += ") ";
+                                    break;
+                                case "skewX":
+                                    val += "skewX(" + a.x + ") ";
+                                    break;
+                                case "skewY":
+                                    val += "skewY(" + a.y + ") ";
+                                    break;
+                            }
+                        });
 
                         val = val.slice(0, -1);
                         
