@@ -36,7 +36,11 @@ var BaseParam = function(spec, initVal){
             }
         }
 
-        res = isNaN(res) ? undefined : res;
+        //problem here is that sometimes we want a result thats NaN as in Array
+        // but we don't want results that are NaN as a result of failed solution
+        // how to tell the difference?
+        //res = isNaN(res) ? undefined : res;
+
         var diff = (new Date).getTime() - start;
 
         return res;
@@ -103,10 +107,22 @@ var string_param =  function(spec, initVal){
 string_param.prototype = Object.create(BaseParam.prototype);
 string_param.prototype.constructor = string_param;
 string_param.prototype.update = function(val, env){
+    // var success = false;
+    // this.solved = val;
+    // this.value = val;
+    // success = true;
+    // return success;
     var success = false;
-    this.solved = val;
-    this.value = val;
-    success = true;
+    this.solved = undefined;
+    if (isNaN(val)) {
+        this.solved = this.solve_expr(val, env);
+    }else{
+        this.solved = val;
+    }
+    if (this.solved !== undefined) {
+        this.value = val;
+        success = true;
+    }
     return success;
 };
 bloqsnet.PARA_REGISTRY["string"] = string_param;

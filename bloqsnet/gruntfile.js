@@ -33,8 +33,7 @@ module.exports = function(grunt) {
                         //'bloqs/svg_image.js',
                     
                     'bloqs/bn_root.js',
-
-                        //'bloqs/svg_each.js'
+                    'bloqs/svg_each.js'
                 ],
                 dest: 'dist/built.js'
             }
