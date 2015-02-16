@@ -21,7 +21,7 @@ var app = app || {};
                     content: app.CompositionView.el
                 }, {
                     type: 'right',
-                    size: "30%",
+                    size: "470px", //"30%",
                     resizable: true,
                     content: app.ParamsView.el
                 }]

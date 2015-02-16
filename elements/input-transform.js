@@ -52,19 +52,45 @@ Polymer({
         }
         this.fire("change", this.spec);
     },
-    remVal: function(e, detail, sender){
-        var model = e.target.templateInstance.model.m;
+    findIdx: function(m){
         var idx = -1;
         for(var i=0; i<this.spec.length; i++){
-            if(this.spec[i] === model){
+            if(this.spec[i] === m){
                 idx = i;
                 break;
             }
         }
+        return idx;
+    },
+    remVal: function(e, detail, sender){
+        var model = e.target.templateInstance.model.m;
+        var idx = this.findIdx(model);
         this.spec.splice(idx, 1);
+        this.updateVal();
+    },
+    swapUp: function(e, detail, sender){
+        var model = e.target.templateInstance.model.m;
+        var idx = this.findIdx(model);
+        if(idx > 0){
+            var a = this.spec[idx - 1];
+            var b = this.spec[idx];
+            this.spec[idx - 1] = b;
+            this.spec[idx] = a;
+            this.updateVal();
+        }
+    },
+    swapDown: function(e, detail, sender){
+        var model = e.target.templateInstance.model.m;
+        var idx = this.findIdx(model);
+        if(idx < (this.spec.length -1)){
+            var a = this.spec[idx + 1];
+            var b = this.spec[idx];
+            this.spec[idx + 1] = b;
+            this.spec[idx] = a;
+            this.updateVal();
+        }
     },
     created: function(){
-        console.log(this.spec);
         this.spec = new Array();
     },
     ready: function() {
