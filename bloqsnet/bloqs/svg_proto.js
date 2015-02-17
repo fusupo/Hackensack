@@ -91,17 +91,17 @@ SVG_Proto.prototype.updateParam = function(p_name, val) {
 };
 
 SVG_Proto.prototype.render_svg = function() {
-    if (this.cached_svg === undefined) {
-        this.cached_svg = this.get_svg();
-        if (this.spec.children != undefined && this.spec.children.length > 0) {
-            for (var i = 0; i < this.spec.children.length; i++) {
-                var child = this.spec.children[i];
-                if (child !== "x") {
-                    this.cached_svg.appendChild(this.spec.children[i].render_svg().cloneNode(true));
-                }
+    //if (this.cached_svg === undefined) {
+    this.cached_svg = this.get_svg();
+    if (this.spec.children != undefined && this.spec.children.length > 0) {
+        for (var i = 0; i < this.spec.children.length; i++) {
+            var child = this.spec.children[i];
+            if (child !== "x") {
+                this.cached_svg.appendChild(this.spec.children[i].render_svg().cloneNode(true));
             }
         }
     }
+    //}
     return this.cached_svg;
 };
 

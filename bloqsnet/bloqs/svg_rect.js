@@ -38,7 +38,7 @@ SVG_rect.prototype.def = {
         // - externalResourcesRequired,
     ),
     p: [1, 1],
-    c: [0, 0]
+    c: [1, "n"]
 };
 
 bloqsnet.REGISTRY["svg_rect"] = SVG_rect;

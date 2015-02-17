@@ -15,7 +15,7 @@ SVG_each.prototype.render_svg = function() {
             if (this.spec.children.length > 0) {
                 var child = this.spec.children[0];
                 if (child !== "x") {
-                    var l = this.env_val(this.spec.params.list);
+                    var l = this.env_val(this.spec.params.list.value);
                     _.each(l, function(d, idx) {
                         var obj = {};
                         obj[this.spec.id + "_d"] = d;
