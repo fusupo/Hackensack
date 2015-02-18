@@ -13,16 +13,10 @@ Root.prototype.updateLocalEnvironment = function() {
     this.setLocalEnvironment(JSON.parse(this.spec.params.data.value));
 };
 
-Root.prototype.get_svg = function() {
-    var solution = this.solveParams();
-    var svg_elem = document.createElementNS(bloqsnet.svgNS, "svg");
-    this.setAttributes(svg_elem, solution);
-    return svg_elem;
-};
-
 Root.prototype.def = {
     display: true,
     type: 'root',
+    svg_elem: 'svg', 
     params: [
         paramObj(["width", "percpx", "100%", "specific attributes", true]),
         paramObj(["height", "percpx", "100%", "specific attributes", true]),

@@ -105,7 +105,12 @@ SVG_Proto.prototype.render_svg = function() {
     return this.cached_svg;
 };
 
-SVG_Proto.prototype.get_svg = function() {};
+SVG_Proto.prototype.get_svg = function(){
+    var solution = this.solveParams();
+    var elm = document.createElementNS(bloqsnet.svgNS, this.def.svg_elem);
+    this.setAttributes(elm, solution);
+    return elm;
+};
 
 SVG_Proto.prototype.def = {
     display: false,

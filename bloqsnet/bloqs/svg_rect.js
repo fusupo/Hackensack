@@ -1,24 +1,19 @@
 // ////////////////////////////////////////////////////////////////////////////////
 // //                                                                  SVG_RECT  //
 // ////////////////////////////////////////////////////////////////////////////////
-
 var SVG_rect = function(spec) {
     spec.type = "svg_rect";
     SVG_Proto.call(this, spec);
 };
 SVG_rect.prototype = Object.create(SVG_Proto.prototype);
 SVG_rect.prototype.constructor = SVG_rect;
-
-SVG_rect.prototype.get_svg = function() {
-    var solution = this.solveParams();
-    var rect_elm = document.createElementNS(bloqsnet.svgNS, "rect");
-    this.setAttributes(rect_elm, solution);
-    return rect_elm;
-};
-
 SVG_rect.prototype.def = {
     display: true,
     type: 'svg_rect',
+    svg_elem: 'rect',
+    categories: ['Basic Shapes',
+                 'Graphic Elements',
+                 'Shape Elements'],
     params: [
         paramObj(["x", "percpx", "0px", "specific attributes", true]),
         paramObj(["y", "percpx", "0px", "specific attributes", true]),
@@ -38,7 +33,7 @@ SVG_rect.prototype.def = {
         // - externalResourcesRequired,
     ),
     p: [1, 1],
-    c: [1, "n"]
+    c: [1, "n"] //mostly to enable animnate subnodes (<animate>, <animateColor>, <animateMotion>, <animateTransform>, <mpath>, <set>)
+        // (<desc>, <metadata>, <title>)
 };
-
 bloqsnet.REGISTRY["svg_rect"] = SVG_rect;

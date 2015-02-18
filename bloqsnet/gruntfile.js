@@ -23,10 +23,14 @@ module.exports = function(grunt) {
                     'bloqs/svg_proto.js',
                     'bloqs/svg_svg.js',
                     'bloqs/svg_g.js',
-                    'bloqs/svg_rect.js',
+                    
                     'bloqs/svg_circle.js',
-
                     'bloqs/svg_ellipse.js',
+                    
+                    'bloqs/svg_line.js',
+                    //'bloqs/svg_polygon.js',
+                    //'bloqs/svg_polyline.js',
+                    'bloqs/svg_rect.js',
                     
                     'bloqs/svg_text.js',
                     'bloqs/svg_animate.js',

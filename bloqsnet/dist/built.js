@@ -849,7 +849,12 @@ SVG_Proto.prototype.render_svg = function() {
     return this.cached_svg;
 };
 
-SVG_Proto.prototype.get_svg = function() {};
+SVG_Proto.prototype.get_svg = function(){
+    var solution = this.solveParams();
+    var elm = document.createElementNS(bloqsnet.svgNS, this.def.svg_elem);
+    this.setAttributes(elm, solution);
+    return elm;
+};
 
 SVG_Proto.prototype.def = {
     display: false,
@@ -939,25 +944,18 @@ bloqsnet.REGISTRY['svg_svg'] = SVG_svg;
 // ////////////////////////////////////////////////////////////////////////////////
 // //                                                                     SVG_G  //
 // ////////////////////////////////////////////////////////////////////////////////
-
 var SVG_g = function(spec) {
     spec.type = "svg_g";
     SVG_Proto.call(this, spec);
 };
 SVG_g.prototype = Object.create(SVG_Proto.prototype);
 SVG_g.prototype.constructor = SVG_g;
-
-SVG_g.prototype.get_svg = function() {
-    var solution = this.solveParams();
-    var g_elm = document.createElementNS(bloqsnet.svgNS, "g");
-    this.setAttributes(g_elm, solution);
-    return g_elm;
-};
-
-
 SVG_g.prototype.def = {
     display: true,
     type: 'svg_g',
+    svg_elem: 'g',
+    categories: ['Container element',
+                 'structural element'],
     params: [
         paramObj(["transform", "transform", [], "specific attributes", true])
     ].concat(
@@ -967,30 +965,132 @@ SVG_g.prototype.def = {
     p: [1, 1],
     c: [1, "n"]
 };
-
 bloqsnet.REGISTRY['svg_g'] = SVG_g;
+
+// ////////////////////////////////////////////////////////////////////////////////
+// //                                                                SVG_CIRCLE  //
+// ////////////////////////////////////////////////////////////////////////////////
+var SVG_circle = function(spec) {
+    spec.type = "svg_circle";
+    SVG_Proto.call(this, spec);
+};
+SVG_circle.prototype = Object.create(SVG_Proto.prototype);
+SVG_circle.prototype.constructor = SVG_circle;
+SVG_circle.prototype.def = {
+    display: true,
+    type: 'svg_circle',
+    svg_elem: 'circle',
+    categories: ['Basic Shapes',
+                 'Graphic Elements',
+                 'Shape Elements'],
+    params: [
+        paramObj(["cx", "percpx",  "0px", "specific attributes", true]),
+        paramObj(["cy", "percpx",  "0px", "specific attributes", true]),
+        paramObj(["r", "percpx", "10px", "specific attributes", true]),
+        paramObj(["fill", "color", "#ffffff", "specific attributes", true]),
+        paramObj(["transform", "transform", [], "specific attributes", true])
+    ].concat(
+        svg_conditional_processing_attributes,
+        svg_core_attributes
+        //graphical_event_attributes,
+        //presentation_attributes,
+        // - class,
+        // - style,
+        // - externalResourcesRequired,
+    ),
+    p: [1, 1],
+    c: [1, "n"] //mostly to enable animnate subnodes (<animate>, <animateColor>, <animateMotion>, <animateTransform>, <mpath>, <set>)
+        // (<desc>, <metadata>, <title>)
+};
+bloqsnet.REGISTRY["svg_circle"] = SVG_circle;
+
+// ////////////////////////////////////////////////////////////////////////////////
+// //                                                               SVG_ELLIPSE  //
+// ////////////////////////////////////////////////////////////////////////////////
+var SVG_ellipse = function(spec) {
+    spec.type = "svg_ellipse";
+    SVG_Proto.call(this, spec);
+};
+SVG_ellipse.prototype = Object.create(SVG_Proto.prototype);
+SVG_ellipse.prototype.constructor = SVG_ellipse;
+SVG_ellipse.prototype.def = {
+    display: true,
+    type: 'svg_ellipse',
+    svg_elem: 'ellipse',
+    categories: ['Basic Shapes',
+                 'Graphic Elements',
+                 'Shape Elements'],
+    params: [
+        paramObj(["cx", "percpx", "0px", "specific attributes", true]),
+        paramObj(["cy", "percpx", "0px", "specific attributes", true]),
+        paramObj(["rx", "percpx", "10px", "specific attributes", true]),
+        paramObj(["ry", "percpx", "5px", "specific attributes", true]),
+        paramObj(["fill", "color", "#ffffff", "specific attributes", true]),
+        paramObj(["transform", "transform", [], "specific attributes", true])
+    ].concat(
+            svg_conditional_processing_attributes,
+            svg_core_attributes
+            //graphical_event_attributes,
+            //presentation_attributes,
+            // - class,
+            // - style,
+            // - externalResourcesRequired,
+        ),
+    p: [1, 1],
+    c: [1, "n"] //mostly to enable animnate subnodes (<animate>, <animateColor>, <animateMotion>, <animateTransform>, <mpath>, <set>)
+        // (<desc>, <metadata>, <title>)
+};
+bloqsnet.REGISTRY["svg_ellipse"] = SVG_ellipse;
+
+// ////////////////////////////////////////////////////////////////////////////////
+// //                                                                  SVG_LINE  //
+// ////////////////////////////////////////////////////////////////////////////////
+var SVG_line = function(spec) {
+    spec.type = "svg_line";
+    SVG_Proto.call(this, spec);
+};
+SVG_line.prototype = Object.create(SVG_Proto.prototype);
+SVG_line.prototype.constructor = SVG_line;
+SVG_line.prototype.def = {
+    display: true,
+    type: 'svg_line',
+    svg_elem: 'line',
+    categories: ['Basic Shapes',
+                 'Graphic Elements',
+                 'Shape Elements'],
+    params: [
+        paramObj(["x1", "percpx", "0px", "specific attributes", true]),
+        paramObj(["y1", "percpx", "0px", "specific attributes", true]),
+        paramObj(["x2", "percpx", "10px", "specific attributes", true]),
+        paramObj(["y2", "percpx", "10px", "specific attributes", true]),
+        paramObj(["stroke", "color", "#000000", "specific attributes", true]),
+        paramObj(["stroke-width", "percpx", "2px", "specific attributes", true])
+    ].concat(
+        svg_conditional_processing_attributes,
+        svg_core_attributes
+    ),
+    p: [1, 1],
+    c: [1, "n"] //mostly to enable animnate subnodes (<animate>, <animateColor>, <animateMotion>, <animateTransform>, <mpath>, <set>)
+    // (<desc>, <metadata>, <title>)
+};
+bloqsnet.REGISTRY["svg_line"] = SVG_line;
 
 // ////////////////////////////////////////////////////////////////////////////////
 // //                                                                  SVG_RECT  //
 // ////////////////////////////////////////////////////////////////////////////////
-
 var SVG_rect = function(spec) {
     spec.type = "svg_rect";
     SVG_Proto.call(this, spec);
 };
 SVG_rect.prototype = Object.create(SVG_Proto.prototype);
 SVG_rect.prototype.constructor = SVG_rect;
-
-SVG_rect.prototype.get_svg = function() {
-    var solution = this.solveParams();
-    var rect_elm = document.createElementNS(bloqsnet.svgNS, "rect");
-    this.setAttributes(rect_elm, solution);
-    return rect_elm;
-};
-
 SVG_rect.prototype.def = {
     display: true,
     type: 'svg_rect',
+    svg_elem: 'rect',
+    categories: ['Basic Shapes',
+                 'Graphic Elements',
+                 'Shape Elements'],
     params: [
         paramObj(["x", "percpx", "0px", "specific attributes", true]),
         paramObj(["y", "percpx", "0px", "specific attributes", true]),
@@ -1010,131 +1110,34 @@ SVG_rect.prototype.def = {
         // - externalResourcesRequired,
     ),
     p: [1, 1],
-    c: [1, "n"]
+    c: [1, "n"] //mostly to enable animnate subnodes (<animate>, <animateColor>, <animateMotion>, <animateTransform>, <mpath>, <set>)
+        // (<desc>, <metadata>, <title>)
 };
-
 bloqsnet.REGISTRY["svg_rect"] = SVG_rect;
-
-// ////////////////////////////////////////////////////////////////////////////////
-// //                                                                SVG_CIRCLE  //
-// ////////////////////////////////////////////////////////////////////////////////
-
-var SVG_circle = function(spec) {
-    spec.type = "svg_circle";
-    SVG_Proto.call(this, spec);
-};
-SVG_circle.prototype = Object.create(SVG_Proto.prototype);
-SVG_circle.prototype.constructor = SVG_circle;
-
-SVG_circle.prototype.get_svg = function() {
-    var solution = this.solveParams();
-    var circle_elm = document.createElementNS(bloqsnet.svgNS, "circle");
-    
-    this.setAttributes(circle_elm, solution);
-    // this.setAttribute("cx", solution.cx);
-    // this.setAttribute("cy", solution.cy);
-    // this.setAttribute("r", solution.r);
-    // this.setAttribute("fill", solution.fill);
-    return circle_elm;
-};
-
-SVG_circle.prototype.def = {
-    display: true,
-    type: 'svg_circle',
-    params: [
-        paramObj(["cx", "percpx",  "0px", "specific attributes", true]),
-        paramObj(["cy", "percpx",  "0px", "specific attributes", true]),
-        paramObj(["r", "percpx", "10px", "specific attributes", true]),
-        paramObj(["fill", "color", "#ffffff", "specific attributes", true]),
-        paramObj(["transform", "transform", [], "specific attributes", true])
-    ].concat(
-        svg_conditional_processing_attributes,
-        svg_core_attributes
-        //graphical_event_attributes,
-        //presentation_attributes,
-        // - class,
-        // - style,
-        // - externalResourcesRequired,
-    ),
-    p: [1, 1],
-    c: [0, 0]
-};
-
-bloqsnet.REGISTRY["svg_circle"] = SVG_circle;
-
-// ////////////////////////////////////////////////////////////////////////////////
-// //                                                               SVG_ELLIPSE  //
-// ////////////////////////////////////////////////////////////////////////////////
-
-var SVG_ellipse = function(spec) {
-    spec.type = "svg_ellipse";
-    SVG_Proto.call(this, spec);
-};
-SVG_ellipse.prototype = Object.create(SVG_Proto.prototype);
-SVG_ellipse.prototype.constructor = SVG_ellipse;
-
-SVG_ellipse.prototype.get_svg = function() {
-    var solution = this.solveParams();
-    var ellipse_elm = document.createElementNS(bloqsnet.svgNS, "ellipse");
-    
-    this.setAttributes(ellipse_elm, solution);
-    
-    return ellipse_elm;
-};
-
-SVG_ellipse.prototype.def = {
-    display: true,
-    type: 'svg_ellipse',
-    params: [
-        paramObj(["cx", "percpx", "0px", "specific attributes", true]),
-        paramObj(["cy", "percpx", "0px", "specific attributes", true]),
-        paramObj(["rx", "percpx", "10px", "specific attributes", true]),
-        paramObj(["ry", "percpx", "5px", "specific attributes", true]),
-        paramObj(["fill", "color", "#ffffff", "specific attributes", true]),
-        paramObj(["transform", "transform", [], "specific attributes", true])
-    ].concat(
-            svg_conditional_processing_attributes,
-            svg_core_attributes
-            //graphical_event_attributes,
-            //presentation_attributes,
-            // - class,
-            // - style,
-            // - externalResourcesRequired,
-        ),
-    p: [1, 1],
-    c: [0, 0]
-};
-
-bloqsnet.REGISTRY["svg_ellipse"] = SVG_ellipse;
 
 // ////////////////////////////////////////////////////////////////////////////////
 // //                                                                  SVG_TEXT  //
 // ////////////////////////////////////////////////////////////////////////////////
-
 var SVG_text = function(spec) {
     spec.type = "svg_text";
     SVG_Proto.call(this, spec);
 };
 SVG_text.prototype = Object.create(SVG_Proto.prototype);
 SVG_text.prototype.constructor = SVG_text;
-
 SVG_text.prototype.get_svg = function() {
+    // TODO: Try an factor this out, as has been done with other svg elements
     var solution = this.solveParams();
-    var text_elm = document.createElementNS(bloqsnet.svgNS, "text");
-    // text_elm.setAttribute("style", "fXSont-family:" + solution.font + ";");
-    // text_elm.setAttribute("x", solution.x);
-    // text_elm.setAttribute("y", solution.y);
-    // text_elm.setAttribute("fill", solution.fill);
-    // text_elm.setAttribute("opacity", solution.opacity);
-
-    this.setAttributes(text_elm, solution);
-    text_elm.textContent = solution.text;
-    return text_elm;
+    var elm = document.createElementNS(bloqsnet.svgNS, this.def.svg_elem);
+    this.setAttributes(elm, solution);
+    elm.textContent = solution.text;
+    return elm;
 };
-
 SVG_text.prototype.def = {
     display: true,
     type: 'svg_text',
+    svg_elem: 'text',
+    categories: ['Graphics Elements',
+                 'Text Content Elements'],
     params: [
         paramObj(["text", "string", "default", "specific attributes", false]),
         paramObj(["x", "percpx", "10px", "specific attributes", true]),
@@ -1144,16 +1147,10 @@ SVG_text.prototype.def = {
     ].concat(
         svg_conditional_processing_attributes,
         svg_core_attributes
-        //graphical_event_attributes,
-        //presentation_attributes,
-        // - class,
-        // - style,
-        // - externalResourcesRequired,
     ),
     p: [1, 1],
-    c: [0, 0]
+    c: [1, "n"]
 };
-
 bloqsnet.REGISTRY["svg_text"] = SVG_text;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1166,34 +1163,11 @@ var SVG_animate = function(spec) {
 };
 SVG_animate.prototype = Object.create(SVG_Proto.prototype);
 SVG_animate.prototype.constructor = SVG_animate;
-
-// SVG_animate.prototype.render_svg = function() {
-//     //if (this.cached_svg === undefined) {
-//     var returnSVG;
-//     if (this.spec.children.length > 0) {
-//         var child = this.spec.children[0];
-//         if (child !== "x") {
-//             var thisSVG = this.get_svg();
-//             returnSVG = child.render_svg().cloneNode(true);
-//             returnSVG.appendChild(thisSVG);
-//         }
-//     }
-//     this.cached_svg = returnSVG;
-//     // }
-//     return this.cached_svg;
-// };
-
-SVG_animate.prototype.get_svg = function() {
-    var solution = this.solveParams();
-    var anim_elm = document.createElementNS(bloqsnet.svgNS, "animate");
-    this.setAttributes(anim_elm, solution);
-
-    return anim_elm;
-};
-
 SVG_animate.prototype.def = {
     display: true,
     type: 'svg_animate',
+    svg_elem: 'animate',
+    categories: ['Animation Elements'],
     params: [
         paramObj(["attributeName", "string", "", "specific attributes", true]),
         paramObj(["attributeType", "string", "auto", "specific attributes", true]),
@@ -1238,16 +1212,10 @@ Root.prototype.updateLocalEnvironment = function() {
     this.setLocalEnvironment(JSON.parse(this.spec.params.data.value));
 };
 
-Root.prototype.get_svg = function() {
-    var solution = this.solveParams();
-    var svg_elem = document.createElementNS(bloqsnet.svgNS, "svg");
-    this.setAttributes(svg_elem, solution);
-    return svg_elem;
-};
-
 Root.prototype.def = {
     display: true,
     type: 'root',
+    svg_elem: 'svg', 
     params: [
         paramObj(["width", "percpx", "100%", "specific attributes", true]),
         paramObj(["height", "percpx", "100%", "specific attributes", true]),
