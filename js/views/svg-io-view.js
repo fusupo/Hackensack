@@ -26,11 +26,14 @@ var app = app || {};
             this.textarea = CodeMirror.fromTextArea(document.getElementById('svg-io-textarea'), {
                 lineNumbers: true,
                 matchBrackets: true,
-                tabMode: "indent",
-                mode: {
-                    name: "xml"
-                },
-                lineWrapping: true
+                //tabMode: "indent",
+                mode: "text/html",
+                lineWrapping: false
+            });
+            
+            var that = this;
+            this.textarea.on('change', function(inst, obj){
+                that.trigger('change', inst.getValue());
             });
 
         },
@@ -71,8 +74,18 @@ var app = app || {};
                 var that = this;
                 setTimeout(function() {
                     that.textarea.refresh();
+                    that.autoFormat();
                 }, 1);
+                
             }
+
+        },
+
+        autoFormat: function() {
+         var totalLines = this.textarea.lineCount();
+         var totalChars = this.textarea.getTextArea().value.length;
+         this.textarea.autoFormatRange({line:0, ch:0}, {line:totalLines, ch:totalChars});
+         this.textarea.setSelection({line:0, ch:0},{line:0, ch:0});
 
         }
 

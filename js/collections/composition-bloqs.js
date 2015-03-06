@@ -2,12 +2,13 @@
 var app = app || {};
 
 (function($) {
+    
     'use strict';
-
+    
     // ------------------------------- //
     //  Compositon Bloqs Collection    //
     // ------------------------------- //
-
+    
     var CompositionBloqs = Backbone.Collection.extend({
 
         // Reference to this collection's model.
@@ -18,10 +19,27 @@ var app = app || {};
 
             var that = this;
             app.vm = bloqsnet.gimmeTheThing({
-                "add": function(bloq){that.trigger("add", bloq);},
-                "remove": function(){that.trigger("remove");},
-                "reset": function(root){that.trigger("reset", root);},
-                "change": function(){that.trigger("change");} //"change:[attribute]" (model, value, options) — when a specific attribute has been updated.
+                "add": function(bloq){
+                    that.trigger("add", bloq);
+                },
+                "remove": function(m){
+                    that.trigger("remove", m);
+                },
+                "reset": function(root){
+                    that.trigger("reset", root);
+                },
+                "change:terminals": function(){
+                    that.trigger("change:terminals");
+                },
+                "change:connected": function(m,v,o){
+                    that.trigger("change:connected", m);
+                    //console.log(m,v,o);
+                },
+                "change:disconnected": function(m,v,o){
+                    that.trigger("change:disconnected", m);
+                    //console.log(m,v,o);
+                }
+                //"change:[attribute]" (model, value, options) — when a specific attribute has been updated.
                 //"invalid" (model, error, options) — when a model's validation fails on the client.
             });
         },
@@ -74,15 +92,15 @@ var app = app || {};
         deleteBloq: function(id) {
 
             app.vm.rem(id);
-            this.refreshTerminals();
+            //this.refreshTerminals();
             
         },
 
-        refreshTerminals: function() {
-
-            app.vm.rst_trm();
-            
-        },
+//        refreshTerminals: function() {
+//
+//            app.vm.rst_trm();
+//            
+//        },
 
         getBloqs: function(){
 
@@ -93,6 +111,7 @@ var app = app || {};
         getBloq: function(id){
 
             return app.vm.get(id);
+            
         },
 
         updateMeta: function(id, data){

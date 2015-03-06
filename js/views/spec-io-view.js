@@ -14,7 +14,7 @@ var app = app || {};
 
             console.log('IO SPEC VIEW INIT');
 
-            this.listenTo(app.CompositionBloqs, 'change', this.bloqChange);
+            //this.listenTo(app.CompositionBloqs, 'change', this.bloqChange);
             this.listenTo(app.CompositionView, 'bloqSelection', this.bloqSelection);
 
             this.currId = undefined;
@@ -27,6 +27,13 @@ var app = app || {};
             //this.$("#spec-io-clear").on("click", function() {
             //     console.log("clear");
             // });
+
+            app.CompositionBloqs.on("all", function(f, r, j) {
+                //console.log(f, r);
+                //     console.log(r);
+                //     console.log(j);
+                that.draw();
+            });
 
         },
 

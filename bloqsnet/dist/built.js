@@ -317,8 +317,20 @@ bloqsnet.gimmeTheThing = function(callbacks) {
         
         rem: function(id) {
             var bloq = this.insts[id];
+            //
+            var bloq_json = bloq.toJSON();
+
+            this.dscon([id, 'p', 0]);
+
+            _.each(bloq_json.c, function(c, idx){
+                this.dscon([id, 'c', idx]);
+            }, this);
+            
+            //
             bloq.kill();
             delete this.insts[id];
+
+            this._call_back('remove', id);
         },
         
         con: function(a, b, silent) {
@@ -339,9 +351,8 @@ bloqsnet.gimmeTheThing = function(callbacks) {
                 
                 this.rst_trm(silent);
 
-                if (!silent) this._call_back('change');
-                //change:terminal(s)?
-                //change:connection?
+                if (!silent) this._call_back('change:connected', [a,b]);
+                
             }
         },
         
@@ -353,29 +364,44 @@ bloqsnet.gimmeTheThing = function(callbacks) {
             // from parent to child
             var p_bloq = this.insts[id];
             var c_bloq = p_bloq.getChildNodes()[idx];
-            if(c_bloq !== "x") c_bloq.addParent("x");
-            p_bloq.swapChild(idx, "x");
-            //this.rst_trm();
+            var success = false;
+            if(c_bloq != undefined && c_bloq !== "x"){
+                c_bloq.addParent("x");
+                p_bloq.swapChild(idx, "x");
+                success = true;
+            }
+
+            return success;
+            
         },
         
         dscon_prnt: function(id, idx) {
             // from child to parent
             var c_bloq = this.insts[id];
             var p_bloq = c_bloq.getParentNode();
-            if (p_bloq !== undefined && p_bloq !== "x") p_bloq.swapChild(idx, "x");
-            c_bloq.addParent("x");
-            //this.rst_trm();
+            var success = false;
+            if (p_bloq !== undefined && p_bloq !== "x"){
+                p_bloq.swapChild(idx, "x");
+                c_bloq.addParent("x");
+                success = true;
+            }
+
+            return success;
+            
         },
         
         dscon: function(term, silent) {
             silent = silent || false;
+            var success = false;
             if (term[1] === "c") {
-                this.dscon_chld(term[0], term[2]);
+                success = this.dscon_chld(term[0], term[2]);
             } else {
-                this.dscon_prnt(term[0], term[2]);
+                success = this.dscon_prnt(term[0], term[2]);
             }
 
-            if (!silent) this._call_back('change');
+            this.rst_trm(silent);
+            
+            if (!silent && success) this._call_back('change:disconnected', term);
         },
         
         getConnectedTerm: function(term) {
@@ -453,7 +479,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
             _.each(this.insts, function(i) {
                 i.resetTerminals();
             });
-            if (!silent) this._call_back('change');
+            if (!silent) this._call_back('change:terminals');
         },
         
         //////////////////////////////
@@ -623,7 +649,6 @@ var Base = function(spec) {
             spec.children = _.without(spec.children, "x");
             spec.children.push("x");
         }
-
     };
 
     this.setLocalEnvironment = function(data) {
@@ -1156,7 +1181,6 @@ bloqsnet.REGISTRY["svg_text"] = SVG_text;
 ////////////////////////////////////////////////////////////////////////////////
 //                                                               SVG_ANIMATE  //
 ////////////////////////////////////////////////////////////////////////////////
-
 var SVG_animate = function(spec) {
     spec.type = "svg_animate";
     SVG_Proto.call(this, spec);
@@ -1194,7 +1218,6 @@ SVG_animate.prototype.def = {
     p: [1, 1],
     c: [0, 0]
 };
-
 bloqsnet.REGISTRY["svg_animate"] = SVG_animate;
 
 ////////////////////////////////////////////////////////////////////////////////

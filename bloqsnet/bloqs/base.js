@@ -147,7 +147,6 @@ var Base = function(spec) {
             spec.children = _.without(spec.children, "x");
             spec.children.push("x");
         }
-
     };
 
     this.setLocalEnvironment = function(data) {

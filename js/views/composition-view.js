@@ -2,9 +2,9 @@
 var app = app || {};
 
 (function($) {
-
+    
     'use strict';
-
+    
     var CompositionView = Backbone.View.extend({
 
         el: '#composition',
@@ -14,25 +14,33 @@ var app = app || {};
             console.log('COMPOSITION VIEW INIT');
 
             this.srcBloqs = srcBloqs;
-
+            
             this.listenTo(srcBloqs, 'reset', this.resetManifest);
 
             this.compositionBloqs = compositionBloqs;
 
-            //this.listenTo(compositionBloqs, 'add', this.redraw);
+            this.listenTo(compositionBloqs, 'add', this.addBloq);
+            this.listenTo(compositionBloqs, 'remove', this.removeBloq);
+            this.listenTo(compositionBloqs, 'change:connected', this.addConnection);
+            this.listenTo(compositionBloqs, 'change:disconnected', this.removeConnection);
+            this.listenTo(compositionBloqs, 'change:terminals', this.resetTerms);
+            
             //this.listenTo(compositionBloqs, 'change', this.redraw);
-            //this.listenTo(compositionBloqs, 'remove', this.redraw);
             this.listenTo(compositionBloqs, 'reset', this.resetComposition);
 
             this.settings = settings || {};
             this.currentSelectedBloq = undefined;
             this.mouseLine = undefined;
             this.zoom_scale = 1;
-            //app.CompositionBloqs.on("all", function(f) {
-            //    console.log(f);
-            //});
+            
+            app.CompositionBloqs.on("all", function(f, r, j) {
+                // console.log(f, r);
+                // console.log(r);
+                // console.log(j);
+            });
 
-            this.linesData = {};
+            this.linesData = [];
+            this.bloqData = [];
         },
 
         finalizeInitialization: function() {
@@ -324,7 +332,7 @@ var app = app || {};
                     //
                     
                     var ld = _.filter(that.linesData, function(d){
-                        return d[0] === id; // || d[5] === id;
+                        return d[0] === id;
                     });
                     _.each(ld, function(l){
                         var sel2 = d3.select("#" + l[0] + "-" + l[5]);
@@ -351,7 +359,6 @@ var app = app || {};
                     
                 })
                 .on("dragend", function() {
-                    
                     var targ_x = Math.round(d3.mouse(this.nearestViewportElement)[0] - d3.mouse(this)[0]);
                     var targ_y = Math.round(d3.mouse(this.nearestViewportElement)[1] - d3.mouse(this)[1]);
                     app.CompositionBloqs.updateMeta(d3.select(this).attr('id'), {
@@ -368,13 +375,13 @@ var app = app || {};
                 .on("dragstart", function(d) {
                     app.CompositionBloqs.deleteBloq(d.id);
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
-                })
-                .on("drag", function(d){
-                    d3.event.sourceEvent.stopPropagation(); // silence other listeners  
-                })
-                .on("dragend", function(d){
-                    d3.event.sourceEvent.stopPropagation(); // silence other listeners  
                 });
+                // .on("drag", function(d){
+                //     d3.event.sourceEvent.stopPropagation(); // silence other listeners  
+                // })
+                // .on("dragend", function(d){
+                //     d3.event.sourceEvent.stopPropagation(); // silence other listeners  
+                // });
         },
 
         hitTestTerms: function(point) {
@@ -407,19 +414,45 @@ var app = app || {};
             var that = this;
             var mouse_terms;
 
+            
             return d3.behavior.drag()
                 .on("dragstart", function(d) {
 
                     var other = app.CompositionBloqs.getConnectedTerm(d);
                     mouse_terms = other === "x" ? [d, "x"] : [other, "x"];
                     app.CompositionBloqs.disconnect(d);
-                    //that.removeLines();
+
+                    //that.resetLinesData();
+                    //that.linesToo();
+                    
                     var mouse_pos = d3.mouse(that.stage_right[0][0]);
-                    that.mouseLine = [
-                        mouse_terms[0] !== "x" ? that.terminalPos(mouse_terms[0]) : mouse_pos,
-                        mouse_terms[1] !== "x" ? that.terminalPos(mouse_terms[1]) : mouse_pos
-                    ];
-                    that.lines();
+                    that.mouseLine = mouse_terms[0] !== "x" ? that.terminalPos(mouse_terms[0]) : mouse_pos;
+                    that.mouseLine = that.mouseLine.concat(mouse_terms[1] !== "x" ? that.terminalPos(mouse_terms[1]) : mouse_pos);
+
+                    //
+                    var selection = d3.select('#composition-lines-group')
+                            .selectAll('.mouse-line');
+                    var r = selection.data([that.mouseLine]);
+                    r.enter().append("svg:line")
+                        .attr({
+                            "x1": function(d, i) {
+                                return d[0];
+                            },
+                            "y1": function(d, i) {
+                                return d[1];
+                            },
+                            "x2": function(d, i) {
+                                return d[2];
+                            },
+                            "y2": function(d, i) {
+                                return d[3];
+                            },
+                            "stroke": "black",
+                            "class": "mouse-line",
+                            "ponter-events": "none",
+                            "id": "mouse-line"
+                        });
+                    //
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
                 })
                 .on("drag", function(d) {
@@ -428,7 +461,31 @@ var app = app || {};
                         mouse_terms[0] !== "x" ? that.terminalPos(mouse_terms[0]) : mouse_pos,
                         mouse_terms[1] !== "x" ? that.terminalPos(mouse_terms[1]) : mouse_pos
                     ];
-                    that.lines();
+                    
+                    var mouse_pos = d3.mouse(that.stage_right[0][0]);
+                    that.mouseLine = mouse_terms[0] !== "x" ? that.terminalPos(mouse_terms[0]) : mouse_pos;
+                    that.mouseLine = that.mouseLine.concat(mouse_terms[1] !== "x" ? that.terminalPos(mouse_terms[1]) : mouse_pos);
+                    
+                    //
+                    var selection = d3.select('#composition-lines-group')
+                            .selectAll('.mouse-line');
+                    var r = selection.data([that.mouseLine]);
+                    r.attr({
+                        "x1": function(d, i) {
+                            return d[0];
+                        },
+                        "y1": function(d, i) {
+                            return d[1];
+                        },
+                        "x2": function(d, i) {
+                            return d[2];
+                        },
+                        "y2": function(d, i) {
+                            return d[3];
+                        }
+                    });
+                    //
+
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
                     //that.manifestDrag(d, d3.event);
                 })
@@ -439,10 +496,18 @@ var app = app || {};
                     if (hit !== undefined) {
                         app.CompositionBloqs.addConnection(mouse_terms[0], hit);
                     }
-                    app.CompositionBloqs.refreshTerminals();
-                    that.redraw();
+
+                    var selection = d3.select('#composition-lines-group')
+                            .selectAll('.mouse-line');
+                    var r = selection.data([]);
+                    r.exit().remove();
+
+                    //that.resetLinesData();
+                    //that.linesToo();
+                    
                     d3.event.sourceEvent.stopPropagation(); // silence other listeners
                 });
+            
         },
 
         ////////////////////////
@@ -491,7 +556,6 @@ var app = app || {};
         ////////////////////////////////////
         
         manifestdata: function() {
-
             var data = [];
             this.srcBloqs.forEach(function(datapoint) {
                 data.push({
@@ -499,32 +563,10 @@ var app = app || {};
                     type: datapoint.get('type')
                 });
             });
-
             return data;
-
-        },
-
-        plotdata: function() {
-            var data = [];
-            var bloqs = this.compositionBloqs.getBloqs();
-            _.each(bloqs, function(d) {
-                var datapoint = d.toJSON();
-                data.push({
-                    x: datapoint['meta'].x,
-                    y: datapoint['meta'].y,
-                    type: datapoint['type'],
-                    id: datapoint['id'],
-                    c: datapoint["c"], //['x', 'x'],
-                    p: datapoint["p"], //['x']
-                    params: datapoint["params"]
-                });
-            });
-            return data;
-
         },
 
         terminalPos: function(term) {
-
             var r = $('#composition-stage-def');
             var t = $('#composition-composite-svg ' +
                       '#composition-bloqs-group ' +
@@ -536,17 +578,12 @@ var app = app || {};
             x += matrix.e + 5;
             var y = parseInt(t[0].getAttribute("y")) || 0;
             y += matrix.f + 5;
-
             return ([x, y]);
-
         },
 
         resetLinesData: function(){
-
-            var foo_terms = [];
             var bar_terms = [];
             var bloqs = this.compositionBloqs.getBloqs();
-            
             _.each(bloqs, function(b) {
                 b = b.toJSON();
                 var p = b.p;
@@ -554,11 +591,7 @@ var app = app || {};
                     _.each(p, function(targ_id, idx, l) {
                         var this_term = [b.id, "p", idx];
                         var other_term = app.CompositionBloqs.getConnectedTerm(this_term);
-                        if (other_term !== "x") {
-                            foo_terms.push(
-                                [b.id, other_term[0]]
-                                    .concat(this.terminalPos(this_term)
-                                            .concat(this.terminalPos(other_term))));
+                        if (other_term !== "x") {                           
                             var bar_term = this_term.concat(this.terminalPos(this_term));
                             bar_term = bar_term.concat(other_term.concat(this.terminalPos(other_term)));
                             bar_terms.push(bar_term);
@@ -568,39 +601,6 @@ var app = app || {};
             }, this);
             
             this.linesData = bar_terms;
-            console.log(bar_terms);
-            
-        },
-        
-        linesdata: function() {
-            var edge_terms = [];
-            var bloqs = this.compositionBloqs.getBloqs();
-            _.each(bloqs, function(b) {
-                b = b.toJSON();
-                var p = b.p;
-                if (p !== undefined) {
-                    _.each(p, function(targ_id, idx, l) {
-                        var this_term = [b.id, "p", idx];
-                        var other_term = app.CompositionBloqs.getConnectedTerm(this_term);
-                        if (other_term !== "x") {
-                            edge_terms.push([this_term, other_term]);
-                        }
-                    });
-                }
-            });
-            var edge_coords = _.map(edge_terms, function(edge_term) {
-                return [
-                    this.terminalPos(edge_term[0]),
-                    this.terminalPos(edge_term[1])
-                ];
-            }, this);
-
-            if (this.mouseLine !== undefined) {
-                edge_coords.push(this.mouseLine);
-            }
-
-            return edge_coords;
-
         },
         
         //////////////////////////////////
@@ -608,17 +608,69 @@ var app = app || {};
         //////////////////////////////////
 
         resetComposition: function(item, coll, o) {
-            console.log("reset Composition!!");
-            this.plot({});
+            _.each(app.CompositionBloqs.getBloqs(), function(b){
+                this.addBloq(b);
+            }, this);
+
             this.resetLinesData();
-
-            console.log(this.linesData);
             this.linesToo();
-
         },
 
-        linesToo: function() {
+        addBloq: function(d, coll, o) {
+            var datapoint = d.toJSON();
+            this.bloqData.push({
+                x: datapoint['meta'].x,
+                y: datapoint['meta'].y,
+                type: datapoint['type'],
+                id: datapoint['id'],
+                c: datapoint["c"], 
+                p: datapoint["p"],
+                params: datapoint["params"]
+            });
+            
+            this.plot({});
+        },
+        
+        removeBloq: function(id){
+            this.bloqData = _.reject(this.bloqData, function(o){
+                return o.id === id;
+            });
+            this.plot({});
+        },
 
+        addConnection: function(o){
+            var this_term = o[0].concat(this.terminalPos(o[0]));
+            var other_term = o[1].concat(this.terminalPos(o[1]));
+            var conn = this_term.concat(other_term);
+
+            this.linesData.push(conn);
+            this.linesToo();
+        },
+
+        removeConnection: function(o){
+            this.linesData = _.reject(this.linesData, function(l){
+                var a = _.first(l, 3);
+                var b = _.first(_.rest(l, 5), 3);
+                return _.isEqual(a,o) || _.isEqual(b,o);
+            });
+
+            this.linesToo();
+        },
+
+        resetTerms: function(){
+            console.log(this.bloqData);
+            this.bloqData = _.map(this.bloqData, function(bd){
+                var b = app.CompositionBloqs.getBloq(bd.id);
+                var datapoint = b.toJSON();
+                bd.c = datapoint["c"];
+                bd.p = datapoint["p"];
+                return bd;
+            });
+            console.log(this.bloqData);
+            this.plot({});
+        },
+        
+        linesToo: function() {
             var r = d3.select('#composition-lines-group')
                     .selectAll('.composition-line')
                     .data(this.linesData);
@@ -644,72 +696,11 @@ var app = app || {};
                         return d[0] + "-" + d[5];
                     }
                 });
-
-            // r.attr({
-            //     "x1": function(d, i) {
-            //         return d[1];
-            //     },
-            //     "y1": function(d, i) {
-            //         return d[2];
-            //     },
-            //     "x2": function(d, i) {
-            //         return d[3];
-            //     },
-            //     "y2": function(d, i) {
-            //         return d[4];
-            //     }
-            // });
-
-            // r.exit().remove();
-        },
-
-        lines: function() {
-
-            // var data = this.linesdata();
-            // var r = d3.select('#composition-lines-group')
-            //         .selectAll('.composition-line')
-            //         .data(data);
-
-            // r.enter().append("svg:line")
-            //     .attr({
-            //         "x1": function(d, i) {
-            //             return d[0][0];
-            //         },
-            //         "y1": function(d, i) {
-            //             return d[0][1];
-            //         },
-            //         "x2": function(d, i) {
-            //             return d[1][0];
-            //         },
-            //         "y2": function(d, i) {
-            //             return d[1][1];
-            //         },
-            //         "stroke": "black",
-            //         "class": "composition-line",
-            //         "ponter-events": "none"
-            //     });
-
-            // r.attr({
-            //     "x1": function(d, i) {
-            //         return d[0][0];
-            //     },
-            //     "y1": function(d, i) {
-            //         return d[0][1];
-            //     },
-            //     "x2": function(d, i) {
-            //         return d[1][0];
-            //     },
-            //     "y2": function(d, i) {
-            //         return d[1][1];
-            //     }
-            // });
-
-
+            
             r.exit().remove();
         },
 
         plot: function(options) {
-
             var that = this;
 
             // Copy these data to avoid closure issues below
@@ -717,7 +708,7 @@ var app = app || {};
             var h = this.h;
             var box_w = this.box_w;
             var box_h = this.box_h;
-            var data = this.plotdata();
+            //var data = this.plotdata();
 
             // UPDATE
             // Update old elements as needed.
@@ -727,7 +718,7 @@ var app = app || {};
             // Create new elements as needed.
             var r = d3.select('#composition-bloqs-group')
                     .selectAll('.composition_bloq')
-                    .data(data, function(d) {
+                    .data(this.bloqData, function(d) {
                         return d.id + d.p.concat(d.c).join(); // create uniq id...must recognize (child) terminal data change
                     });
 
@@ -771,13 +762,11 @@ var app = app || {};
             // EXIT
             // Remove old elements as needed.
             r.exit().remove();
-
         },
 
         //  RENDER HELPERS  //
 
         d3DropShadow: function(sel, w, h) {
-
             sel.append("svg:rect")
                 .attr({
                     "x": 1,
@@ -787,11 +776,9 @@ var app = app || {};
                     "fill": "#435261",
                     'class': 'dropshadow'
                 });
-
         },
 
         d3Face: function(sel, w, h) {
-
             sel.append("svg:rect")
                 .attr({
                     "width": w,
@@ -801,7 +788,6 @@ var app = app || {};
                 .classed({
                     "face": true
                 });
-
         },
 
         d3Bloq: function(sel, w, h) {
@@ -823,7 +809,6 @@ var app = app || {};
         },
 
         d3Terminals: function(sel, side, x) {
-
             var t = sel.append("svg:g")
                     .attr({
                         "class": "term-" + side,
@@ -831,7 +816,7 @@ var app = app || {};
                     });
 
             var u = t.selectAll('.term')
-                    .data(function(d) {
+                    .data(function(d) {                        
                         return _.map(d[side], function(u, idx) {
                             return [d.id, side, idx];
                         });
