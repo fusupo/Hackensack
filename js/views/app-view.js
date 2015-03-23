@@ -14,44 +14,13 @@ var app = app || {};
 
             console.log('APP VIEW INIT');
 
-            $('#myLayoutA').w2layout({
-                name: 'myLayoutA',
-                panels: [{
-                    type: 'main',
-                    content: app.CompositionView.el
-                }, {
-                    type: 'right',
-                    size: "470px", //"30%",
-                    resizable: true,
-                    content: app.ParamsView.el
-                }]
-            });
-
-            $('#myLayoutB').w2layout({
-                name: 'myLayoutB',
-                panels: [{
-                    type: 'left',
-                    size: "33%",
-                    resizable: true,
-                    content: $('#tabs')
-                }, {
-                    type: 'main',
-                    content: app.RenderView.el
-                }, {
-                    type: 'right',
-                    size: "15%",
-                    resizable: true,
-                    content: app.EnvView.el
-                }],
-                onRender: function(event) {
-
-                }
-            });
-
+            app.ManifestView.finalizeInitialization();
             app.CompositionView.finalizeInitialization();
             app.ParamsView.finalizeInitialization();
 
-            $("#tabs").tabs();
+            $("#tabs").tabs({
+                heightStyle: "fill"
+            });
 
             app.IOSpecView.finalizeInitialization();
             app.IOSVGView.finalizeInitialization();

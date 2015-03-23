@@ -137,7 +137,6 @@ var app = app || {};
                                 label: p.name,
                                 val: this.currBloqModel.get_params()[p.name]
                             })).bind("change", function(e){
-                                console.log('update suckah! - ' + e.originalEvent.detail);
                                 that.commitUpdateParam(p.name, e.originalEvent.detail);
                             });
                             //     .on('mousewheel', function(e){

@@ -28,8 +28,8 @@ var app = app || {};
                 "reset": function(root){
                     that.trigger("reset", root);
                 },
-                "change:terminals": function(){
-                    that.trigger("change:terminals");
+                "change:terminals": function(m,v,o){
+                    that.trigger("change:terminals", m);
                 },
                 "change:connected": function(m,v,o){
                     that.trigger("change:connected", m);

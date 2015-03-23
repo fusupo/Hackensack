@@ -142,11 +142,14 @@ var Base = function(spec) {
     this.resetTerminals = function() {
         var card = bloqsnet.REGISTRY[spec.type].prototype.def["c"];
         var temp = {};
-
+        var before = spec.children;
+        
         if (card[1] === "n") {
             spec.children = _.without(spec.children, "x");
             spec.children.push("x");
         }
+
+        return !_.isEqual(spec.children, before);
     };
 
     this.setLocalEnvironment = function(data) {
