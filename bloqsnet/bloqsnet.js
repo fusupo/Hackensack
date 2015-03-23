@@ -477,9 +477,9 @@ bloqsnet.gimmeTheThing = function(callbacks) {
         rst_trm: function(silent) {
             silent = silent || false;
             _.each(this.insts, function(i) {
-                i.resetTerminals();
-            });
-            if (!silent) this._call_back('change:terminals');
+                var didReset = i.resetTerminals();
+                if(didReset && !silent) this._call_back('change:terminals', i);
+            }, this);
         },
         
         //////////////////////////////

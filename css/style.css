@@ -5,12 +5,6 @@
     border: 1px solid #eee;
     font-family: 'Source Code Pro';
 }
-/* .CodeMirror-scroll { */
-/*     height: auto; */
-/*     overflow-y: hidden; */
-/*     overflow-x: auto; */
-/* } */
-
 html,
 body {
     font-family: 'Source Code Pro';
@@ -18,55 +12,38 @@ body {
     font-size: 10px;
     overflow: hidden;
 }
-svg {
-    max-height: 100%;
-}
-label {
-    vertical-align: top;
-}
-.wrapper {
+/*--*/
+
+#app {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    height: 100%;
-    background-color: #d3d3d3;
-}
-.app-row-A {
-    display: flex;
-    flex-direction: row;
-    order: 1;
-    flex: 1;
-    background-color: #bebebe;
-    height: 0px;
-}
-.app-row-B {
-    display: flex;
-    flex-direction: row;
-    order: 2;
-    flex: 1;
-    background-color: #696969;
-}
-/* */
-
-#library {
     width: 100%;
+    margin: 0;
     height: 100%;
+}
+#row-a {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin: 0;
+    height: 50%;
+}
+#row-b {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin: 0;
+    height: 50%;
+}
+/* -- */
+
+#manifest {
+    flex-basis: 150px;
     background-color: #2f4f4f;
 }
-/* */
-
-#io {
-    width: 100%;
-    height: 100%;
-    background-color: #708090;
-}
-/* */
-
 #composition {
-    width: 100%;
-    height: 100%;
+    flex: 1;
     background-color: #708090;
-
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -74,39 +51,27 @@ label {
     -ms-user-select: none;
     user-select: none;
 }
-/* #composition #composition-stage-bg { */
-/*     fill: #666; */
-/* } */
-#composition-stage-navigator {
-    stroke: #999999;
-    stroke-width: 20px;
-}
-/* */
-
-#render {
-    width: 100%;
-    height: 100%;
-    background-color: #333333;
-}
-/* */
-
 #params {
-    width: 100%;
-    height: 100%;
+    flex-basis: 470px;
     background-color: #e6e6e6;
     border-style: solid;
     border-width: 1px;
     border-color: #d3d3d3;
-    /*#2f4f4f;*/
-    
     text-align: right;
 }
-/* */
+/* -- */
 
+#io {
+    flex: 2;
+    background-color: #708090;
+}
+#render {
+    flex: 3;
+    background-color: #333333;
+}
 #env {
+    flex: 1;
     font-family: 'Source Code Pro';
-    width: 100%;
-    height: 100%;
     background-color: #aaaaaa;
     font-size: 12px;
     overflow-y: auto;
@@ -123,13 +88,18 @@ label {
     margin-top: 1px;
     background-color: #cccccc;
 }
-#env env-var {}
-/* */
+/* -- */
 
+svg {
+    max-height: 100%;
+}
+label {
+    vertical-align: top;
+}
 .face {
     fill: #A3B2C1;
 }
 .face.selected {
     fill: #ff0000;
 }
-/* *
+/* */
