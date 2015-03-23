@@ -2,8 +2,8 @@
 var app = app || {};
 
 (function($) {
-
-    'use strict';
+        //foo
+        'use strict';
 
     var CompositionView = Backbone.View.extend({
 
