@@ -1,9 +1,9 @@
 function Stage(el_id, w, h) {
 
     this.svgNS = "http://www.w3.org/2000/svg",
-        this.xlinkNS = "http://www.w3.org/1999/xlink",
+    this.xlinkNS = "http://www.w3.org/1999/xlink",
 
-        this.nodes = {};
+    this.nodes = {};
     this.conns = [];
     this.w = w;
     this.h = h;
@@ -271,6 +271,9 @@ Stage.prototype.addNode = function(id, type, x, y) {
             //
 
             term.disconn();
+            if (term.side === 'i') {
+                term.parent.remTerm('i', term.getIdx());
+            }
         }
 
         var anchorPos = that.targTerm.getPos();
@@ -357,6 +360,24 @@ Stage.prototype.addNode = function(id, type, x, y) {
 Stage.prototype.removeNode = function(id) {
 
     var n = this.nodes[id];
+    var ti = n.ti;
+    var to = n.to;
+    // for(var i = 0; i < ti.length; i++) {
+    //     var conn = ti[i].conn;
+    //     if(conn !== undefined){
+    //         var opp = conn.getOpposite(ti[i]);
+    //         opp.parent.remTerm('o', opp.getIdx());
+    //     }
+    // }
+
+    for(var j = 0; j < to.length; j++) {
+        var conn = to[j].conn;
+        if(conn !== undefined){
+            var opp = conn.getOpposite(to[j]);
+            opp.parent.remTerm('i', opp.getIdx());
+        }
+    }
+    
     this.stage_def.removeChild(n.el);
     delete this.nodes[id];
     n.destroy();
@@ -379,6 +400,7 @@ Stage.prototype.addTerm = function(id, side) {
 
 Stage.prototype.remTerm = function(id, side, idx) {
 
+    console.log("foo");
     var n = this.nodes[id];
     n.remTerm(side, idx);
 
@@ -394,4 +416,20 @@ Stage.prototype.connect = function(id1, idx1, id2, idx2) {
     var conn = new Conn(to, ti);
     this.stage_def.appendChild(conn.el);
 
+    //
+    console.log(n2.getTermIdx(ti) + " === " + n2.getMaxTermIdx('i'));
+    
+    if(n2.getTermIdx(ti) === n2.getMaxTermIdx('i')){
+        n2.addTerm("i");
+    }
+    
+};
+
+// Stage.prototype.disconnect = function(id, side, idx) {
+
+//     var n = this.nodes[id]
+// };
+
+Stage.prototype.resetNodeTerms = function(id) {
+    this.nodes[id].refreshTerms();
 };

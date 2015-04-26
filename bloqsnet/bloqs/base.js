@@ -14,7 +14,7 @@ var Base = function(spec) {
 
     spec.env_dirty = true;
     spec.solution = {};
-    
+
     //                                                private member variable  //
     var that = this;
 
@@ -37,21 +37,21 @@ var Base = function(spec) {
     //                                             privileged member function  //
     this.solve_expr = function(expr) {
         var start = (new Date).getTime();
-        
+
         var node = math.parse(expr);
-        var filtered = node.filter(function (node) {
+        var filtered = node.filter(function(node) {
             return node.type == 'SymbolNode';
         });
 
         var res = expr;
-        
-        if(filtered.length > 0){
+
+        if (filtered.length > 0) {
             var keys = _.keys(spec.env);
-            var xxx = _.every(filtered, function(i){
+            var xxx = _.every(filtered, function(i) {
                 return _.contains(keys, i.name);
             });
-            
-            if(xxx){
+
+            if (xxx) {
                 try {
                     res = math.eval(expr, spec.env);
                 } catch (err) {
@@ -62,9 +62,9 @@ var Base = function(spec) {
         }
 
         res = isNaN(res) ? undefined : res;
-        
+
         var diff = (new Date).getTime() - start;
-        
+
         return res;
 
     };
@@ -93,7 +93,7 @@ var Base = function(spec) {
     };
 
     this.get_params = function() {
-        return _.reduce(spec.params, function(m, p, k){
+        return _.reduce(spec.params, function(m, p, k) {
             m[k] = p.value;
             return m;
         }, {}, this);
@@ -143,11 +143,25 @@ var Base = function(spec) {
         var card = bloqsnet.REGISTRY[spec.type].prototype.def["c"];
         var temp = {};
         var before = spec.children;
-        
+
         if (card[1] === "n") {
+
+            // if (_.indexOf(spec.children, "x") !== (spec.children.length - 1)) {
+            //     spec.children = spec.children.slice(0);
+            //     while (_.contains(spec.children, "x")) {
+            //         var idx = _.indexOf(spec.children, "x");
+            //         spec.children.splice(idx, 1);
+            //         spec.onTermRem(idx);
+            //     }
+            //     spec.children.push('x');
+            //     spec.onTermAdd(spec.children.length - 1);
+            // }
+
             spec.children = _.without(spec.children, "x");
             spec.children.push("x");
         }
+
+        console.log('-------------------------------------------------- ' + !_.isEqual(spec.children, before));
 
         return !_.isEqual(spec.children, before);
     };
@@ -202,15 +216,15 @@ Base.prototype.updateParam = function(p_name, val) {
     });
 
     success = this.spec.params[p_name].update(val, this.spec.env);
-    
+
     if (success) {
         this.updateLocalEnvironment();
-    }else{
+    } else {
         console.log('didnt update param: ' + p_name + ', type: ' + p.type + ', val: ' + val);
     }
 
     return success;
-    
+
 };
 
 Base.prototype.updateLocalEnvironment = function() {};
@@ -248,8 +262,8 @@ Base.prototype.toJSON = function() {
                 m[k] = s;
                 break;
             case "params":
-                m[k] = _.reduce(s, function(mem, val, key){
-                    if(val.value !== undefined) mem[key] = val.value;
+                m[k] = _.reduce(s, function(mem, val, key) {
+                    if (val.value !== undefined) mem[key] = val.value;
                     return mem;
                 }, {});
                 break;

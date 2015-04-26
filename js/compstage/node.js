@@ -181,8 +181,12 @@ Node.prototype.getTermIdx = function(term) {
 
 };
 
-Node.prototype.destroy = function() {
+Node.prototype.getMaxTermIdx = function(side){
+    return this["t" + side].length - 1;
+};
 
+Node.prototype.destroy = function() {
+    
     console.log('destroy node ' + this.id);
 
     var i;

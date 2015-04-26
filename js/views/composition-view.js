@@ -14,14 +14,27 @@ var app = app || {};
             console.log('COMPOSITION VIEW INIT');
 
             this.compositionBloqs = compositionBloqs;
-
+            var that = this;
             this.listenTo(this.compositionBloqs, 'add', this.addBloq);
             this.listenTo(compositionBloqs, 'remove', this.removeBloq);
             this.listenTo(compositionBloqs, 'change:connected', this.addConnection);
-            // this.listenTo(compositionBloqs, 'change:disconnected', this.removeConnection);
+            this.listenTo(compositionBloqs, 'change:disconnected', this.removeConnection);
             this.listenTo(compositionBloqs, 'change:terminals', function(m,v,o){
-                console.log(m.toJSON());
+                console.log("CHANG TERMINAL"+m.toJSON()['id']);
+                that.stage.resetNodeTerms(m.toJSON()['id']);
+                //addterm
             });//this.resetTerms);
+
+            this.listenTo(compositionBloqs, 'term:add', function(id, idx){
+                console.log('ADDTERM: ' + id[0]);
+                that.stage.addTerm(id[0], 'i');
+            });
+
+            this.listenTo(compositionBloqs, 'term:rem', function(id, idx){
+                console.log('REMTERM: ' + id[0]);
+                that.stage.remTerm(id[0], 'i', id[1]);
+            });
+            
             // this.listenTo(compositionBloqs, 'reset', this.resetComposition);
 
             this.settings = settings || {};
@@ -29,11 +42,11 @@ var app = app || {};
             this.mouseLine = undefined;
             this.zoom_scale = 1;
 
-            // app.CompositionBloqs.on("all", function(f, r, j) {
-            //     console.log(f, r);
-            //     // console.log(r);
-            //     // console.log(j);
-            // });
+            app.CompositionBloqs.on("all", function(f, r, j) {
+                console.log(f, r);
+                // console.log(r);
+                // console.log(j);
+            });
 
             this.linesData = [];
             this.bloqData = [];
@@ -139,10 +152,18 @@ var app = app || {};
         
         addConnection: function(e){
             
-            console.log(e);
+            console.log('CONNECT -- ' + e);
             this.stage.connect(e[0][0], e[0][2], e[1][0], e[1][2]);
             
         },
+
+        removeConnection: function(e){
+
+            console.log('DISCONNECT -- ' + e);
+                // this.stage.remTerm(e[0],e[1] == 'p' ? 'o' : 'i',e[2]);
+            
+        },
+        
         ////////////////////
         // DRAG BEHAVIORS //
         ////////////////////

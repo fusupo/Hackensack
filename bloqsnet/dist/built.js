@@ -6,28 +6,28 @@ bloqsnet.svgNS = "http://www.w3.org/2000/svg";
 
 ////////////////////////////////////////////////////////////////////////////////
 
-var BaseParam = function(spec, initVal){
+var BaseParam = function(spec, initVal) {
     this.spec = spec;
     this.solved = undefined;
-    this.value = initVal !== undefined ? initVal : spec.defaultVal;// || undefined;
+    this.value = initVal !== undefined ? initVal : spec.defaultVal; // || undefined;
     this.solve_expr = function(expr, env) {
 
         var start = (new Date).getTime();
-        
+
         var node = math.parse(expr);
-        var filtered = node.filter(function (node) {
+        var filtered = node.filter(function(node) {
             return node.type == 'SymbolNode';
         });
 
         var res = expr;
-        
-        if(filtered.length > 0){
+
+        if (filtered.length > 0) {
             var keys = _.keys(env);
-            var haveValsForVars = _.every(filtered, function(i){
+            var haveValsForVars = _.every(filtered, function(i) {
                 return _.contains(keys, i.name);
             });
-            
-            if(haveValsForVars){
+
+            if (haveValsForVars) {
                 try {
                     res = math.eval(expr, env);
                 } catch (err) {
@@ -47,25 +47,29 @@ var BaseParam = function(spec, initVal){
 
     };
 };
-BaseParam.prototype.toJSON = function(){ return {}; };
-BaseParam.prototype.toString = function(){ return ""; };
-BaseParam.prototype.update = function(val, env){
+BaseParam.prototype.toJSON = function() {
+    return {};
+};
+BaseParam.prototype.toString = function() {
+    return "";
+};
+BaseParam.prototype.update = function(val, env) {
     return this.solve_expr(val, env);
 };
 
 //////// NUMBER
 
-var number_param = function(spec, initVal){
+var number_param = function(spec, initVal) {
     BaseParam.call(this, spec, initVal);
 };
 number_param.prototype = Object.create(BaseParam.prototype);
 number_param.prototype.constructor = number_param;
-number_param.prototype.update = function(val, env){
+number_param.prototype.update = function(val, env) {
     var success = false;
     this.solved = undefined;
     if (isNaN(val)) {
         this.solved = this.solve_expr(val, env);
-    }else{
+    } else {
         this.solved = val;
     }
     if (this.solved !== undefined) {
@@ -78,12 +82,12 @@ bloqsnet.PARA_REGISTRY["number"] = number_param;
 
 //////// PERCPX
 
-var percpx_param =  function(spec, initVal){
+var percpx_param = function(spec, initVal) {
     BaseParam.call(this, spec, initVal);
 };
 percpx_param.prototype = Object.create(BaseParam.prototype);
 percpx_param.prototype.constructor = percpx_param;
-percpx_param.prototype.update = function(val, env){
+percpx_param.prototype.update = function(val, env) {
     var success = false;
     this.solved = undefined;
     if (val.slice(-1) === "%") {
@@ -101,12 +105,12 @@ bloqsnet.PARA_REGISTRY["percpx"] = percpx_param;
 
 //////// STRING
 
-var string_param =  function(spec, initVal){
+var string_param = function(spec, initVal) {
     BaseParam.call(this, spec, initVal);
 };
 string_param.prototype = Object.create(BaseParam.prototype);
 string_param.prototype.constructor = string_param;
-string_param.prototype.update = function(val, env){
+string_param.prototype.update = function(val, env) {
     // var success = false;
     // this.solved = val;
     // this.value = val;
@@ -116,7 +120,7 @@ string_param.prototype.update = function(val, env){
     this.solved = undefined;
     if (isNaN(val)) {
         this.solved = this.solve_expr(val, env);
-    }else{
+    } else {
         this.solved = val;
     }
     if (this.solved !== undefined) {
@@ -129,13 +133,13 @@ bloqsnet.PARA_REGISTRY["string"] = string_param;
 
 //////// ENUM
 
-var enum_param =  function(spec, initVal){
+var enum_param = function(spec, initVal) {
     BaseParam.call(this, spec, initVal);
     this.value = this.spec.choices[0];
 };
 enum_param.prototype = Object.create(BaseParam.prototype);
 enum_param.prototype.constructor = enum_param;
-enum_param.prototype.update = function(val, env){
+enum_param.prototype.update = function(val, env) {
     var success = false;
     this.solved = val;
     this.value = val;
@@ -146,7 +150,7 @@ bloqsnet.PARA_REGISTRY["enum"] = enum_param;
 
 //////// JSON
 
-var json_param =  function(spec, initVal){
+var json_param = function(spec, initVal) {
     BaseParam.call(this, spec, initVal);
     // if(typeof(this.value) === "string"){
     //     this.value = JSON.parse(this.value);
@@ -154,7 +158,7 @@ var json_param =  function(spec, initVal){
 };
 json_param.prototype = Object.create(BaseParam.prototype);
 json_param.prototype.constructor = json_param;
-json_param.prototype.update = function(val, env){
+json_param.prototype.update = function(val, env) {
     var success = false;
     this.solved = undefined;
     try {
@@ -172,31 +176,31 @@ bloqsnet.PARA_REGISTRY["json"] = json_param;
 
 //////// TRANSFORM
 
-var transform_param =  function(spec, initVal){
+var transform_param = function(spec, initVal) {
     BaseParam.call(this, spec, initVal);
 };
 transform_param.prototype = Object.create(BaseParam.prototype);
 transform_param.prototype.constructor = transform_param;
-transform_param.prototype.update = function(val, env){
+transform_param.prototype.update = function(val, env) {
     // too lazy to implement the error checking at the moment
     // better do it eventually tho
     var success = false;
     this.solved = [];
-    _.each(val, function(p){
+    _.each(val, function(p) {
         var sp = {};
-        _.each(p, function(v, k){
-            if(k !== "type"){
+        _.each(p, function(v, k) {
+            if (k !== "type") {
                 console.log(v);
                 var vs = typeof(v) === "string" ? this.solve_expr(v, env) : v;
                 console.log(vs);
                 sp[k] = vs;
-            }else{
+            } else {
                 sp[k] = v;
             }
         }, this);
         this.solved.push(sp);
     }, this);
-    
+
     this.value = val;
     success = true;
     return success;
@@ -205,12 +209,12 @@ bloqsnet.PARA_REGISTRY["transform"] = transform_param;
 
 //////// COLOR
 
-var color_param =  function(spec, initVal){
+var color_param = function(spec, initVal) {
     BaseParam.call(this, spec, initVal);
 };
 color_param.prototype = Object.create(BaseParam.prototype);
 color_param.prototype.constructor = color_param;
-color_param.prototype.update = function(val, env){
+color_param.prototype.update = function(val, env) {
     var success = false;
     this.value = val;
     this.solved = val;
@@ -221,13 +225,13 @@ bloqsnet.PARA_REGISTRY["color"] = color_param;
 
 //////// PRESERVE ASPECT RATIO
 
-var par_param =  function(spec, initVal){
+var par_param = function(spec, initVal) {
     BaseParam.call(this, spec, initVal);
     //this.value = this.spec.choices[0];
 };
 par_param.prototype = Object.create(BaseParam.prototype);
 par_param.prototype.constructor = par_param;
-par_param.prototype.update = function(val, env){
+par_param.prototype.update = function(val, env) {
     var success = false;
     this.solved = val;
     this.value = val;
@@ -238,38 +242,38 @@ bloqsnet.PARA_REGISTRY["preserveAspectRatio"] = par_param;
 
 //////// VIEWBOX
 
-var vb_param =  function(spec, initVal){
+var vb_param = function(spec, initVal) {
     BaseParam.call(this, spec, initVal);
     //this.value = this.spec.choices[0];
 };
 vb_param.prototype = Object.create(BaseParam.prototype);
 vb_param.prototype.constructor = vb_param;
-vb_param.prototype.update = function(val, env){
+vb_param.prototype.update = function(val, env) {
     var success = false;
     this.solved = undefined;
-    
-    var preSolved = _.reduce(val.split(' '), function(m, e, k){
+
+    var preSolved = _.reduce(val.split(' '), function(m, e, k) {
         var s = undefined;
         if (e.slice(-1) === "%") {
             s = this.solve_expr(e.slice(0, -1), env) + "%";
-        }else if (val.slice(-2) === "px"){
+        } else if (val.slice(-2) === "px") {
             s = this.solve_expr(e.slice(0, -2), env) + "px";
-        }else{
+        } else {
             s = this.solve_expr(e, env);
         }
-        
-        if(s !== undefined) m.push(s);
+
+        if (s !== undefined) m.push(s);
 
         return m;
     }, [], this);
 
     if (preSolved.length === 4) {
-        
+
         this.value = val;
         this.solved = preSolved.join(' ');
         success = true;
     }
-    
+
     return success;
 };
 bloqsnet.PARA_REGISTRY["viewBox"] = vb_param;
@@ -291,18 +295,25 @@ bloqsnet.gimmeTheThing = function(callbacks) {
             params = params || {};
             if (this.insts[id] === undefined) {
                 var def = bloqsnet.REGISTRY[type].prototype.def;
+                var that = this;
                 return new bloqsnet.REGISTRY[type]({
                     id: id,
                     type: type,
                     meta: meta,
-                    params:  _.reduce(def.params, function(memo, p) {
+                    params: _.reduce(def.params, function(memo, p) {
                         memo[p.name] = new bloqsnet.PARA_REGISTRY[p.type](p, params[p.name]);
                         return memo;
-                    }, {}, this)
+                    }, {}, this),
+                    onTermAdd: function(idx) {
+                        that._call_back('term:add', [id, idx]);
+                    },
+                    onTermRem: function(idx) {
+                        that._call_back('term:rem', [id, idx]);
+                    }
                 });
             }
         },
-        
+
         add: function(type, pos) {
             var meta = {
                 x: pos[0],
@@ -314,7 +325,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
 
             this._call_back('add', b);
         },
-        
+
         rem: function(id) {
             var bloq = this.insts[id];
             //
@@ -322,17 +333,17 @@ bloqsnet.gimmeTheThing = function(callbacks) {
 
             this.dscon([id, 'p', 0]);
 
-            _.each(bloq_json.c, function(c, idx){
+            _.each(bloq_json.c, function(c, idx) {
                 this.dscon([id, 'c', idx]);
             }, this);
-            
+
             //
             bloq.kill();
             delete this.insts[id];
 
             this._call_back('remove', id);
         },
-        
+
         con: function(a, b, silent) {
             silent = silent || false;
             if (a[0] !== b[0] && a[1] != b[1]) {
@@ -348,48 +359,51 @@ bloqsnet.gimmeTheThing = function(callbacks) {
                 c_bloq.swapChild(et[2], p_bloq);
                 p_bloq.addParent(c_bloq);
                 p_bloq.refreshEnvironment();
-                
-                this.rst_trm(silent);
 
-                if (!silent) this._call_back('change:connected', [a,b]);
-                
+                // this.rst_trm(silent);
+                console.log('CONNECT--BLOQSNET : ' + silent);
+
+                this._call_back('term:add', b[0]);
+
+                if (!silent) this._call_back('change:connected', [a, b]);
+
             }
         },
-        
+
         get: function(id) {
             return this.insts[id];
         },
-        
+
         dscon_chld: function(id, idx) {
             // from parent to child
             var p_bloq = this.insts[id];
             var c_bloq = p_bloq.getChildNodes()[idx];
             var success = false;
-            if(c_bloq != undefined && c_bloq !== "x"){
+            if (c_bloq != undefined && c_bloq !== "x") {
                 c_bloq.addParent("x");
                 p_bloq.swapChild(idx, "x");
                 success = true;
             }
 
             return success;
-            
+
         },
-        
+
         dscon_prnt: function(id, idx) {
             // from child to parent
             var c_bloq = this.insts[id];
             var p_bloq = c_bloq.getParentNode();
             var success = false;
-            if (p_bloq !== undefined && p_bloq !== "x"){
+            if (p_bloq !== undefined && p_bloq !== "x") {
                 p_bloq.swapChild(idx, "x");
                 c_bloq.addParent("x");
                 success = true;
             }
 
             return success;
-            
+
         },
-        
+
         dscon: function(term, silent) {
             silent = silent || false;
             var success = false;
@@ -399,11 +413,11 @@ bloqsnet.gimmeTheThing = function(callbacks) {
                 success = this.dscon_prnt(term[0], term[2]);
             }
 
-            this.rst_trm(silent);
-            
+            if (success) this.rst_trm(silent);
+
             if (!silent && success) this._call_back('change:disconnected', term);
         },
-        
+
         getConnectedTerm: function(term) {
             var t;
             if (term[1] === "c") {
@@ -423,9 +437,9 @@ bloqsnet.gimmeTheThing = function(callbacks) {
             }
             return t;
         },
-        
+
         crt: function(data, id) {
-            
+
             // create bloqs
             _.each(data, function(d) {
                 var b = this.new(d.id, d.type, _.clone(d.meta), _.clone(d.params));
@@ -445,15 +459,15 @@ bloqsnet.gimmeTheThing = function(callbacks) {
             }, this);
 
             this.inst = this.insts[id];
-            
+
             this.inst.updateLocalEnvironment();
             this.inst.render_svg();
             console.log('crt complete');
-            
+
             this._call_back('reset', this._inst);
-            
+
         },
-        
+
         rndr: function(id) {
             this.test_render = this.test_render === undefined ? $(this.new("test-render", "root", {}).render_svg()) : this.test_render;
             var rendered = $(this.insts[id].render_svg());
@@ -465,31 +479,31 @@ bloqsnet.gimmeTheThing = function(callbacks) {
             }
             return rendered;
         },
-        
+
         updt_par: function(id, p_name, val) {
             return this.insts[id].updateParam(p_name, val);
         },
-        
+
         updt_mta: function(id, p_name, val) {
             return this.insts[id].updateMeta(p_name, val);
         },
-        
+
         rst_trm: function(silent) {
             silent = silent || false;
             _.each(this.insts, function(i) {
                 var didReset = i.resetTerminals();
-                if(didReset && !silent) this._call_back('change:terminals', i);
+                if (didReset && !silent) this._call_back('change:terminals', i);
             }, this);
         },
-        
+
         //////////////////////////////
-        
+
         _call_back: function(cbk_id, params) {
             if (this.callbacks[cbk_id] !== undefined) {
                 this.callbacks[cbk_id](params);
             }
         }
-        
+
     };
 
 };
@@ -499,7 +513,6 @@ bloqsnet.gimmeTheThing = function(callbacks) {
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-
 var Base = function(spec) {
 
     // init spec
@@ -516,7 +529,7 @@ var Base = function(spec) {
 
     spec.env_dirty = true;
     spec.solution = {};
-    
+
     //                                                private member variable  //
     var that = this;
 
@@ -539,21 +552,21 @@ var Base = function(spec) {
     //                                             privileged member function  //
     this.solve_expr = function(expr) {
         var start = (new Date).getTime();
-        
+
         var node = math.parse(expr);
-        var filtered = node.filter(function (node) {
+        var filtered = node.filter(function(node) {
             return node.type == 'SymbolNode';
         });
 
         var res = expr;
-        
-        if(filtered.length > 0){
+
+        if (filtered.length > 0) {
             var keys = _.keys(spec.env);
-            var xxx = _.every(filtered, function(i){
+            var xxx = _.every(filtered, function(i) {
                 return _.contains(keys, i.name);
             });
-            
-            if(xxx){
+
+            if (xxx) {
                 try {
                     res = math.eval(expr, spec.env);
                 } catch (err) {
@@ -564,9 +577,9 @@ var Base = function(spec) {
         }
 
         res = isNaN(res) ? undefined : res;
-        
+
         var diff = (new Date).getTime() - start;
-        
+
         return res;
 
     };
@@ -595,7 +608,7 @@ var Base = function(spec) {
     };
 
     this.get_params = function() {
-        return _.reduce(spec.params, function(m, p, k){
+        return _.reduce(spec.params, function(m, p, k) {
             m[k] = p.value;
             return m;
         }, {}, this);
@@ -645,11 +658,25 @@ var Base = function(spec) {
         var card = bloqsnet.REGISTRY[spec.type].prototype.def["c"];
         var temp = {};
         var before = spec.children;
-        
+
         if (card[1] === "n") {
+
+            // if (_.indexOf(spec.children, "x") !== (spec.children.length - 1)) {
+            //     spec.children = spec.children.slice(0);
+            //     while (_.contains(spec.children, "x")) {
+            //         var idx = _.indexOf(spec.children, "x");
+            //         spec.children.splice(idx, 1);
+            //         spec.onTermRem(idx);
+            //     }
+            //     spec.children.push('x');
+            //     spec.onTermAdd(spec.children.length - 1);
+            // }
+
             spec.children = _.without(spec.children, "x");
             spec.children.push("x");
         }
+
+        console.log('-------------------------------------------------- ' + !_.isEqual(spec.children, before));
 
         return !_.isEqual(spec.children, before);
     };
@@ -704,15 +731,15 @@ Base.prototype.updateParam = function(p_name, val) {
     });
 
     success = this.spec.params[p_name].update(val, this.spec.env);
-    
+
     if (success) {
         this.updateLocalEnvironment();
-    }else{
+    } else {
         console.log('didnt update param: ' + p_name + ', type: ' + p.type + ', val: ' + val);
     }
 
     return success;
-    
+
 };
 
 Base.prototype.updateLocalEnvironment = function() {};
@@ -750,8 +777,8 @@ Base.prototype.toJSON = function() {
                 m[k] = s;
                 break;
             case "params":
-                m[k] = _.reduce(s, function(mem, val, key){
-                    if(val.value !== undefined) mem[key] = val.value;
+                m[k] = _.reduce(s, function(mem, val, key) {
+                    if (val.value !== undefined) mem[key] = val.value;
                     return mem;
                 }, {});
                 break;
@@ -769,7 +796,6 @@ Base.prototype.def = {
 };
 
 bloqsnet.REGISTRY["base"] = Base;
-
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                 SVG_PROTO  //
 ////////////////////////////////////////////////////////////////////////////////
