@@ -2,8 +2,8 @@
 var app = app || {};
 
 (function($) {
-        //foo
-        'use strict';
+    //foo
+    'use strict';
 
     var CompositionView = Backbone.View.extend({
 
@@ -19,22 +19,22 @@ var app = app || {};
             this.listenTo(compositionBloqs, 'remove', this.removeBloq);
             this.listenTo(compositionBloqs, 'change:connected', this.addConnection);
             this.listenTo(compositionBloqs, 'change:disconnected', this.removeConnection);
-            this.listenTo(compositionBloqs, 'change:terminals', function(m,v,o){
-                console.log("CHANG TERMINAL"+m.toJSON()['id']);
+            this.listenTo(compositionBloqs, 'change:terminals', function(m, v, o) {
+                console.log("CHANG TERMINAL" + m.toJSON()['id']);
                 that.stage.resetNodeTerms(m.toJSON()['id']);
                 //addterm
-            });//this.resetTerms);
+            }); //this.resetTerms);
 
-            this.listenTo(compositionBloqs, 'term:add', function(id, idx){
+            this.listenTo(compositionBloqs, 'term:add', function(id, idx) {
                 console.log('ADDTERM: ' + id[0]);
                 that.stage.addTerm(id[0], 'i');
             });
 
-            this.listenTo(compositionBloqs, 'term:rem', function(id, idx){
+            this.listenTo(compositionBloqs, 'term:rem', function(id, idx) {
                 console.log('REMTERM: ' + id[0]);
                 that.stage.remTerm(id[0], 'i', id[1]);
             });
-            
+
             // this.listenTo(compositionBloqs, 'reset', this.resetComposition);
 
             this.settings = settings || {};
@@ -61,9 +61,9 @@ var app = app || {};
             this.box_w = this.settings.box_w || 100;
             this.box_h = this.settings.box_h || 40;
 
-            var stage = new Stage(divname, this.w, this.h);
+            var stage = new hacsac.Stage(divname, this.w, this.h);
             this.stage = stage;
-            
+
             var that = this;
             this.$el.droppable({
                 drop: function(event, ui) {
@@ -82,25 +82,25 @@ var app = app || {};
                     console.log(type);
                 }
             });
-            
+
             stage.$el.on("mousedown:block:body", function(e, id) {
                 that.setBlockSelection(id);
             });
 
-            stage.$el.on("mousedown:block:close", function(e, id){
+            stage.$el.on("mousedown:block:close", function(e, id) {
                 app.CompositionBloqs.deleteBloq(id);
             });
-            
+
             stage.$el.on("mousedown:stage:bg", function(e) {
                 that.setBlockSelection(undefined);
             });
 
-            stage.$el.on("try:terminal:connect", function(e, id1, idx1, id2, idx2){
+            stage.$el.on("try:terminal:connect", function(e, id1, idx1, id2, idx2) {
                 app.CompositionBloqs.addConnection([id1, "p", idx1], [id2, "c", idx2]);
             });
 
-            stage.$el.on("try:terminal:disconnect", function(e, id1, idx1, id2, idx2){
-                app.CompositionBloqs.disconnect([id1, "p", idx1]);//, [id2, "c", idx2]);
+            stage.$el.on("try:terminal:disconnect", function(e, id1, idx1, id2, idx2) {
+                app.CompositionBloqs.disconnect([id1, "p", idx1]); //, [id2, "c", idx2]);
             });
         },
 
@@ -138,32 +138,32 @@ var app = app || {};
             // });
             var id = datapoint['id'];
             this.stage.addNode(id, datapoint['type'], datapoint['meta'].x, datapoint['meta'].y);
-            _.each(datapoint["c"], function(t){
+            _.each(datapoint["c"], function(t) {
                 this.stage.addTerm(id, "i");
             }, this);
-            _.each(datapoint["p"], function(t){
+            _.each(datapoint["p"], function(t) {
                 this.stage.addTerm(id, "o");
             }, this);
         },
 
-        removeBloq: function(id){
+        removeBloq: function(id) {
             this.stage.removeNode(id);
         },
-        
-        addConnection: function(e){
-            
+
+        addConnection: function(e) {
+
             console.log('CONNECT -- ' + e);
             this.stage.connect(e[0][0], e[0][2], e[1][0], e[1][2]);
-            
+
         },
 
-        removeConnection: function(e){
+        removeConnection: function(e) {
 
             console.log('DISCONNECT -- ' + e);
-                // this.stage.remTerm(e[0],e[1] == 'p' ? 'o' : 'i',e[2]);
-            
+            // this.stage.remTerm(e[0],e[1] == 'p' ? 'o' : 'i',e[2]);
+
         },
-        
+
         ////////////////////
         // DRAG BEHAVIORS //
         ////////////////////
@@ -204,7 +204,7 @@ var app = app || {};
                     that.mouseLine = mouse_terms[0] !== "x" ? that.terminalPos(mouse_terms[0]) : mouse_pos;
                     that.mouseLine = that.mouseLine.concat(mouse_terms[1] !== "x" ? that.terminalPos(mouse_terms[1]) : mouse_pos);
                     var selection = d3.select('#composition-lines-group')
-                            .selectAll('.mouse-line');
+                        .selectAll('.mouse-line');
                     var r = selection.data([that.mouseLine]);
                     r.enter().append("svg:line")
                         .attr({
@@ -238,7 +238,7 @@ var app = app || {};
                     that.mouseLine = that.mouseLine.concat(mouse_terms[1] !== "x" ? that.terminalPos(mouse_terms[1]) : mouse_pos);
 
                     var selection = d3.select('#composition-lines-group')
-                            .selectAll('.mouse-line');
+                        .selectAll('.mouse-line');
                     var r = selection.data([that.mouseLine]);
                     r.attr({
                         "x1": function(d, i) {
@@ -268,7 +268,7 @@ var app = app || {};
                     }
 
                     var selection = d3.select('#composition-lines-group')
-                            .selectAll('.mouse-line');
+                        .selectAll('.mouse-line');
                     var r = selection.data([]);
                     r.exit().remove();
 

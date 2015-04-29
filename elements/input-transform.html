@@ -1,149 +1,113 @@
-<link rel="import" href="../components/bower_components/polymer/polymer.html">
-<link rel="import" href="../components/bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/core-ajax/core-ajax.html">
 
 <polymer-element name="input-transform" attributes="valueObj spec">
-  <template>
-    <template id="transTpl">
-      <div horizontal layout>
-        <div flex one>
-          <label>translate</label>
+    <template>
+        <template id="transTpl">
+            <div horizontal layout>
+                <div flex one>
+                    <label>translate</label>
+                </div>
+                <div flex three>
+                    <label>x</label>
+                    <input id="transX" size=3 value="{{m.x}}" on-input="{{updateVal}}">
+                    <label>y</label>
+                    <input id="transY" size=3 value="{{m.y}}" on-input="{{updateVal}}">
+
+                    <button on-click="{{swapUp}}">⬆</button>
+                    <button on-click="{{swapDown}}">⬇</button>
+                    <button on-click="{{remVal}}">-</button>
+                </div>
+            </div>
+        </template>
+
+        <template id="scaleTpl">
+            <div horizontal layout>
+                <div flex one>
+                    <label>scale</label>
+                </div>
+                <div flex three>
+                    <label>x</label>
+                    <input id="scaleX" size=3 value="{{m.x}}" on-input="{{updateVal}}">
+                    <label>y</label>
+                    <input id="scaleY" size=3 value="{{m.y}}" on-input="{{updateVal}}">
+
+                    <button on-click="{{swapUp}}">⬆</button>
+                    <button on-click="{{swapDown}}">⬇</button>
+                    <button on-click="{{remVal}}">-</button>
+                </div>
+            </div>
+        </template>
+
+        <template id="rotTpl">
+            <div horizontal layout>
+                <div flex one>
+                    <label>rotate</label>
+                </div>
+                <div flex three>
+                    <label>a</label>
+                    <input id="rotA" size=3 value="{{m.r}}" on-input="{{updateVal}}">
+                    <label>x</label>
+                    <input id="rotX" size=3 value="{{m.x}}" on-input="{{updateVal}}">
+                    <label>y</label>
+                    <input id="rotY" size=3 value="{{m.y}}" on-input="{{updateVal}}">
+
+                    <button on-click="{{swapUp}}">⬆</button>
+                    <button on-click="{{swapDown}}">⬇</button>
+                    <button on-click="{{remVal}}">-</button>
+                </div>
+            </div>
+        </template>
+
+        <template id="skewXTpl">
+            <div horizontal layout>
+                <div flex one>
+                    <label>skew</label>
+                </div>
+                <div flex three>
+                    <label>x</label>
+                    <input id="skewX" size=3 value="{{m.x}}" on-input="{{updateVal}}">
+
+                    <button on-click="{{swapUp}}">⬆</button>
+                    <button on-click="{{swapDown}}">⬇</button>
+                    <button on-click="{{remVal}}">-</button>
+                </div>
+            </div>
+        </template>
+
+        <template id="skewYTpl">
+            <div horizontal layout>
+                <div flex one>
+                    <label>skew</label>
+                </div>
+                <div flex three>
+                    <label>y</label>
+                    <input id="skewY" size=3 value="{{m.y}}" on-input="{{updateVal}}">
+
+                    <button on-click="{{swapUp}}">⬆</button>
+                    <button on-click="{{swapDown}}">⬇</button>
+                    <button on-click="{{remVal}}">-</button>
+                </div>
+            </div>
+        </template>
+
+        <button on-click="{{plusTranslate}}">+ translate</button>
+        <button on-click="{{plusScale}}">+ scale</button>
+        <button on-click="{{plusRotate}}">+ rotate</button>
+        <button on-click="{{plusSkewX}}">+ skewX</button>
+        <button on-click="{{plusSkewY}}">+ skewY</button>
+
+        <div id="container" vertical layout style="border-style: solid; border-width: 1px;">
+
+            <template repeat="{{m in spec}}">
+                <template if="{{m.type == 'trans'}}" ref="transTpl"></template>
+                <template if="{{m.type == 'scale'}}" ref="scaleTpl"></template>
+                <template if="{{m.type == 'rot'}}" ref="rotTpl"></template>
+                <template if="{{m.type == 'skewX'}}" ref="skewXTpl"></template>
+                <template if="{{m.type == 'skewY'}}" ref="skewYTpl"></template>
+            </template>
+
         </div>
-        <div flex three>
-          <label>x</label>
-          <input
-             id="transX"
-             size=3
-             value="{{m.x}}"
-             on-input="{{updateVal}}">
-          <label>y</label>
-          <input
-             id="transY"
-             size=3
-             value="{{m.y}}"
-             on-input="{{updateVal}}">
-          
-          <button on-click="{{swapUp}}">⬆</button>
-          <button on-click="{{swapDown}}">⬇</button>
-          <button on-click="{{remVal}}">-</button>
-        </div>
-      </div>
     </template>
-
-    <template id="scaleTpl">
-      <div horizontal layout>
-        <div flex one>
-          <label>scale</label>
-        </div>
-        <div flex three>
-          <label>x</label>
-          <input
-             id="scaleX"
-             size=3
-             value="{{m.x}}"
-             on-input="{{updateVal}}">
-          <label>y</label>
-          <input
-             id="scaleY"
-             size=3
-             value="{{m.y}}"
-             on-input="{{updateVal}}">
-
-          <button on-click="{{swapUp}}">⬆</button>
-          <button on-click="{{swapDown}}">⬇</button>
-          <button on-click="{{remVal}}">-</button>
-        </div>
-      </div>
-    </template>
-
-    <template id="rotTpl">
-      <div horizontal layout>
-        <div flex one>
-          <label>rotate</label>
-        </div>
-        <div flex three>
-          <label>a</label>
-          <input
-             id="rotA"
-             size=3
-             value="{{m.r}}"
-             on-input="{{updateVal}}">
-          <label>x</label>
-          <input
-             id="rotX"
-             size=3
-             value="{{m.x}}"
-             on-input="{{updateVal}}">
-          <label>y</label>
-          <input
-             id="rotY"
-             size=3
-             value="{{m.y}}"
-             on-input="{{updateVal}}">
-          
-          <button on-click="{{swapUp}}">⬆</button>
-          <button on-click="{{swapDown}}">⬇</button>
-          <button on-click="{{remVal}}">-</button>
-        </div>
-      </div>
-    </template>
-
-    <template id="skewXTpl">
-      <div horizontal layout>
-        <div flex one>
-          <label>skew</label>
-        </div>
-        <div flex three>
-          <label>x</label>
-          <input
-             id="skewX"
-             size=3
-             value="{{m.x}}"
-             on-input="{{updateVal}}">
-
-          <button on-click="{{swapUp}}">⬆</button>
-          <button on-click="{{swapDown}}">⬇</button>
-          <button on-click="{{remVal}}">-</button>
-        </div>
-      </div>
-    </template>
-
-    <template id="skewYTpl">
-      <div horizontal layout>
-        <div flex one>
-          <label>skew</label>
-        </div>
-        <div flex three>
-          <label>y</label>
-          <input
-             id="skewY"
-             size=3
-             value="{{m.y}}"
-             on-input="{{updateVal}}">
-
-          <button on-click="{{swapUp}}">⬆</button>
-          <button on-click="{{swapDown}}">⬇</button>
-          <button on-click="{{remVal}}">-</button>
-        </div>
-      </div>
-    </template>
-
-    <button on-click="{{plusTranslate}}">+ translate</button>
-    <button on-click="{{plusScale}}">+ scale</button>
-    <button on-click="{{plusRotate}}">+ rotate</button>
-    <button on-click="{{plusSkewX}}">+ skewX</button>
-    <button on-click="{{plusSkewY}}">+ skewY</button>
-    
-    <div id="container" vertical layout style="border-style: solid; border-width: 1px;">
-     
-     <template repeat="{{m in spec}}">
-       <template if="{{m.type == 'trans'}}" ref="transTpl"></template>
-       <template if="{{m.type == 'scale'}}" ref="scaleTpl"></template>
-       <template if="{{m.type == 'rot'}}" ref="rotTpl"></template>
-       <template if="{{m.type == 'skewX'}}" ref="skewXTpl"></template>
-       <template if="{{m.type == 'skewY'}}" ref="skewYTpl"></template>
-     </template>
-     
-    </div>
-  </template>
-  <script src="input-transform.js"></script>
+    <script src="input-transform.js"></script>
 </polymer-element>

@@ -133,6 +133,9 @@ var app = app || {};
                             break;
                             
                         case "percpx":
+                            console.log(this.currBloqModel.get_params()[p.name]);
+                            console.log('PERC PIX');
+                                //item = $(this.paramsPercPxItemTpl({label:"fuckoff", val:22}));
                             item = $(this.paramsPercPxItemTpl({
                                 label: p.name,
                                 val: this.currBloqModel.get_params()[p.name]

@@ -1,4 +1,5 @@
-function Node(id, type) {
+var hacsac = hacsac || {};
+hacsac.Node = function(id, type) {
 
     this.svgNS = "http://www.w3.org/2000/svg";
     this.xlinkNS = "http://www.w3.org/1999/xlink";
@@ -70,9 +71,9 @@ function Node(id, type) {
         that.el.dispatchEvent(e);
     };
 
-}
+};
 
-Node.prototype.setPos = function(x, y) {
+hacsac.Node.prototype.setPos = function(x, y) {
 
     this.matrix[4] = x;
     this.matrix[5] = y;
@@ -96,7 +97,7 @@ Node.prototype.setPos = function(x, y) {
 
 };
 
-Node.prototype.getPos = function() {
+hacsac.Node.prototype.getPos = function() {
 
     return {
         x: this.matrix[4],
@@ -105,9 +106,9 @@ Node.prototype.getPos = function() {
 
 };
 
-Node.prototype.addTerm = function(side) {
+hacsac.Node.prototype.addTerm = function(side) {
 
-    var term = new Term(side, this);
+    var term = new hacsac.Term(side, this);
     this.el.appendChild(term.el);
 
     switch (side) {
@@ -123,7 +124,7 @@ Node.prototype.addTerm = function(side) {
 
 };
 
-Node.prototype.remTerm = function(side, idx) {
+hacsac.Node.prototype.remTerm = function(side, idx) {
 
     var termSide = this["t" + side];
     var term = termSide[idx];
@@ -135,7 +136,7 @@ Node.prototype.remTerm = function(side, idx) {
 
 };
 
-Node.prototype.refreshTerms = function() {
+hacsac.Node.prototype.refreshTerms = function() {
 
     var i;
     var term;
@@ -164,13 +165,13 @@ Node.prototype.refreshTerms = function() {
 
 };
 
-Node.prototype.getTerm = function(side, idx) {
+hacsac.Node.prototype.getTerm = function(side, idx) {
 
     return this["t" + side][idx];
 
 };
 
-Node.prototype.getTermIdx = function(term) {
+hacsac.Node.prototype.getTermIdx = function(term) {
 
     var ret = this.ti.indexOf(term);
     if (ret === -1) {
@@ -181,12 +182,12 @@ Node.prototype.getTermIdx = function(term) {
 
 };
 
-Node.prototype.getMaxTermIdx = function(side){
+hacsac.Node.prototype.getMaxTermIdx = function(side) {
     return this["t" + side].length - 1;
 };
 
-Node.prototype.destroy = function() {
-    
+hacsac.Node.prototype.destroy = function() {
+
     console.log('destroy node ' + this.id);
 
     var i;

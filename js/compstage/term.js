@@ -1,4 +1,5 @@
-function Term(side, parent) {
+var hacsac = hacsac || {};
+hacsac.Term = function(side, parent) {
 
     this.svgNS = "http://www.w3.org/2000/svg";
     this.xlinkNS = "http://www.w3.org/1999/xlink";
@@ -44,14 +45,14 @@ function Term(side, parent) {
     };
 }
 
-Term.prototype.setPos = function(x, y) {
+hacsac.Term.prototype.setPos = function(x, y) {
 
     this.el.setAttribute('x', x);
     this.el.setAttribute('y', y);
 
 };
 
-Term.prototype.getPos = function() {
+hacsac.Term.prototype.getPos = function() {
 
     var matrix = this.el.getCTM();
 
@@ -66,12 +67,12 @@ Term.prototype.getPos = function() {
 
 };
 
-Term.prototype.isConnected = function() {
+hacsac.Term.prototype.isConnected = function() {
     var ret = this.conn === undefined ? false : true;
     return ret;
 };
 
-Term.prototype.tryUpdateConn = function(side) {
+hacsac.Term.prototype.tryUpdateConn = function(side) {
 
     if (this.isConnected()) {
         this.conn.updateSide(side, this.getPos());
@@ -79,11 +80,11 @@ Term.prototype.tryUpdateConn = function(side) {
 
 };
 
-Term.prototype.getIdx = function() {
+hacsac.Term.prototype.getIdx = function() {
     return this.parent.getTermIdx(this);
 };
 
-Term.prototype.disconn = function() {
+hacsac.Term.prototype.disconn = function() {
 
     if (this.conn !== undefined) {
         this.conn.destroy();
@@ -91,7 +92,7 @@ Term.prototype.disconn = function() {
 
 };
 
-Term.prototype.destroy = function() {
+hacsac.Term.prototype.destroy = function() {
 
     this.disconn();
     delete this.w;

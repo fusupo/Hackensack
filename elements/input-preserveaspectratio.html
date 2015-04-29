@@ -1,33 +1,27 @@
-<link rel="import" href="../components/bower_components/polymer/polymer.html">
-<link rel="import" href="../components/bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/core-ajax/core-ajax.html">
 
 <polymer-element name="input-preserveaspectratio" attributes="value">
-  <template>
-    <!-- defer -->
-    <select
-       id="align"
-       value="{{align}}"
-       on-change="{{updateVal}}">
-      <option value="none">none</option>
-      <option value="xMinYMin">xMinYMin</option>
-      <option value="xMidYMin">xMidYMin</option>
-      <option value="xMaxYMin">xMaxYMin</option>
-      <option value="xMinYMid">xMinYMid</option>
-      <option value="xMidYMid">xMidYMid</option>
-      <option value="xMaxYMid">xMaxYMid</option>
-      <option value="xMinYMax">xMinYMax</option>
-      <option value="xMidYMax">xMidYMax</option>
-      <option value="xMaxYMax">xMaxYMax</option>
-    </select>
+    <template>
+        <!-- defer -->
+        <select id="align" value="{{align}}" on-change="{{updateVal}}">
+            <option value="none">none</option>
+            <option value="xMinYMin">xMinYMin</option>
+            <option value="xMidYMin">xMidYMin</option>
+            <option value="xMaxYMin">xMaxYMin</option>
+            <option value="xMinYMid">xMinYMid</option>
+            <option value="xMidYMid">xMidYMid</option>
+            <option value="xMaxYMid">xMaxYMid</option>
+            <option value="xMinYMax">xMinYMax</option>
+            <option value="xMidYMax">xMidYMax</option>
+            <option value="xMaxYMax">xMaxYMax</option>
+        </select>
 
-    <select
-       id="meetslice"
-       value="{{meetSlice}}"
-       on-change="{{updateVal}}">
-      <option value="meet">meet</option>
-      <option value="slice">slice</option>
-    </select>
-    
-  </template>
-  <script src="input-preserveaspectratio.js"></script>
+        <select id="meetslice" value="{{meetSlice}}" on-change="{{updateVal}}">
+            <option value="meet">meet</option>
+            <option value="slice">slice</option>
+        </select>
+
+    </template>
+    <script src="input-preserveaspectratio.js"></script>
 </polymer-element>

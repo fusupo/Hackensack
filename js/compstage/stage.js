@@ -1,9 +1,10 @@
-function Stage(el_id, w, h) {
+var hacsac = hacsac || {};
+hacsac.Stage = function Stage(el_id, w, h) {
 
     this.svgNS = "http://www.w3.org/2000/svg",
-    this.xlinkNS = "http://www.w3.org/1999/xlink",
+        this.xlinkNS = "http://www.w3.org/1999/xlink",
 
-    this.nodes = {};
+        this.nodes = {};
     this.conns = [];
     this.w = w;
     this.h = h;
@@ -198,11 +199,11 @@ function Stage(el_id, w, h) {
 
     };
 
-}
+};
 
-Stage.prototype.addNode = function(id, type, x, y) {
+hacsac.Stage.prototype.addNode = function(id, type, x, y) {
 
-    var n = new Node(id, type);
+    var n = new hacsac.Node(id, type);
 
     n.setPos(x, y);
     this.stage_def.appendChild(n.el);
@@ -357,7 +358,7 @@ Stage.prototype.addNode = function(id, type, x, y) {
 
 };
 
-Stage.prototype.removeNode = function(id) {
+hacsac.Stage.prototype.removeNode = function(id) {
 
     var n = this.nodes[id];
     var ti = n.ti;
@@ -370,35 +371,35 @@ Stage.prototype.removeNode = function(id) {
     //     }
     // }
 
-    for(var j = 0; j < to.length; j++) {
+    for (var j = 0; j < to.length; j++) {
         var conn = to[j].conn;
-        if(conn !== undefined){
+        if (conn !== undefined) {
             var opp = conn.getOpposite(to[j]);
             opp.parent.remTerm('i', opp.getIdx());
         }
     }
-    
+
     this.stage_def.removeChild(n.el);
     delete this.nodes[id];
     n.destroy();
 
 };
 
-Stage.prototype.moveNode = function(id, x, y) {
+hacsac.Stage.prototype.moveNode = function(id, x, y) {
 
     var n = this.nodes[id];
     n.setPos(x, y);
 
 };
 
-Stage.prototype.addTerm = function(id, side) {
+hacsac.Stage.prototype.addTerm = function(id, side) {
 
     var n = this.nodes[id];
     n.addTerm(side);
 
 };
 
-Stage.prototype.remTerm = function(id, side, idx) {
+hacsac.Stage.prototype.remTerm = function(id, side, idx) {
 
     console.log("foo");
     var n = this.nodes[id];
@@ -406,7 +407,7 @@ Stage.prototype.remTerm = function(id, side, idx) {
 
 };
 
-Stage.prototype.connect = function(id1, idx1, id2, idx2) {
+hacsac.Stage.prototype.connect = function(id1, idx1, id2, idx2) {
 
     var n1 = this.nodes[id1];
     var n2 = this.nodes[id2];
@@ -418,11 +419,11 @@ Stage.prototype.connect = function(id1, idx1, id2, idx2) {
 
     //
     console.log(n2.getTermIdx(ti) + " === " + n2.getMaxTermIdx('i'));
-    
-    if(n2.getTermIdx(ti) === n2.getMaxTermIdx('i')){
+
+    if (n2.getTermIdx(ti) === n2.getMaxTermIdx('i')) {
         n2.addTerm("i");
     }
-    
+
 };
 
 // Stage.prototype.disconnect = function(id, side, idx) {
@@ -430,6 +431,6 @@ Stage.prototype.connect = function(id1, idx1, id2, idx2) {
 //     var n = this.nodes[id]
 // };
 
-Stage.prototype.resetNodeTerms = function(id) {
+hacsac.Stage.prototype.resetNodeTerms = function(id) {
     this.nodes[id].refreshTerms();
 };

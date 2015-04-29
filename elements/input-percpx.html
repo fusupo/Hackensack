@@ -1,20 +1,23 @@
-<link rel="import" href="../components/bower_components/polymer/polymer.html">
-<link rel="import" href="../components/bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/core-ajax/core-ajax.html">
 
 <polymer-element name="input-percpx" attributes="value">
-  <template>
-    <input
-       id="scalar"
-       step="1"
-       value="{{scalar}}"
-       on-input="{{updateVal}}"
-       on-mousewheel="{{mw}}">
-    <select
-       id="unit"
-       on-change="{{updateVal}}">
-      <option value="px">px</option>
-      <option value="%">%</option>
-    </select>
-  </template>
-  <script src="input-percpx.js"></script>
+    <template>
+        <input id="scalar" step="1" value="{{scalar}}" on-input="{{updateVal}}" on-mousewheel="{{mw}}">
+        <select id="unit" on-change="{{updateVal}}">
+            <option value="px">px</option>
+            <option value="%">%</option>
+        </select>
+    </template>
+    <script src="input-percpx.js"></script>
 </polymer-element>
+
+
+<!-- <script> -->
+<!--   Polymer('name-tag', { -->
+<!--     // initialize the element's model -->
+<!--     ready: function() { -->
+<!--       this.owner = 'Rafael'; -->
+<!--     } -->
+<!--   }); -->
+<!-- </script> -->
