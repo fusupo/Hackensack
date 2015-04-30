@@ -131,6 +131,18 @@ var Base = function(spec) {
         spec.children.splice(idx, 0, child);
     };
 
+    this.getChildIdx = function(id) {
+        var r = -1;
+
+        for (var i = 0; i < spec.children.length; i++) {
+            if (spec.children[i].spec.id === id) {
+                r = i;
+            }
+        }
+
+        return r;
+    };
+
     this.swapChild = function(idx, val) {
         spec.children[idx] = val;
     };

@@ -361,7 +361,6 @@ bloqsnet.gimmeTheThing = function(callbacks) {
                 p_bloq.refreshEnvironment();
 
                 // this.rst_trm(silent);
-                console.log('CONNECT--BLOQSNET : ' + silent);
 
                 this._call_back('term:add', b[0]);
 
@@ -395,7 +394,8 @@ bloqsnet.gimmeTheThing = function(callbacks) {
             var p_bloq = c_bloq.getParentNode();
             var success = false;
             if (p_bloq !== undefined && p_bloq !== "x") {
-                p_bloq.swapChild(idx, "x");
+                console.log(" --- " + p_bloq.getChildIdx(id));
+                p_bloq.swapChild(p_bloq.getChildIdx(id), "x");
                 c_bloq.addParent("x");
                 success = true;
             }

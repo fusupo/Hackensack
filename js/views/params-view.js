@@ -19,7 +19,7 @@ var app = app || {};
 
             this.paramsContainerTpl = _.template($('#params-container-template').html());
             this.paramsGroupTpl = _.template($('#params-group-template').html());
-            
+
             this.paramsItemTpl = _.template($('#params-item-template').html());
             this.paramsEnumItemTpl = _.template($('#params-enum-item-template').html());
             this.paramsPercPxItemTpl = _.template($('#params-percpx-item-template').html());
@@ -96,19 +96,19 @@ var app = app || {};
                             var f = item.find("select");
                             var xxxx = this.currBloqModel.spec.params[p.name];
 
-                            _.each(xxxx.spec.choices, function(c){
+                            _.each(xxxx.spec.choices, function(c) {
                                 var opt = $("<option value='" + c + "'>" + c + "</option>");
                                 f.append(opt);
                             }, this);
                             f.val(xxxx.value);
 
-                            f.on('change', function(e){
+                            f.on('change', function(e) {
                                 console.log('ufnk');
                                 that.tryUpdateParamNumber(p.name, e.target.value, p.type);
                             });
-                            
+
                             break;
-                            
+
                         case "number":
                             item = $(this.paramsItemTpl({
                                 label: p.name,
@@ -131,49 +131,44 @@ var app = app || {};
                                 return false;
                             });
                             break;
-                            
+
                         case "percpx":
-                            console.log(this.currBloqModel.get_params()[p.name]);
-                            console.log('PERC PIX');
-                                //item = $(this.paramsPercPxItemTpl({label:"fuckoff", val:22}));
                             item = $(this.paramsPercPxItemTpl({
                                 label: p.name,
                                 val: this.currBloqModel.get_params()[p.name]
-                            })).bind("change", function(e){
+                            })).bind("change", function(e) {
                                 that.commitUpdateParam(p.name, e.originalEvent.detail);
+                            }).on('mousewheel', function(e) {
+                                var raw_val = e.target.value;
+                                var val;
+                                if (typeof(raw_val) === "string" && raw_val.slice(-1) === "%") {
+                                    val = raw_val.slice(0, -1);
+                                    if (!isNaN(val)) {
+                                        val = parseFloat(val);
+                                        e.target.value = (val + e.deltaY) + "%";
+                                    }
+                                } else if (!isNaN(raw_val)) {
+                                    e.target.value = parseFloat(raw_val) + e.deltaY;
+                                }
+                                that.tryUpdateParamNumber(p.name, e.target.value, p.type);
+                                return false;
                             });
-                            //     .on('mousewheel', function(e){
-                            //     console.log('update mousewheel suckah! - ' + e.target.value);
-                            //     var raw_val = e.target.value;
-                            //     var val;
-                            //     if (typeof(raw_val) === "string" && raw_val.slice(-1) === "%") {
-                            //         val = raw_val.slice(0, -1);
-                            //         if (!isNaN(val)) {
-                            //             val = parseFloat(val);
-                            //             e.target.value = (val + e.deltaY) + "%";
-                            //         }
-                            //     } else if (!isNaN(raw_val)) {
-                            //         e.target.value = parseFloat(raw_val) + e.deltaY;
-                            //     }
-                            //     that.tryUpdateParamNumber(p.name, e.target.value, p.type);
-                            //     return false;
-                            // });
                             break;
-                            
+
                         case "transform":
                             var data = this.currBloqModel.get_params()[p.name];
                             item = $(this.paramsTransformItemTpl({
                                 label: p.name,
                                 val: JSON.stringify(data)
-                            })).bind("change", function(e){
+                            })).bind("change", function(e) {
                                 that.commitUpdateParam(p.name, e.originalEvent.detail);
                             });
                             break;
-                            
+
                         case "color":
                             item = this.createColorControl(p);
                             break;
-                            
+
                         case "string":
                             item = $(this.paramsItemTpl({
                                 label: p.name,
@@ -182,7 +177,7 @@ var app = app || {};
                                 that.tryUpdateParamString(p.name, e.target.value, p.type);
                             });
                             break;
-                            
+
                         case "json":
                             item = $(this.paramsTextAreaItemTpl({
                                 label: p.name,
@@ -215,7 +210,7 @@ var app = app || {};
                             item = $(this.paramsPreserveAspectRatioItemTpl({
                                 label: p.name,
                                 val: par
-                            })).bind("change", function(e){
+                            })).bind("change", function(e) {
                                 that.commitUpdateParam(p.name, e.originalEvent.detail);
                             });
                             break;
@@ -225,7 +220,7 @@ var app = app || {};
                             item = $(this.paramsViewBoxItemTpl({
                                 label: p.name,
                                 val: par
-                            })).bind("change", function(e){
+                            })).bind("change", function(e) {
                                 that.commitUpdateParam(p.name, e.originalEvent.detail);
                             });
                             break;
@@ -265,18 +260,18 @@ var app = app || {};
         /////////////////////////////////////////////////////////////////////////
 
         commitUpdateParam: function(id, val) {
-            //console.log(id, val);
+
             var didUpdate = app.CompositionBloqs.updateParam(this.currBloqModel.get_id(), id, val);
 
-            // if (didUpdate) {
-            //     var p = _.clone(this.currBloqModel.get_params());
-            //     p[id] = val;
+            if (didUpdate) {
+                var p = _.clone(this.currBloqModel.get_params());
+                p[id] = val;
 
-            //     this.currBloqModel.set({
-            //         params: p
-            //     });
-            // }
-            //app.CompositionBloqs.trigger('change:param', this.currBloqModel);
+                this.currBloqModel.set({
+                    params: p
+                });
+            }
+            app.CompositionBloqs.trigger('change:param', this.currBloqModel);
         },
 
         tryUpdateParamNumber: function(id, val) {

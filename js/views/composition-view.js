@@ -42,11 +42,11 @@ var app = app || {};
             this.mouseLine = undefined;
             this.zoom_scale = 1;
 
-            app.CompositionBloqs.on("all", function(f, r, j) {
-                console.log(f, r);
-                // console.log(r);
-                // console.log(j);
-            });
+            // app.CompositionBloqs.on("all", function(f, r, j) {
+            //     console.log(f, r);
+            //     // console.log(r);
+            //     // console.log(j);
+            // });
 
             this.linesData = [];
             this.bloqData = [];
