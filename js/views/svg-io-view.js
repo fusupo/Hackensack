@@ -30,10 +30,14 @@ var app = app || {};
                 mode: "text/html",
                 lineWrapping: false
             });
-            
+
             var that = this;
-            this.textarea.on('change', function(inst, obj){
-                that.trigger('change', inst.getValue());
+            this.textarea.on('change', function(inst, obj) {
+                // only fire custom change event if text area content is fundamentally changed
+                // as opposed to a format event
+                if (obj.origin === "setValue") {
+                    that.trigger('change', inst.getValue());
+                }
             });
 
         },
@@ -68,7 +72,6 @@ var app = app || {};
             var rendered = app.CompositionBloqs.get_svg(this.currId);
             if (rendered !== undefined) {
                 var s = new XMLSerializer();
-                //var str = s.serializeToString(rendered.prop('outerHTML'));
                 this.textarea.setValue(rendered.prop('outerHTML'));
 
                 var that = this;
@@ -76,16 +79,28 @@ var app = app || {};
                     that.textarea.refresh();
                     that.autoFormat();
                 }, 1);
-                
+
             }
 
         },
 
         autoFormat: function() {
-         var totalLines = this.textarea.lineCount();
-         var totalChars = this.textarea.getTextArea().value.length;
-         this.textarea.autoFormatRange({line:0, ch:0}, {line:totalLines, ch:totalChars});
-         this.textarea.setSelection({line:0, ch:0},{line:0, ch:0});
+            var totalLines = this.textarea.lineCount();
+            var totalChars = this.textarea.getTextArea().value.length;
+            this.textarea.autoFormatRange({
+                line: 0,
+                ch: 0
+            }, {
+                line: totalLines,
+                ch: totalChars
+            });
+            this.textarea.setSelection({
+                line: 0,
+                ch: 0
+            }, {
+                line: 0,
+                ch: 0
+            });
 
         }
 

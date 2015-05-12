@@ -515,6 +515,8 @@ bloqsnet.gimmeTheThing = function(callbacks) {
 ////////////////////////////////////////////////////////////////////////////////
 var Base = function(spec) {
 
+    console.log("++ NEW: " + spec.type);
+
     // init spec
     spec.type = spec.type || 'base';
     spec.meta = spec.meta || {};
@@ -523,8 +525,9 @@ var Base = function(spec) {
     spec.children = bloqsnet.REGISTRY[spec.type].prototype.def.c[0] > 0 ? ["x"] : undefined;
     spec.parent = bloqsnet.REGISTRY[spec.type].prototype.def.p[0] > 0 ? "x" : undefined;
 
+    // spec.local_env = {};
+    // spec.env_chain = [spec.local_env];
     spec.local_env = {};
-    spec.env_chain = [spec.local_env];
     spec.env = {};
 
     spec.env_dirty = true;
@@ -538,34 +541,31 @@ var Base = function(spec) {
 
     //                                                private member function  //
 
-    var collapse_env = function() {
-        return _.reduce(spec.env_chain, function(m, e) {
-            _.each(e, function(datum, k, l) {
-                if (!_.has(m, k)) {
-                    m[k] = datum;
-                }
-            });
-            return m;
-        }, {});
-    };
+    // var collapse_env = function() {
+    //     return _.reduce(spec.env_chain, function(m, e) {
+    //         _.each(e, function(datum, k, l) {
+    //             if (!_.has(m, k)) {
+    //                 m[k] = datum;
+    //             }
+    //         });
+    //         return m;
+    //     }, {});
+    // };
 
     //                                             privileged member function  //
     this.solve_expr = function(expr) {
+        console.log("solve expr:" + expr);
         var start = (new Date).getTime();
-
         var node = math.parse(expr);
         var filtered = node.filter(function(node) {
             return node.type == 'SymbolNode';
         });
-
         var res = expr;
-
         if (filtered.length > 0) {
             var keys = _.keys(spec.env);
             var xxx = _.every(filtered, function(i) {
                 return _.contains(keys, i.name);
             });
-
             if (xxx) {
                 try {
                     res = math.eval(expr, spec.env);
@@ -575,18 +575,15 @@ var Base = function(spec) {
                 }
             }
         }
-
         res = isNaN(res) ? undefined : res;
-
         var diff = (new Date).getTime() - start;
-
         return res;
-
     };
 
     this.check_env = function() {
-        // if(spec.env_dirty){
-        spec.env = collapse_env();
+        //if (spec.env_dirty) {
+        console.log("check env : " + spec.env_dirty);
+        //spec.env = collapse_env();
         var params_def = bloqsnet.REGISTRY[spec.type].prototype.def.params;
         spec.solution = _.reduce(params_def, function(m, p_def) {
             var raw_val = spec.params[p_def.name].value;
@@ -594,8 +591,7 @@ var Base = function(spec) {
             m[p_def.name] = spec.params[p_def.name].solved;
             return m;
         }, {}, this);
-        //  }
-
+        //}
         spec.env_dirty = false;
     };
 
@@ -648,13 +644,11 @@ var Base = function(spec) {
 
     this.getChildIdx = function(id) {
         var r = -1;
-
         for (var i = 0; i < spec.children.length; i++) {
-            if (spec.children[i].spec.id === id) {
+            if (spec.children[i] !== "x" && spec.children[i].spec.id === id) {
                 r = i;
             }
         }
-
         return r;
     };
 
@@ -670,50 +664,44 @@ var Base = function(spec) {
         var card = bloqsnet.REGISTRY[spec.type].prototype.def["c"];
         var temp = {};
         var before = spec.children;
-
         if (card[1] === "n") {
-
-            // if (_.indexOf(spec.children, "x") !== (spec.children.length - 1)) {
-            //     spec.children = spec.children.slice(0);
-            //     while (_.contains(spec.children, "x")) {
-            //         var idx = _.indexOf(spec.children, "x");
-            //         spec.children.splice(idx, 1);
-            //         spec.onTermRem(idx);
-            //     }
-            //     spec.children.push('x');
-            //     spec.onTermAdd(spec.children.length - 1);
-            // }
 
             spec.children = _.without(spec.children, "x");
             spec.children.push("x");
         }
-
-        console.log('-------------------------------------------------- ' + !_.isEqual(spec.children, before));
-
         return !_.isEqual(spec.children, before);
     };
 
     this.setLocalEnvironment = function(data) {
-        spec.local_env = data;
-        spec.env_chain = [spec.local_env];
-        this.refreshEnvironment();
+        if (!_.isEqual(data, spec.local_env)) {
+            spec.local_env = data;
+            this.refreshEnvironment();
+        }
     };
 
     this.getEnvironment = function() {
-        return spec.env_chain;
+        return spec.env;
     };
 
     this.refreshEnvironment = function() {
         if (spec.parent !== "x" && spec.parent !== undefined) {
-            spec.env_chain = _.clone(spec.parent.getEnvironment());
-            spec.env_chain.unshift(spec.local_env);
+            spec.env = _.clone(spec.parent.getEnvironment());
+            _.each(spec.local_env, function(v, k, l) {
+                spec.env[k] = v;
+            });
+        } else {
+            spec.env = spec.local_env;
         }
-        _.each(spec.children, function(c) {
-            if (c !== "x") {
-                c.refreshEnvironment();
-            }
-        });
-        spec.env = collapse_env();
+
+        // no need to propogate nothing
+        if (!_.isEmpty(spec.env)) {
+            _.each(spec.children, function(c) {
+                if (c !== "x") {
+                    c.refreshEnvironment();
+                }
+            });
+        }
+
     };
 
     this.kill = function() {
@@ -733,7 +721,6 @@ var Base = function(spec) {
             }
         });
     };
-
 };
 
 Base.prototype.updateParam = function(p_name, val) {
@@ -741,17 +728,13 @@ Base.prototype.updateParam = function(p_name, val) {
     var p = _.findWhere(bloqsnet.REGISTRY[this.spec.type].prototype.def.params, {
         "name": p_name
     });
-
     success = this.spec.params[p_name].update(val, this.spec.env);
-
     if (success) {
         this.updateLocalEnvironment();
     } else {
         console.log('didnt update param: ' + p_name + ', type: ' + p.type + ', val: ' + val);
     }
-
     return success;
-
 };
 
 Base.prototype.updateLocalEnvironment = function() {};

@@ -13,7 +13,7 @@ var app = app || {};
         initialize: function() {
 
             console.log('RENDER VIEW INIT');
-            
+
             //this.listenTo(app.CompositionBloqs, 'change', this.bloqChange);
             //this.listenTo(app.CompositionBloqs, 'change:param', this.bloqChange);
             //this.listenTo(app.CompositionView, 'bloqSelection', this.bloqSelection);
@@ -23,13 +23,13 @@ var app = app || {};
         },
 
         finalizeInitialization: function() {
-            
-           var that = this;
-           this.listenTo(app.IOSVGView, 'change', function(e){
+
+            var that = this;
+            this.listenTo(app.IOSVGView, 'change', function(e) {
                 that.clear();
                 that.draw(e);
             });
-            
+
         },
 
         bloqSelection: function(id) {
@@ -38,6 +38,7 @@ var app = app || {};
 
             if (id !== undefined) {
                 this.currId = id;
+                console.log("BLOQ SELECTION");
                 this.draw();
             } else {
                 this.currId = undefined;
@@ -58,16 +59,8 @@ var app = app || {};
         },
 
         draw: function(r) {
-//console.log("draw");
-            var rendered = $(r) || app.CompositionBloqs.get_svg(this.currId);
 
-            if (rendered.is("svg")) {
-                this.$el.append(rendered);
-            } else {
-                var svg = $(app.vm.new("test-render", "root", {}).render_svg());
-                svg.append(rendered);
-                this.$el.append(svg);
-            }
+            this.$el.append($(r));
 
         }
 

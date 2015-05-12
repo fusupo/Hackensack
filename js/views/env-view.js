@@ -31,16 +31,16 @@ var app = app || {};
             this.clear();
             if (id != undefined) {
                 var env = app.vm.get(id).getEnvironment();
-                _.each(env, function(ctx, idx) {
+                //_.each(env, function(ctx, idx) {
                     var gr = $('<div></div>');
-                    gr.addClass("env-vars env-vars-" + idx);
-                    _.each(ctx, function(v, k, l) {
+                    gr.addClass("env-vars env-vars-0");// + idx);
+                    _.each(env, function(v, k, l) {
                         var xxx = $("<div></div>").text(k + " : " + v);
                         xxx.addClass("env-var");
                         gr.append(xxx);
                     });
                     this.$el.append(gr);
-                }, this);
+                //}, this);
             }
         },
 
