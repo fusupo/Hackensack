@@ -287,7 +287,6 @@ bloqsnet.gimmeTheThing = function(callbacks) {
         inst: undefined,
         insts: {},
         callbacks: callbacks,
-
         test_render: undefined,
 
         new: function(id, type, meta, params) {
@@ -353,12 +352,12 @@ bloqsnet.gimmeTheThing = function(callbacks) {
                 // from child to parent
                 var st = a[1] === "p" ? a : b;
                 var et = a[1] === "p" ? b : a;
-                var p_bloq = this.insts[st[0]];
-                var c_bloq = this.insts[et[0]];
+                var c_bloq = this.insts[st[0]];
+                var p_bloq = this.insts[et[0]];
 
-                c_bloq.swapChild(et[2], p_bloq);
-                p_bloq.addParent(c_bloq);
-                p_bloq.refreshEnvironment();
+                p_bloq.swapChild(et[2], c_bloq);
+                c_bloq.addParent(p_bloq);
+                c_bloq.refreshEnvironment();
 
                 // this.rst_trm(silent);
 
@@ -469,7 +468,8 @@ bloqsnet.gimmeTheThing = function(callbacks) {
         },
 
         rndr: function(id) {
-            this.test_render = this.test_render === undefined ? $(this.new("test-render", "root", {}).render_svg()) : this.test_render;
+            console.log("RNDR");
+            // this.test_render = this.test_render === undefined ? $(this.new("test-render", "root", {}).render_svg()) : this.test_render;
             var rendered = $(this.insts[id].render_svg());
             if (!rendered.is("svg")) {
                 var svg = this.test_render;
@@ -480,8 +480,27 @@ bloqsnet.gimmeTheThing = function(callbacks) {
             return rendered;
         },
 
+        get_svg: function(id) {
+            this.test_render = this.test_render === undefined ? $(this.new("test-render", "root", {}).render_svg()) : this.test_render;
+            var rendered = $(this.insts[id].cached_svg);
+            if (!rendered.is("svg")) {
+                var svg = this.test_render;
+                svg.empty();
+                svg.append(rendered);
+                rendered = svg;
+            }
+            return rendered;
+        },
+
         updt_par: function(id, p_name, val) {
-            return this.insts[id].updateParam(p_name, val);
+
+            var success = this.insts[id].updateParam(p_name, val);
+
+            if (success) {
+                this._call_back('change:svg', this.get_svg(id));
+            }
+
+            return success;
         },
 
         updt_mta: function(id, p_name, val) {

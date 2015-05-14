@@ -10,13 +10,14 @@ Root.prototype = Object.create(SVG_Proto.prototype); // See note below
 Root.prototype.constructor = Root;
 
 Root.prototype.updateLocalEnvironment = function() {
+    console.log("BN ROOT UPDATE LOCAL ENV!!");
     this.setLocalEnvironment(JSON.parse(this.spec.params.data.value));
 };
 
 Root.prototype.def = {
     display: true,
     type: 'root',
-    svg_elem: 'svg', 
+    svg_elem: 'svg',
     params: [
         paramObj(["width", "percpx", "100%", "specific attributes", true]),
         paramObj(["height", "percpx", "100%", "specific attributes", true]),

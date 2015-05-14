@@ -20,14 +20,15 @@ var SVG_Proto = function(spec) {
 
     this.setAttributes = function(svg_elem, attrs) {
         _.each(attrs, function(attr, k, l) {
-            if(_.findWhere(bloqsnet.REGISTRY[spec.type].prototype.def.params,
-                           {"name": k}).renderSvg === true){
+            if (_.findWhere(bloqsnet.REGISTRY[spec.type].prototype.def.params, {
+                    "name": k
+                }).renderSvg === true) {
 
-                switch(k){
+                switch (k) {
                     case "transform":
                         var val = "";
-                        _.each(attr, function(a, ak){
-                            switch(a.type){
+                        _.each(attr, function(a, ak) {
+                            switch (a.type) {
                                 case "trans":
                                     val += "translate(" + a.x + ", " + a.y + ") ";
                                     break;
@@ -36,7 +37,7 @@ var SVG_Proto = function(spec) {
                                     break;
                                 case "rot":
                                     val += "rotate(" + a.r;
-                                    if(a.x !== undefined)
+                                    if (a.x !== undefined)
                                         val += ", " + a.x + ", " + a.y;
                                     val += ") ";
                                     break;
@@ -50,62 +51,95 @@ var SVG_Proto = function(spec) {
                         });
 
                         val = val.slice(0, -1);
-                        
+
                         setAttribute(svg_elem, k, val);
                         break;
                     default:
                         setAttribute(svg_elem, k, attr);
                         break;
                 }
-                
+
             }
         });
     };
 
-    this.sully_cached_svg_down = function() {
-        this.cached_svg = undefined;
-        _.each(this.spec.children, function(c) {
-            if (c !== "x") {
-                c.sully_cached_svg_down();
-            }
-        });
-    };
+    // this.sully_cached_svg_down = function() {
+    //     this.cached_svg = undefined;
+    //     _.each(this.spec.children, function(c) {
+    //         if (c !== "x") {
+    //             c.sully_cached_svg_down();
+    //         }
+    //     });
+    // };
 
-    this.sully_cached_svg_up = function() {
-        this.cached_svg = undefined;
+    // this.sully_cached_svg_up = function() {
+    //     this.cached_svg = undefined;
 
-        if (this.spec.parent != undefined && this.spec.parent !== "x") {
-            this.spec.parent.sully_cached_svg_up();
-        }
-    };
-    
+    //     if (this.spec.parent != undefined && this.spec.parent !== "x") {
+    //         this.spec.parent.sully_cached_svg_up();
+    //     }
+    // };
+
+    this.render_svg();
+
 };
+
 SVG_Proto.prototype = Object.create(Base.prototype);
 SVG_Proto.prototype.constructor = SVG_Proto;
 
 SVG_Proto.prototype.updateParam = function(p_name, val) {
+
+    // this.sully_cached_svg_up();
+    // this.sully_cached_svg_down();
+    var success = Base.prototype.updateParam.call(this, p_name, val);
+
+
+
+
+    // if (success) {
+    //     this.cached_svg = undefined;
+    //     this.render_svg();
+    // }
+
+
+
+    return success;
+
+};
+
+SVG_Proto.prototype.foo = function() {
+
+    console.log('FOO');
     this.cached_svg = undefined;
-    this.sully_cached_svg_up();
-    this.sully_cached_svg_down();
-    Base.prototype.updateParam.call(this, p_name, val);
+    this.render_svg();
+
 };
 
 SVG_Proto.prototype.render_svg = function() {
-    //if (this.cached_svg === undefined) {
-    this.cached_svg = this.get_svg();
-    if (this.spec.children != undefined && this.spec.children.length > 0) {
-        for (var i = 0; i < this.spec.children.length; i++) {
-            var child = this.spec.children[i];
-            if (child !== "x") {
-                this.cached_svg.appendChild(this.spec.children[i].render_svg().cloneNode(true));
+    if (this.cached_svg === undefined) {
+        console.log('RENDER SVG : ' + this.spec.type + "-" + this.spec.id);
+        this.cached_svg = this.get_svg();
+        if (this.spec.children != undefined && this.spec.children.length > 0) {
+            for (var i = 0; i < this.spec.children.length; i++) {
+                var child = this.spec.children[i];
+                if (child !== "x") {
+                    this.cached_svg.appendChild(this.spec.children[i].render_svg().cloneNode(true));
+                }
             }
         }
+
+
+        if (this.spec.parent != undefined && this.spec.parent !== "x") {
+            console.log("------> " + this.spec.parent.cached_svg);
+            this.spec.parent.cached_svg = undefined;
+            this.spec.parent.render_svg();
+        }
+
     }
-    //}
     return this.cached_svg;
 };
 
-SVG_Proto.prototype.get_svg = function(){
+SVG_Proto.prototype.get_svg = function() {
     var solution = this.solveParams();
     var elm = document.createElementNS(bloqsnet.svgNS, this.def.svg_elem);
     this.setAttributes(elm, solution);
@@ -123,21 +157,21 @@ bloqsnet.REGISTRY["svg_proto"] = SVG_Proto;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-var paramObj = function(config){
+var paramObj = function(config) {
     var ret = {};
 
     ret.name = config[0];
     ret.type = config[1];
 
-    if(ret.type === "enum"){
+    if (ret.type === "enum") {
         ret.choices = config[2];
-    }else{
+    } else {
         ret.defaultVal = config[2];
     }
 
     ret.groupName = config[3];
     ret.renderSvg = config[4];
-    
+
     return ret;
 };
 

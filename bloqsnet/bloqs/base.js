@@ -1,6 +1,6 @@
 var Base = function(spec) {
 
-    console.log("++ NEW: " + spec.type);
+    console.log("++ NEW: " + spec.type + "-" + spec.id);
 
     // init spec
     spec.type = spec.type || 'base';
@@ -10,8 +10,6 @@ var Base = function(spec) {
     spec.children = bloqsnet.REGISTRY[spec.type].prototype.def.c[0] > 0 ? ["x"] : undefined;
     spec.parent = bloqsnet.REGISTRY[spec.type].prototype.def.p[0] > 0 ? "x" : undefined;
 
-    // spec.local_env = {};
-    // spec.env_chain = [spec.local_env];
     spec.local_env = {};
     spec.env = {};
 
@@ -26,59 +24,7 @@ var Base = function(spec) {
 
     //                                                private member function  //
 
-    // var collapse_env = function() {
-    //     return _.reduce(spec.env_chain, function(m, e) {
-    //         _.each(e, function(datum, k, l) {
-    //             if (!_.has(m, k)) {
-    //                 m[k] = datum;
-    //             }
-    //         });
-    //         return m;
-    //     }, {});
-    // };
-
     //                                             privileged member function  //
-    this.solve_expr = function(expr) {
-        console.log("solve expr:" + expr);
-        var start = (new Date).getTime();
-        var node = math.parse(expr);
-        var filtered = node.filter(function(node) {
-            return node.type == 'SymbolNode';
-        });
-        var res = expr;
-        if (filtered.length > 0) {
-            var keys = _.keys(spec.env);
-            var xxx = _.every(filtered, function(i) {
-                return _.contains(keys, i.name);
-            });
-            if (xxx) {
-                try {
-                    res = math.eval(expr, spec.env);
-                } catch (err) {
-                    //res = this.solve(expr, _.clone(env).slice(1));
-                    res = undefined;
-                }
-            }
-        }
-        res = isNaN(res) ? undefined : res;
-        var diff = (new Date).getTime() - start;
-        return res;
-    };
-
-    this.check_env = function() {
-        //if (spec.env_dirty) {
-        console.log("check env : " + spec.env_dirty);
-        //spec.env = collapse_env();
-        var params_def = bloqsnet.REGISTRY[spec.type].prototype.def.params;
-        spec.solution = _.reduce(params_def, function(m, p_def) {
-            var raw_val = spec.params[p_def.name].value;
-            var success = spec.params[p_def.name].update(raw_val, spec.env);
-            m[p_def.name] = spec.params[p_def.name].solved;
-            return m;
-        }, {}, this);
-        //}
-        spec.env_dirty = false;
-    };
 
     this.get_type = function() {
         return spec.type;
@@ -157,18 +103,63 @@ var Base = function(spec) {
         return !_.isEqual(spec.children, before);
     };
 
-    this.setLocalEnvironment = function(data) {
-        if (!_.isEqual(data, spec.local_env)) {
-            spec.local_env = data;
-            this.refreshEnvironment();
+    //
+
+    this.solve_expr = function(expr) {
+        console.log("solve expr:" + expr);
+        var start = (new Date).getTime();
+        var node = math.parse(expr);
+        var filtered = node.filter(function(node) {
+            return node.type == 'SymbolNode';
+        });
+        var res = expr;
+        if (filtered.length > 0) {
+            var keys = _.keys(spec.env);
+            var xxx = _.every(filtered, function(i) {
+                return _.contains(keys, i.name);
+            });
+            if (xxx) {
+                try {
+                    res = math.eval(expr, spec.env);
+                } catch (err) {
+                    //res = this.solve(expr, _.clone(env).slice(1));
+                    res = undefined;
+                }
+            }
         }
+        res = isNaN(res) ? undefined : res;
+        var diff = (new Date).getTime() - start;
+        return res;
     };
 
-    this.getEnvironment = function() {
-        return spec.env;
+    this.check_env = function() {
+        console.log("check env, " + spec.type + "-" + spec.id + " : " + spec.env_dirty);
+        if (spec.env_dirty) {
+            var params_def = bloqsnet.REGISTRY[spec.type].prototype.def.params;
+            spec.solution = _.reduce(params_def, function(m, p_def) {
+                var raw_val = spec.params[p_def.name].value;
+                var success = spec.params[p_def.name].update(raw_val, spec.env);
+                m[p_def.name] = spec.params[p_def.name].solved;
+                return m;
+            }, {}, this);
+            console.log(spec.solution);
+        }
+
+        spec.env_dirty = false;
+    };
+
+    this.setLocalEnvironment = function(data) {
+        //if (!_.isEqual(data, spec.local_env)) {
+        console.log("SET LOCAL ENV: " + this.spec.type + "-" + this.spec.id);
+        spec.local_env = data;
+        this.refreshEnvironment();
+        //}
     };
 
     this.refreshEnvironment = function() {
+
+        console.log("REFRESH ENV: " + this.spec.type + "-" + this.spec.id);
+
         if (spec.parent !== "x" && spec.parent !== undefined) {
             spec.env = _.clone(spec.parent.getEnvironment());
             _.each(spec.local_env, function(v, k, l) {
@@ -178,17 +169,49 @@ var Base = function(spec) {
             spec.env = spec.local_env;
         }
 
+        var spanks = false;
         // no need to propogate nothing
         if (!_.isEmpty(spec.env)) {
+
             _.each(spec.children, function(c) {
                 if (c !== "x") {
+                    spanks = true;
                     c.refreshEnvironment();
                 }
             });
+
         }
 
+        if (spanks === false) {
+            this.foo();
+        } else {
+            console.log('BAR, mutherfucker');
+        }
     };
 
+    this.sully_env_down = function() {
+        console.log("SULLY ENV: " + this.spec.type + "-" + this.spec.id);
+        this.spec.env_dirty = true;
+        _.each(this.spec.children, function(c) {
+            if (c !== "x") {
+                c.sully_env_down();
+            }
+        });
+    };
+
+    // this.sully_cached_svg_up = function() {
+    //     this.cached_svg = undefined;
+
+    //     if (this.spec.parent != undefined && this.spec.parent !== "x") {
+    //         this.spec.parent.sully_cached_svg_up();
+    //     }
+    // };
+
+    this.getEnvironment = function() {
+        return spec.env;
+    };
+
+    //
     this.kill = function() {
         if (spec.parent !== undefined && spec.parent !== "x") {
             var idx = -1;
@@ -209,20 +232,30 @@ var Base = function(spec) {
 };
 
 Base.prototype.updateParam = function(p_name, val) {
+
+    console.log("UPDATE PARAM: " + this.spec.type + "-" + this.spec.id);
+
     var success = false;
     var p = _.findWhere(bloqsnet.REGISTRY[this.spec.type].prototype.def.params, {
         "name": p_name
     });
+
     success = this.spec.params[p_name].update(val, this.spec.env);
+
     if (success) {
+        this.sully_env_down();
         this.updateLocalEnvironment();
     } else {
         console.log('didnt update param: ' + p_name + ', type: ' + p.type + ', val: ' + val);
     }
+
     return success;
+
 };
 
-Base.prototype.updateLocalEnvironment = function() {};
+Base.prototype.updateLocalEnvironment = function() {
+    this.setLocalEnvironment({});
+};
 
 Base.prototype.toJSON = function() {
     return _.reduce(this.spec, function(m, s, k) {

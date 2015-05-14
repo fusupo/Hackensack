@@ -14,7 +14,9 @@ var app = app || {};
 
             console.log('IO SVG VIEW INIT');
 
-            this.listenTo(app.CompositionBloqs, 'change:param', this.bloqChange);
+            //this.listenTo(app.CompositionBloqs, 'change:param', this.bloqChange);
+            this.listenTo(app.CompositionBloqs, 'change:svg', this.svgChange);
+
             this.listenTo(app.CompositionView, 'bloqSelection', this.bloqSelection);
 
             this.currId = undefined;
@@ -35,9 +37,9 @@ var app = app || {};
             this.textarea.on('change', function(inst, obj) {
                 // only fire custom change event if text area content is fundamentally changed
                 // as opposed to a format event
-                if (obj.origin === "setValue") {
+                //if (obj.origin === "setValue") {
                     that.trigger('change', inst.getValue());
-                }
+                //}
             });
 
         },
@@ -55,7 +57,13 @@ var app = app || {};
 
         },
 
-        bloqChange: function() {
+        // bloqChange: function() {
+
+        //     this.bloqSelection(this.currId);
+
+        // },
+
+        svgChange: function() {
 
             this.bloqSelection(this.currId);
 

@@ -42,11 +42,18 @@ var app = app || {};
                     that.trigger("change:connected", m);
                 },
                 "change:disconnected": function(m, v, o) {
-                        that.trigger("change:disconnected", m);
-                        //console.log(m,v,o);
-                    }
-                    //"change:[attribute]" (model, value, options) — when a specific attribute has been updated.
-                    //"invalid" (model, error, options) — when a model's validation fails on the client.
+                    that.trigger("change:disconnected", m);
+                    //console.log(m,v,o);
+                },
+                //"change:[attribute]" (model, value, options) — when a specific attribute has been updated.
+                //"invalid" (model, error, options) — when a model's validation fails on the client.
+                "change:svg": function(m, v, o) {
+                    //that.trigger("change:disconnected", m);
+                    console.log('------------------------------');
+                    console.log(m, v, o);
+
+                    that.trigger("change:svg", m);
+                }
             });
         },
 
@@ -62,7 +69,8 @@ var app = app || {};
 
         get_svg: function(id) {
 
-            return app.vm.rndr(id);
+            //return app.vm.rndr(id);
+            return app.vm.get_svg(id);
 
         },
 

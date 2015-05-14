@@ -194,7 +194,9 @@ var app = app || {};
                                 lineWrapping: true
                             });
                             wtf.on("change", function(instance, changeObj) {
-                                that.tryUpdateParamJSON(p.name, instance.getValue(), p.type);
+                                if(changeObj.origin != "setValue"){
+                                    that.tryUpdateParamJSON(p.name, instance.getValue(), p.type);
+                                }
                             });
                             var grog = this.currBloqModel.get_params();
                             var v = grog[p.name];
@@ -263,15 +265,15 @@ var app = app || {};
 
             var didUpdate = app.CompositionBloqs.updateParam(this.currBloqModel.get_id(), id, val);
 
-            if (didUpdate) {
-                var p = _.clone(this.currBloqModel.get_params());
-                p[id] = val;
-
-                this.currBloqModel.set({
-                    params: p
-                });
-            }
-            app.CompositionBloqs.trigger('change:param', this.currBloqModel);
+            //if (didUpdate) {
+            //    var p = _.clone(this.currBloqModel.get_params());
+            //    p[id] = val;
+            //
+            //    this.currBloqModel.set({
+            //        params: p
+            //    });
+            //}
+            //app.CompositionBloqs.trigger('change:param', this.currBloqModel);
         },
 
         tryUpdateParamNumber: function(id, val) {
