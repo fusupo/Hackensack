@@ -12,7 +12,7 @@ var BaseParam = function(spec, initVal) {
     this.value = initVal !== undefined ? initVal : spec.defaultVal; // || undefined;
     this.solve_expr = function(expr, env) {
 
-        var start = (new Date).getTime();
+        var start = (new Date()).getTime();
 
         var node = math.parse(expr);
         var filtered = node.filter(function(node) {
@@ -41,7 +41,7 @@ var BaseParam = function(spec, initVal) {
         // how to tell the difference?
         //res = isNaN(res) ? undefined : res;
 
-        var diff = (new Date).getTime() - start;
+        var diff = (new Date()).getTime() - start;
 
         return res;
 
@@ -78,7 +78,7 @@ number_param.prototype.update = function(val, env) {
     }
     return success;
 };
-bloqsnet.PARA_REGISTRY["number"] = number_param;
+bloqsnet.PARA_REGISTRY.number = number_param;
 
 //////// PERCPX
 
@@ -101,7 +101,7 @@ percpx_param.prototype.update = function(val, env) {
     }
     return success;
 };
-bloqsnet.PARA_REGISTRY["percpx"] = percpx_param;
+bloqsnet.PARA_REGISTRY.percpx = percpx_param;
 
 //////// STRING
 
@@ -129,7 +129,7 @@ string_param.prototype.update = function(val, env) {
     }
     return success;
 };
-bloqsnet.PARA_REGISTRY["string"] = string_param;
+bloqsnet.PARA_REGISTRY.string = string_param;
 
 //////// ENUM
 
@@ -146,7 +146,7 @@ enum_param.prototype.update = function(val, env) {
     success = true;
     return success;
 };
-bloqsnet.PARA_REGISTRY["enum"] = enum_param;
+bloqsnet.PARA_REGISTRY.enum = enum_param;
 
 //////// JSON
 
@@ -172,7 +172,7 @@ json_param.prototype.update = function(val, env) {
     }
     return success;
 };
-bloqsnet.PARA_REGISTRY["json"] = json_param;
+bloqsnet.PARA_REGISTRY.json = json_param;
 
 //////// TRANSFORM
 
@@ -205,7 +205,7 @@ transform_param.prototype.update = function(val, env) {
     success = true;
     return success;
 };
-bloqsnet.PARA_REGISTRY["transform"] = transform_param;
+bloqsnet.PARA_REGISTRY.transform = transform_param;
 
 //////// COLOR
 
@@ -221,7 +221,7 @@ color_param.prototype.update = function(val, env) {
     success = true;
     return success;
 };
-bloqsnet.PARA_REGISTRY["color"] = color_param;
+bloqsnet.PARA_REGISTRY.color = color_param;
 
 //////// PRESERVE ASPECT RATIO
 
@@ -238,7 +238,7 @@ par_param.prototype.update = function(val, env) {
     success = true;
     return success;
 };
-bloqsnet.PARA_REGISTRY["preserveAspectRatio"] = par_param;
+bloqsnet.PARA_REGISTRY.preserveAspectRatio = par_param;
 
 //////// VIEWBOX
 
@@ -253,7 +253,7 @@ vb_param.prototype.update = function(val, env) {
     this.solved = undefined;
 
     var preSolved = _.reduce(val.split(' '), function(m, e, k) {
-        var s = undefined;
+        var s;
         if (e.slice(-1) === "%") {
             s = this.solve_expr(e.slice(0, -1), env) + "%";
         } else if (val.slice(-2) === "px") {
@@ -276,7 +276,7 @@ vb_param.prototype.update = function(val, env) {
 
     return success;
 };
-bloqsnet.PARA_REGISTRY["viewBox"] = vb_param;
+bloqsnet.PARA_REGISTRY.viewBox = vb_param;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -377,7 +377,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
             var p_bloq = this.insts[id];
             var c_bloq = p_bloq.getChildNodes()[idx];
             var success = false;
-            if (c_bloq != undefined && c_bloq !== "x") {
+            if (c_bloq !== undefined && c_bloq !== "x") {
                 c_bloq.addParent("x");
                 p_bloq.swapChild(idx, "x");
                 success = true;

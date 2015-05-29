@@ -129,11 +129,11 @@ SVG_Proto.prototype.render_svg = function() {
         }
 
 
-        if (this.spec.parent != undefined && this.spec.parent !== "x") {
-            console.log("------> " + this.spec.parent.cached_svg);
-            this.spec.parent.cached_svg = undefined;
-            this.spec.parent.render_svg();
-        }
+        // if (this.spec.parent != undefined && this.spec.parent !== "x") {
+        //     console.log("------> " + this.spec.parent.cached_svg);
+        //     this.spec.parent.cached_svg = undefined;
+        //     this.spec.parent.render_svg();
+        // }
 
     }
     return this.cached_svg;
