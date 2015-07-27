@@ -6,24 +6,32 @@ bloqsnet.svgNS = "http://www.w3.org/2000/svg";
 
 ////////////////////////////////////////////////////////////////////////////////
 
-var BaseParam = function(spec, initVal) {
+var BaseParam = function (spec, initVal) {
     this.spec = spec;
     this.solved = undefined;
     this.value = initVal !== undefined ? initVal : spec.defaultVal; // || undefined;
-    this.solve_expr = function(expr, env) {
+    this.solve_expr = function (expr, env) {
 
-        var start = (new Date()).getTime();
+        var start,
+        node,
+        filtered,
+        res,
+        keys,
+        haveValsForVars,
+        diff;
 
-        var node = math.parse(expr);
-        var filtered = node.filter(function(node) {
+        start = (new Date()).getTime();
+
+        node = math.parse(expr);
+        filtered = node.filter(function (node) {
             return node.type == 'SymbolNode';
         });
 
-        var res = expr;
+        res = expr;
 
         if (filtered.length > 0) {
-            var keys = _.keys(env);
-            var haveValsForVars = _.every(filtered, function(i) {
+            keys = _.keys(env);
+            haveValsForVars = _.every(filtered, function (i) {
                 return _.contains(keys, i.name);
             });
 
@@ -41,30 +49,30 @@ var BaseParam = function(spec, initVal) {
         // how to tell the difference?
         //res = isNaN(res) ? undefined : res;
 
-        var diff = (new Date()).getTime() - start;
+        diff = (new Date()).getTime() - start;
 
         return res;
 
     };
 };
-BaseParam.prototype.toJSON = function() {
+BaseParam.prototype.toJSON = function () {
     return {};
 };
-BaseParam.prototype.toString = function() {
+BaseParam.prototype.toString = function () {
     return "";
 };
-BaseParam.prototype.update = function(val, env) {
+BaseParam.prototype.update = function (val, env) {
     return this.solve_expr(val, env);
 };
 
 //////// NUMBER
 
-var number_param = function(spec, initVal) {
+var number_param = function (spec, initVal) {
     BaseParam.call(this, spec, initVal);
 };
 number_param.prototype = Object.create(BaseParam.prototype);
 number_param.prototype.constructor = number_param;
-number_param.prototype.update = function(val, env) {
+number_param.prototype.update = function (val, env) {
     var success = false;
     this.solved = undefined;
     if (isNaN(val)) {
@@ -82,12 +90,12 @@ bloqsnet.PARA_REGISTRY.number = number_param;
 
 //////// PERCPX
 
-var percpx_param = function(spec, initVal) {
+var percpx_param = function (spec, initVal) {
     BaseParam.call(this, spec, initVal);
 };
 percpx_param.prototype = Object.create(BaseParam.prototype);
 percpx_param.prototype.constructor = percpx_param;
-percpx_param.prototype.update = function(val, env) {
+percpx_param.prototype.update = function (val, env) {
     var success = false;
     this.solved = undefined;
     if (val.slice(-1) === "%") {
@@ -105,12 +113,12 @@ bloqsnet.PARA_REGISTRY.percpx = percpx_param;
 
 //////// STRING
 
-var string_param = function(spec, initVal) {
+var string_param = function (spec, initVal) {
     BaseParam.call(this, spec, initVal);
 };
 string_param.prototype = Object.create(BaseParam.prototype);
 string_param.prototype.constructor = string_param;
-string_param.prototype.update = function(val, env) {
+string_param.prototype.update = function (val, env) {
     // var success = false;
     // this.solved = val;
     // this.value = val;
@@ -133,13 +141,13 @@ bloqsnet.PARA_REGISTRY.string = string_param;
 
 //////// ENUM
 
-var enum_param = function(spec, initVal) {
+var enum_param = function (spec, initVal) {
     BaseParam.call(this, spec, initVal);
     this.value = this.spec.choices[0];
 };
 enum_param.prototype = Object.create(BaseParam.prototype);
 enum_param.prototype.constructor = enum_param;
-enum_param.prototype.update = function(val, env) {
+enum_param.prototype.update = function (val, env) {
     var success = false;
     this.solved = val;
     this.value = val;
@@ -150,7 +158,7 @@ bloqsnet.PARA_REGISTRY.enum = enum_param;
 
 //////// JSON
 
-var json_param = function(spec, initVal) {
+var json_param = function (spec, initVal) {
     BaseParam.call(this, spec, initVal);
     // if(typeof(this.value) === "string"){
     //     this.value = JSON.parse(this.value);
@@ -158,7 +166,7 @@ var json_param = function(spec, initVal) {
 };
 json_param.prototype = Object.create(BaseParam.prototype);
 json_param.prototype.constructor = json_param;
-json_param.prototype.update = function(val, env) {
+json_param.prototype.update = function (val, env) {
     var success = false;
     this.solved = undefined;
     try {
@@ -176,22 +184,22 @@ bloqsnet.PARA_REGISTRY.json = json_param;
 
 //////// TRANSFORM
 
-var transform_param = function(spec, initVal) {
+var transform_param = function (spec, initVal) {
     BaseParam.call(this, spec, initVal);
 };
 transform_param.prototype = Object.create(BaseParam.prototype);
 transform_param.prototype.constructor = transform_param;
-transform_param.prototype.update = function(val, env) {
+transform_param.prototype.update = function (val, env) {
     // too lazy to implement the error checking at the moment
     // better do it eventually tho
     var success = false;
     this.solved = [];
-    _.each(val, function(p) {
+    _.each(val, function (p) {
         var sp = {};
-        _.each(p, function(v, k) {
+        _.each(p, function (v, k) {
             if (k !== "type") {
                 console.log(v);
-                var vs = typeof(v) === "string" ? this.solve_expr(v, env) : v;
+                var vs = typeof (v) === "string" ? this.solve_expr(v, env) : v;
                 console.log(vs);
                 sp[k] = vs;
             } else {
@@ -209,12 +217,12 @@ bloqsnet.PARA_REGISTRY.transform = transform_param;
 
 //////// COLOR
 
-var color_param = function(spec, initVal) {
+var color_param = function (spec, initVal) {
     BaseParam.call(this, spec, initVal);
 };
 color_param.prototype = Object.create(BaseParam.prototype);
 color_param.prototype.constructor = color_param;
-color_param.prototype.update = function(val, env) {
+color_param.prototype.update = function (val, env) {
     var success = false;
     this.value = val;
     this.solved = val;
@@ -225,13 +233,13 @@ bloqsnet.PARA_REGISTRY.color = color_param;
 
 //////// PRESERVE ASPECT RATIO
 
-var par_param = function(spec, initVal) {
+var par_param = function (spec, initVal) {
     BaseParam.call(this, spec, initVal);
     //this.value = this.spec.choices[0];
 };
 par_param.prototype = Object.create(BaseParam.prototype);
 par_param.prototype.constructor = par_param;
-par_param.prototype.update = function(val, env) {
+par_param.prototype.update = function (val, env) {
     var success = false;
     this.solved = val;
     this.value = val;
@@ -242,17 +250,17 @@ bloqsnet.PARA_REGISTRY.preserveAspectRatio = par_param;
 
 //////// VIEWBOX
 
-var vb_param = function(spec, initVal) {
+var vb_param = function (spec, initVal) {
     BaseParam.call(this, spec, initVal);
     //this.value = this.spec.choices[0];
 };
 vb_param.prototype = Object.create(BaseParam.prototype);
 vb_param.prototype.constructor = vb_param;
-vb_param.prototype.update = function(val, env) {
+vb_param.prototype.update = function (val, env) {
     var success = false;
     this.solved = undefined;
 
-    var preSolved = _.reduce(val.split(' '), function(m, e, k) {
+    var preSolved = _.reduce(val.split(' '), function (m, e, k) {
         var s;
         if (e.slice(-1) === "%") {
             s = this.solve_expr(e.slice(0, -1), env) + "%";
@@ -280,7 +288,7 @@ bloqsnet.PARA_REGISTRY.viewBox = vb_param;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bloqsnet.gimmeTheThing = function(callbacks) {
+bloqsnet.gimmeTheThing = function (callbacks) {
 
     return {
 
@@ -289,7 +297,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
         callbacks: callbacks,
         test_render: undefined,
 
-        new: function(id, type, meta, params) {
+        new: function (id, type, meta, params) {
             id = id || _.uniqueId('b');
             params = params || {};
             if (this.insts[id] === undefined) {
@@ -299,21 +307,21 @@ bloqsnet.gimmeTheThing = function(callbacks) {
                     id: id,
                     type: type,
                     meta: meta,
-                    params: _.reduce(def.params, function(memo, p) {
+                    params: _.reduce(def.params, function (memo, p) {
                         memo[p.name] = new bloqsnet.PARA_REGISTRY[p.type](p, params[p.name]);
                         return memo;
                     }, {}, this),
-                    onTermAdd: function(idx) {
+                    onTermAdd: function (idx) {
                         that._call_back('term:add', [id, idx]);
                     },
-                    onTermRem: function(idx) {
+                    onTermRem: function (idx) {
                         that._call_back('term:rem', [id, idx]);
                     }
                 });
             }
         },
 
-        add: function(type, pos) {
+        add: function (type, pos) {
             var meta = {
                 x: pos[0],
                 y: pos[1]
@@ -325,14 +333,14 @@ bloqsnet.gimmeTheThing = function(callbacks) {
             this._call_back('add', b);
         },
 
-        rem: function(id) {
+        rem: function (id) {
             var bloq = this.insts[id];
             //
             var bloq_json = bloq.toJSON();
 
             this.dscon([id, 'p', 0]);
 
-            _.each(bloq_json.c, function(c, idx) {
+            _.each(bloq_json.c, function (c, idx) {
                 this.dscon([id, 'c', idx]);
             }, this);
 
@@ -343,7 +351,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
             this._call_back('remove', id);
         },
 
-        con: function(a, b, silent) {
+        con: function (a, b, silent) {
             silent = silent || false;
             if (a[0] !== b[0] && a[1] != b[1]) {
                 this.dscon(a, silent);
@@ -368,11 +376,11 @@ bloqsnet.gimmeTheThing = function(callbacks) {
             }
         },
 
-        get: function(id) {
+        get: function (id) {
             return this.insts[id];
         },
 
-        dscon_chld: function(id, idx) {
+        dscon_chld: function (id, idx) {
             // from parent to child
             var p_bloq = this.insts[id];
             var c_bloq = p_bloq.getChildNodes()[idx];
@@ -387,7 +395,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
 
         },
 
-        dscon_prnt: function(id, idx) {
+        dscon_prnt: function (id, idx) {
             // from child to parent
             var c_bloq = this.insts[id];
             var p_bloq = c_bloq.getParentNode();
@@ -403,7 +411,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
 
         },
 
-        dscon: function(term, silent) {
+        dscon: function (term, silent) {
             silent = silent || false;
             var success = false;
             if (term[1] === "c") {
@@ -417,7 +425,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
             if (!silent && success) this._call_back('change:disconnected', term);
         },
 
-        getConnectedTerm: function(term) {
+        getConnectedTerm: function (term) {
             var t;
             if (term[1] === "c") {
                 t = this.insts[term[0]].getChildNodes()[term[2]];
@@ -427,7 +435,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
                 t = n.getParentNode();
                 if (t !== "x") {
                     var idx = 0;
-                    _.find(t.getChildNodes(), function(c, i) {
+                    _.find(t.getChildNodes(), function (c, i) {
                         idx = i;
                         return c === n;
                     });
@@ -437,17 +445,17 @@ bloqsnet.gimmeTheThing = function(callbacks) {
             return t;
         },
 
-        crt: function(data, id) {
+        crt: function (data, id) {
 
             // create bloqs
-            _.each(data, function(d) {
+            _.each(data, function (d) {
                 var b = this.new(d.id, d.type, _.clone(d.meta), _.clone(d.params));
                 this.insts[b.get_id()] = b;
             }, this);
 
             // wire them up
-            _.each(data, function(d) {
-                _.each(d.c, function(c, idx) {
+            _.each(data, function (d) {
+                _.each(d.c, function (c, idx) {
                     if (c !== "x") {
                         //this.con([d.id, "c", idx], [c, "p", 0], true); //c, idx, d.id);
                         this.insts[d.id].swapChild(idx, this.insts[c]);
@@ -467,7 +475,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
 
         },
 
-        rndr: function(id) {
+        rndr: function (id) {
             console.log("RNDR");
             // this.test_render = this.test_render === undefined ? $(this.new("test-render", "root", {}).render_svg()) : this.test_render;
             var rendered = $(this.insts[id].render_svg());
@@ -480,7 +488,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
             return rendered;
         },
 
-        get_svg: function(id) {
+        get_svg: function (id) {
             this.test_render = this.test_render === undefined ? $(this.new("test-render", "root", {}).render_svg()) : this.test_render;
             var rendered = $(this.insts[id].cached_svg);
             if (!rendered.is("svg")) {
@@ -492,7 +500,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
             return rendered;
         },
 
-        updt_par: function(id, p_name, val) {
+        updt_par: function (id, p_name, val) {
 
             var success = this.insts[id].updateParam(p_name, val);
 
@@ -503,13 +511,13 @@ bloqsnet.gimmeTheThing = function(callbacks) {
             return success;
         },
 
-        updt_mta: function(id, p_name, val) {
+        updt_mta: function (id, p_name, val) {
             return this.insts[id].updateMeta(p_name, val);
         },
 
-        rst_trm: function(silent) {
+        rst_trm: function (silent) {
             silent = silent || false;
-            _.each(this.insts, function(i) {
+            _.each(this.insts, function (i) {
                 var didReset = i.resetTerminals();
                 if (didReset && !silent) this._call_back('change:terminals', i);
             }, this);
@@ -517,7 +525,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
 
         //////////////////////////////
 
-        _call_back: function(cbk_id, params) {
+        _call_back: function (cbk_id, params) {
             if (this.callbacks[cbk_id] !== undefined) {
                 this.callbacks[cbk_id](params);
             }
