@@ -87,6 +87,10 @@ var app = app || {};
         that.setBlockSelection(id);
       });
 
+      stage.$el.on("mousedrag:block:body", function(e, id, x, y){
+        app.CompositionBloqs.updateMeta(id, {"x":x,"y":y});
+      });
+
       stage.$el.on("mousedown:block:close", function(e, id) {
         app.CompositionBloqs.deleteBloq(id);
       });

@@ -302,11 +302,8 @@ bloqsnet.gimmeTheThing = function(callbacks) {
     maxId:0,
 
     new: function(id, type, meta, params) {
-      //      id = id || 'b' + _.now();//_.uniqueId('b');
       if(id && id !== 'test-render'){
-        console.log('#################### ',id.substr(1));
         this.maxId = Math.max(parseInt(id.substr(1))+1, this.maxId); 
-        console.log('%%%%%%%%%%%%%%%%%%%% ', this.maxId);
       }else{
         id = 'b' + this.maxId;
         this.maxId++; 
@@ -535,7 +532,8 @@ bloqsnet.gimmeTheThing = function(callbacks) {
     },
 
     updt_mta: function(id, p_name, val) {
-      return this.insts[id].updateMeta(p_name, val);
+      this.insts[id].updateMeta(p_name, val);
+      this._call_back('change:meta', [p_name, val]);
     },
 
     rst_trm: function(silent) {

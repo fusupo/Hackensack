@@ -11,7 +11,6 @@ var app = app || {};
 
     initialize: function() {
       console.log('IO SPEC VIEW INIT');
-      //this.listenTo(app.CompositionBloqs, 'change', this.bloqChange);
       this.listenTo(app.CompositionView, 'bloqSelection', this.bloqSelection);
       this.currId = undefined;
       var that = this;
