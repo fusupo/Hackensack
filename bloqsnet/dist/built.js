@@ -7,274 +7,282 @@ bloqsnet.svgNS = "http://www.w3.org/2000/svg";
 ////////////////////////////////////////////////////////////////////////////////
 
 var BaseParam = function(spec, initVal) {
-    this.spec = spec;
-    this.solved = undefined;
-    this.value = initVal !== undefined ? initVal : spec.defaultVal; // || undefined;
-    this.solve_expr = function(expr, env) {
+  this.spec = spec;
+  this.solved = undefined;
+  this.value = initVal !== undefined ? initVal : spec.defaultVal; // || undefined;
+  this.solve_expr = function(expr, env) {
 
-        var start = (new Date()).getTime();
+    var start,
+        node,
+        filtered,
+        res,
+        keys,
+        haveValsForVars,
+        diff;
 
-        var node = math.parse(expr);
-        var filtered = node.filter(function(node) {
-            return node.type == 'SymbolNode';
-        });
+    start = (new Date()).getTime();
 
-        var res = expr;
+    node = math.parse(expr);
+    filtered = node.filter(function(node) {
+      return node.type == 'SymbolNode';
+    });
 
-        if (filtered.length > 0) {
-            var keys = _.keys(env);
-            var haveValsForVars = _.every(filtered, function(i) {
-                return _.contains(keys, i.name);
-            });
+    res = expr;
 
-            if (haveValsForVars) {
-                try {
-                    res = math.eval(expr, env);
-                } catch (err) {
-                    res = undefined;
-                }
-            }
+    if (filtered.length > 0) {
+      keys = _.keys(env);
+      haveValsForVars = _.every(filtered, function(i) {
+        return _.contains(keys, i.name);
+      });
+
+      if (haveValsForVars) {
+        try {
+          res = math.eval(expr, env);
+        } catch (err) {
+          res = undefined;
         }
+      }
+    }
 
-        //problem here is that sometimes we want a result thats NaN as in Array
-        // but we don't want results that are NaN as a result of failed solution
-        // how to tell the difference?
-        //res = isNaN(res) ? undefined : res;
+    //problem here is that sometimes we want a result thats NaN as in Array
+    // but we don't want results that are NaN as a result of failed solution
+    // how to tell the difference?
+    //res = isNaN(res) ? undefined : res;
 
-        var diff = (new Date()).getTime() - start;
+    diff = (new Date()).getTime() - start;
 
-        return res;
+    return res;
 
-    };
+  };
 };
 BaseParam.prototype.toJSON = function() {
-    return {};
+  return {};
 };
 BaseParam.prototype.toString = function() {
-    return "";
+  return "";
 };
 BaseParam.prototype.update = function(val, env) {
-    return this.solve_expr(val, env);
+  return this.solve_expr(val, env);
 };
 
 //////// NUMBER
 
 var number_param = function(spec, initVal) {
-    BaseParam.call(this, spec, initVal);
+  BaseParam.call(this, spec, initVal);
 };
 number_param.prototype = Object.create(BaseParam.prototype);
 number_param.prototype.constructor = number_param;
 number_param.prototype.update = function(val, env) {
-    var success = false;
-    this.solved = undefined;
-    if (isNaN(val)) {
-        this.solved = this.solve_expr(val, env);
-    } else {
-        this.solved = val;
-    }
-    if (this.solved !== undefined) {
-        this.value = val;
-        success = true;
-    }
-    return success;
+  var success = false;
+  this.solved = undefined;
+  if (isNaN(val)) {
+    this.solved = this.solve_expr(val, env);
+  } else {
+    this.solved = val;
+  }
+  if (this.solved !== undefined) {
+    this.value = val;
+    success = true;
+  }
+  return success;
 };
 bloqsnet.PARA_REGISTRY.number = number_param;
 
 //////// PERCPX
 
 var percpx_param = function(spec, initVal) {
-    BaseParam.call(this, spec, initVal);
+  BaseParam.call(this, spec, initVal);
 };
 percpx_param.prototype = Object.create(BaseParam.prototype);
 percpx_param.prototype.constructor = percpx_param;
 percpx_param.prototype.update = function(val, env) {
-    var success = false;
-    this.solved = undefined;
-    if (val.slice(-1) === "%") {
-        this.solved = this.solve_expr(val.slice(0, -1), env) + "%";
-    } else {
-        this.solved = this.solve_expr(val.slice(0, -2), env) + "px";
-    }
-    if (this.solved !== undefined) {
-        this.value = val;
-        success = true;
-    }
-    return success;
+  var success = false;
+  this.solved = undefined;
+  if (val.slice(-1) === "%") {
+    this.solved = this.solve_expr(val.slice(0, -1), env) + "%";
+  } else {
+    this.solved = this.solve_expr(val.slice(0, -2), env) + "px";
+  }
+  if (this.solved !== undefined) {
+    this.value = val;
+    success = true;
+  }
+  return success;
 };
 bloqsnet.PARA_REGISTRY.percpx = percpx_param;
 
 //////// STRING
 
 var string_param = function(spec, initVal) {
-    BaseParam.call(this, spec, initVal);
+  BaseParam.call(this, spec, initVal);
 };
 string_param.prototype = Object.create(BaseParam.prototype);
 string_param.prototype.constructor = string_param;
 string_param.prototype.update = function(val, env) {
-    // var success = false;
-    // this.solved = val;
-    // this.value = val;
-    // success = true;
-    // return success;
-    var success = false;
-    this.solved = undefined;
-    if (isNaN(val)) {
-        this.solved = this.solve_expr(val, env);
-    } else {
-        this.solved = val;
-    }
-    if (this.solved !== undefined) {
-        this.value = val;
-        success = true;
-    }
-    return success;
+  // var success = false;
+  // this.solved = val;
+  // this.value = val;
+  // success = true;
+  // return success;
+  var success = false;
+  this.solved = undefined;
+  if (isNaN(val)) {
+    this.solved = this.solve_expr(val, env);
+  } else {
+    this.solved = val;
+  }
+  if (this.solved !== undefined) {
+    this.value = val;
+    success = true;
+  }
+  return success;
 };
 bloqsnet.PARA_REGISTRY.string = string_param;
 
 //////// ENUM
 
 var enum_param = function(spec, initVal) {
-    BaseParam.call(this, spec, initVal);
-    this.value = this.spec.choices[0];
+  BaseParam.call(this, spec, initVal);
+  this.value = this.spec.choices[0];
 };
 enum_param.prototype = Object.create(BaseParam.prototype);
 enum_param.prototype.constructor = enum_param;
 enum_param.prototype.update = function(val, env) {
-    var success = false;
-    this.solved = val;
-    this.value = val;
-    success = true;
-    return success;
+  var success = false;
+  this.solved = val;
+  this.value = val;
+  success = true;
+  return success;
 };
 bloqsnet.PARA_REGISTRY.enum = enum_param;
 
 //////// JSON
 
 var json_param = function(spec, initVal) {
-    BaseParam.call(this, spec, initVal);
-    // if(typeof(this.value) === "string"){
-    //     this.value = JSON.parse(this.value);
-    // }
+  BaseParam.call(this, spec, initVal);
+  // if(typeof(this.value) === "string"){
+  //     this.value = JSON.parse(this.value);
+  // }
 };
 json_param.prototype = Object.create(BaseParam.prototype);
 json_param.prototype.constructor = json_param;
 json_param.prototype.update = function(val, env) {
-    var success = false;
+  var success = false;
+  this.solved = undefined;
+  try {
+    this.solved = JSON.parse(val);
+  } catch (err) {
     this.solved = undefined;
-    try {
-        this.solved = JSON.parse(val);
-    } catch (err) {
-        this.solved = undefined;
-    }
-    if (this.solved !== undefined) {
-        this.value = val;
-        success = true;
-    }
-    return success;
+  }
+  if (this.solved !== undefined) {
+    this.value = val;
+    success = true;
+  }
+  return success;
 };
 bloqsnet.PARA_REGISTRY.json = json_param;
 
 //////// TRANSFORM
 
 var transform_param = function(spec, initVal) {
-    BaseParam.call(this, spec, initVal);
+  BaseParam.call(this, spec, initVal);
 };
 transform_param.prototype = Object.create(BaseParam.prototype);
 transform_param.prototype.constructor = transform_param;
 transform_param.prototype.update = function(val, env) {
-    // too lazy to implement the error checking at the moment
-    // better do it eventually tho
-    var success = false;
-    this.solved = [];
-    _.each(val, function(p) {
-        var sp = {};
-        _.each(p, function(v, k) {
-            if (k !== "type") {
-                console.log(v);
-                var vs = typeof(v) === "string" ? this.solve_expr(v, env) : v;
-                console.log(vs);
-                sp[k] = vs;
-            } else {
-                sp[k] = v;
-            }
-        }, this);
-        this.solved.push(sp);
+  // too lazy to implement the error checking at the moment
+  // better do it eventually tho
+  var success = false;
+  this.solved = [];
+  _.each(val, function(p) {
+    var sp = {};
+    _.each(p, function(v, k) {
+      if (k !== "type") {
+        console.log(v);
+        var vs = typeof(v) === "string" ? this.solve_expr(v, env) : v;
+        console.log(vs);
+        sp[k] = vs;
+      } else {
+        sp[k] = v;
+      }
     }, this);
+    this.solved.push(sp);
+  }, this);
 
-    this.value = val;
-    success = true;
-    return success;
+  this.value = val;
+  success = true;
+  return success;
 };
 bloqsnet.PARA_REGISTRY.transform = transform_param;
 
 //////// COLOR
 
 var color_param = function(spec, initVal) {
-    BaseParam.call(this, spec, initVal);
+  BaseParam.call(this, spec, initVal);
 };
 color_param.prototype = Object.create(BaseParam.prototype);
 color_param.prototype.constructor = color_param;
 color_param.prototype.update = function(val, env) {
-    var success = false;
-    this.value = val;
-    this.solved = val;
-    success = true;
-    return success;
+  var success = false;
+  this.value = val;
+  this.solved = val;
+  success = true;
+  return success;
 };
 bloqsnet.PARA_REGISTRY.color = color_param;
 
 //////// PRESERVE ASPECT RATIO
 
 var par_param = function(spec, initVal) {
-    BaseParam.call(this, spec, initVal);
-    //this.value = this.spec.choices[0];
+  BaseParam.call(this, spec, initVal);
+  //this.value = this.spec.choices[0];
 };
 par_param.prototype = Object.create(BaseParam.prototype);
 par_param.prototype.constructor = par_param;
 par_param.prototype.update = function(val, env) {
-    var success = false;
-    this.solved = val;
-    this.value = val;
-    success = true;
-    return success;
+  var success = false;
+  this.solved = val;
+  this.value = val;
+  success = true;
+  return success;
 };
 bloqsnet.PARA_REGISTRY.preserveAspectRatio = par_param;
 
 //////// VIEWBOX
 
 var vb_param = function(spec, initVal) {
-    BaseParam.call(this, spec, initVal);
-    //this.value = this.spec.choices[0];
+  BaseParam.call(this, spec, initVal);
+  //this.value = this.spec.choices[0];
 };
 vb_param.prototype = Object.create(BaseParam.prototype);
 vb_param.prototype.constructor = vb_param;
 vb_param.prototype.update = function(val, env) {
-    var success = false;
-    this.solved = undefined;
+  var success = false;
+  this.solved = undefined;
 
-    var preSolved = _.reduce(val.split(' '), function(m, e, k) {
-        var s;
-        if (e.slice(-1) === "%") {
-            s = this.solve_expr(e.slice(0, -1), env) + "%";
-        } else if (val.slice(-2) === "px") {
-            s = this.solve_expr(e.slice(0, -2), env) + "px";
-        } else {
-            s = this.solve_expr(e, env);
-        }
-
-        if (s !== undefined) m.push(s);
-
-        return m;
-    }, [], this);
-
-    if (preSolved.length === 4) {
-
-        this.value = val;
-        this.solved = preSolved.join(' ');
-        success = true;
+  var preSolved = _.reduce(val.split(' '), function(m, e, k) {
+    var s;
+    if (e.slice(-1) === "%") {
+      s = this.solve_expr(e.slice(0, -1), env) + "%";
+    } else if (val.slice(-2) === "px") {
+      s = this.solve_expr(e.slice(0, -2), env) + "px";
+    } else {
+      s = this.solve_expr(e, env);
     }
 
-    return success;
+    if (s !== undefined) m.push(s);
+
+    return m;
+  }, [], this);
+
+  if (preSolved.length === 4) {
+
+    this.value = val;
+    this.solved = preSolved.join(' ');
+    success = true;
+  }
+
+  return success;
 };
 bloqsnet.PARA_REGISTRY.viewBox = vb_param;
 
@@ -282,248 +290,251 @@ bloqsnet.PARA_REGISTRY.viewBox = vb_param;
 
 bloqsnet.gimmeTheThing = function(callbacks) {
 
-    return {
+  return {
 
-        inst: undefined,
-        insts: {},
-        callbacks: callbacks,
-        test_render: undefined,
+    inst: undefined,
+    insts: {},
+    callbacks: callbacks,
+    test_render: undefined,
 
-        new: function(id, type, meta, params) {
-            id = id || _.uniqueId('b');
-            params = params || {};
-            if (this.insts[id] === undefined) {
-                var def = bloqsnet.REGISTRY[type].prototype.def;
-                var that = this;
-                return new bloqsnet.REGISTRY[type]({
-                    id: id,
-                    type: type,
-                    meta: meta,
-                    params: _.reduce(def.params, function(memo, p) {
-                        memo[p.name] = new bloqsnet.PARA_REGISTRY[p.type](p, params[p.name]);
-                        return memo;
-                    }, {}, this),
-                    onTermAdd: function(idx) {
-                        that._call_back('term:add', [id, idx]);
-                    },
-                    onTermRem: function(idx) {
-                        that._call_back('term:rem', [id, idx]);
-                    }
-                });
-            }
-        },
+    new: function(id, type, meta, params) {
+      id = id || _.uniqueId('b');
+      params = params || {};
+      if (this.insts[id] === undefined) {
+        var def = bloqsnet.REGISTRY[type].prototype.def;
+        var that = this;
+        return new bloqsnet.REGISTRY[type]({
+          id: id,
+          type: type,
+          meta: meta,
+          params: _.reduce(def.params, function(memo, p) {
+            memo[p.name] = new bloqsnet.PARA_REGISTRY[p.type](p, params[p.name]);
+            return memo;
+          }, {}, this),
+          onTermAdd: function(idx) {
+            that._call_back('term:add', [id, idx]);
+          },
+          onTermRem: function(idx) {
+            that._call_back('term:rem', [id, idx]);
+          }
+        });
+      }
+    },
 
-        add: function(type, pos) {
-            var meta = {
-                x: pos[0],
-                y: pos[1]
-            };
+    add: function(type, pos) {
+      var meta = {
+        x: pos[0],
+        y: pos[1]
+      };
 
-            var b = this.new(null, type, meta, null);
-            this.insts[b.get_id()] = b;
+      var b = this.new(null, type, meta, null);
+      this.insts[b.get_id()] = b;
 
-            this._call_back('add', b);
-        },
+      this._call_back('add', b);
+    },
 
-        rem: function(id) {
-            var bloq = this.insts[id];
-            //
-            var bloq_json = bloq.toJSON();
+    rem: function(id) {
+      var bloq = this.insts[id];
+      //
+      var bloq_json = bloq.toJSON();
 
-            this.dscon([id, 'p', 0]);
+      this.dscon([id, 'p', 0]);
 
-            _.each(bloq_json.c, function(c, idx) {
-                this.dscon([id, 'c', idx]);
-            }, this);
+      _.each(bloq_json.c, function(c, idx) {
+        this.dscon([id, 'c', idx]);
+      }, this);
 
-            //
-            bloq.kill();
-            delete this.insts[id];
+      //
+      bloq.kill();
+      delete this.insts[id];
 
-            this._call_back('remove', id);
-        },
+      this._call_back('remove', id);
+    },
 
-        con: function(a, b, silent) {
-            silent = silent || false;
-            if (a[0] !== b[0] && a[1] != b[1]) {
-                this.dscon(a, silent);
-                this.dscon(b, silent);
+    con: function(a, b, silent) {
+      silent = silent || false;
+      if (a[0] !== b[0] && a[1] != b[1]) {
+        this.dscon(a, silent);
+        this.dscon(b, silent);
 
-                // from child to parent
-                var st = a[1] === "p" ? a : b;
-                var et = a[1] === "p" ? b : a;
-                var c_bloq = this.insts[st[0]];
-                var p_bloq = this.insts[et[0]];
+        // from child to parent
+        var st = a[1] === "p" ? a : b;
+        var et = a[1] === "p" ? b : a;
+        var c_bloq = this.insts[st[0]];
+        var p_bloq = this.insts[et[0]];
 
-                p_bloq.swapChild(et[2], c_bloq);
-                c_bloq.addParent(p_bloq);
-                c_bloq.refreshEnvironment();
+        p_bloq.swapChild(et[2], c_bloq);
+        c_bloq.addParent(p_bloq);
+        c_bloq.refreshEnvironment();
 
-                // this.rst_trm(silent);
+        // this.rst_trm(silent);
 
-                this._call_back('term:add', b[0]);
+        this._call_back('term:add', b[0]);
 
-                if (!silent) this._call_back('change:connected', [a, b]);
+        if (!silent) this._call_back('change:connected', [a, b]);
 
-            }
-        },
+      }
+    },
 
-        get: function(id) {
-            return this.insts[id];
-        },
+    get: function(id) {
+      return this.insts[id];
+    },
 
-        dscon_chld: function(id, idx) {
-            // from parent to child
-            var p_bloq = this.insts[id];
-            var c_bloq = p_bloq.getChildNodes()[idx];
-            var success = false;
-            if (c_bloq !== undefined && c_bloq !== "x") {
-                c_bloq.addParent("x");
-                p_bloq.swapChild(idx, "x");
-                success = true;
-            }
+    dscon_chld: function(id, idx) {
+      // from parent to child
+      var p_bloq = this.insts[id];
+      var c_bloq = p_bloq.getChildNodes()[idx];
+      var success = false;
+      if (c_bloq !== undefined && c_bloq !== "x") {
+        c_bloq.addParent("x");
+        p_bloq.swapChild(idx, "x");
+        success = true;
+      }
 
-            return success;
+      return success;
 
-        },
+    },
 
-        dscon_prnt: function(id, idx) {
-            // from child to parent
-            var c_bloq = this.insts[id];
-            var p_bloq = c_bloq.getParentNode();
-            var success = false;
-            if (p_bloq !== undefined && p_bloq !== "x") {
-                console.log(" --- " + p_bloq.getChildIdx(id));
-                p_bloq.swapChild(p_bloq.getChildIdx(id), "x");
-                c_bloq.addParent("x");
-                success = true;
-            }
+    dscon_prnt: function(id, idx) {
+      // from child to parent
+      var c_bloq = this.insts[id];
+      var p_bloq = c_bloq.getParentNode();
+      var success = false;
+      if (p_bloq !== undefined && p_bloq !== "x") {
+        console.log(" --- " + p_bloq.getChildIdx(id));
+        p_bloq.swapChild(p_bloq.getChildIdx(id), "x");
+        c_bloq.addParent("x");
+        success = true;
+      }
 
-            return success;
+      return success;
 
-        },
+    },
 
-        dscon: function(term, silent) {
-            silent = silent || false;
-            var success = false;
-            if (term[1] === "c") {
-                success = this.dscon_chld(term[0], term[2]);
-            } else {
-                success = this.dscon_prnt(term[0], term[2]);
-            }
+    dscon: function(term, silent) {
+      silent = silent || false;
+      var success = false;
+      if (term[1] === "c") {
+        success = this.dscon_chld(term[0], term[2]);
+      } else {
+        success = this.dscon_prnt(term[0], term[2]);
+      }
 
-            if (success) this.rst_trm(silent);
+      if (success) this.rst_trm(silent);
 
-            if (!silent && success) this._call_back('change:disconnected', term);
-        },
+      if (!silent && success) this._call_back('change:disconnected', term);
+    },
 
-        getConnectedTerm: function(term) {
-            var t;
-            if (term[1] === "c") {
-                t = this.insts[term[0]].getChildNodes()[term[2]];
-                t = t === undefined ? t : t === "x" ? "x" : [t.get_id(), "p", 0];
-            } else {
-                var n = this.insts[term[0]];
-                t = n.getParentNode();
-                if (t !== "x") {
-                    var idx = 0;
-                    _.find(t.getChildNodes(), function(c, i) {
-                        idx = i;
-                        return c === n;
-                    });
-                    t = [t.get_id(), "c", idx];
-                }
-            }
-            return t;
-        },
-
-        crt: function(data, id) {
-
-            // create bloqs
-            _.each(data, function(d) {
-                var b = this.new(d.id, d.type, _.clone(d.meta), _.clone(d.params));
-                this.insts[b.get_id()] = b;
-            }, this);
-
-            // wire them up
-            _.each(data, function(d) {
-                _.each(d.c, function(c, idx) {
-                    if (c !== "x") {
-                        //this.con([d.id, "c", idx], [c, "p", 0], true); //c, idx, d.id);
-                        this.insts[d.id].swapChild(idx, this.insts[c]);
-                        this.insts[c].addParent(this.insts[d.id]);
-                        this.rst_trm(true);
-                    }
-                }, this);
-            }, this);
-
-            this.inst = this.insts[id];
-
-            this.inst.updateLocalEnvironment();
-            this.inst.render_svg();
-            console.log('crt complete');
-
-            this._call_back('reset', this._inst);
-
-        },
-
-        rndr: function(id) {
-            console.log("RNDR");
-            // this.test_render = this.test_render === undefined ? $(this.new("test-render", "root", {}).render_svg()) : this.test_render;
-            var rendered = $(this.insts[id].render_svg());
-            if (!rendered.is("svg")) {
-                var svg = this.test_render;
-                svg.empty();
-                svg.append(rendered);
-                rendered = svg;
-            }
-            return rendered;
-        },
-
-        get_svg: function(id) {
-            this.test_render = this.test_render === undefined ? $(this.new("test-render", "root", {}).render_svg()) : this.test_render;
-            var rendered = $(this.insts[id].cached_svg);
-            if (!rendered.is("svg")) {
-                var svg = this.test_render;
-                svg.empty();
-                svg.append(rendered);
-                rendered = svg;
-            }
-            return rendered;
-        },
-
-        updt_par: function(id, p_name, val) {
-
-            var success = this.insts[id].updateParam(p_name, val);
-
-            if (success) {
-                this._call_back('change:svg', this.get_svg(id));
-            }
-
-            return success;
-        },
-
-        updt_mta: function(id, p_name, val) {
-            return this.insts[id].updateMeta(p_name, val);
-        },
-
-        rst_trm: function(silent) {
-            silent = silent || false;
-            _.each(this.insts, function(i) {
-                var didReset = i.resetTerminals();
-                if (didReset && !silent) this._call_back('change:terminals', i);
-            }, this);
-        },
-
-        //////////////////////////////
-
-        _call_back: function(cbk_id, params) {
-            if (this.callbacks[cbk_id] !== undefined) {
-                this.callbacks[cbk_id](params);
-            }
+    getConnectedTerm: function(term) {
+      var t;
+      if (term[1] === "c") {
+        t = this.insts[term[0]].getChildNodes()[term[2]];
+        t = t === undefined ? t : t === "x" ? "x" : [t.get_id(), "p", 0];
+      } else {
+        var n = this.insts[term[0]];
+        t = n.getParentNode();
+        if (t !== "x") {
+          var idx = 0;
+          _.find(t.getChildNodes(), function(c, i) {
+            idx = i;
+            return c === n;
+          });
+          t = [t.get_id(), "c", idx];
         }
+      }
+      return t;
+    },
 
-    };
+    crt: function(data, id) {
+
+      // create bloqs
+      _.each(data, function(d) {
+        var b = this.new(d.id, d.type, _.clone(d.meta), _.clone(d.params));
+        this.insts[b.get_id()] = b;
+      }, this);
+
+      // wire them up
+      _.each(data, function(d) {
+        _.each(d.c, function(c, idx) {
+          if (c !== "x") {
+            //this.con([d.id, "c", idx], [c, "p", 0], true); //c, idx, d.id);
+            this.insts[d.id].swapChild(idx, this.insts[c]);
+            this.insts[c].addParent(this.insts[d.id]);
+            this.rst_trm(true);
+          }
+        }, this);
+      }, this);
+
+      this.inst = this.insts[id];
+
+      this.inst.updateLocalEnvironment();
+      this.inst.render_svg();
+      console.log('crt complete');
+
+      this._call_back('reset', this._inst);
+
+    },
+
+    rndr: function(id) {
+      console.log("RNDR");
+      // this.test_render = this.test_render === undefined ? $(this.new("test-render", "root", {}).render_svg()) : this.test_render;
+      var rendered = $(this.insts[id].render_svg());
+      if (!rendered.is("svg")) {
+        var svg = this.test_render;
+        svg.empty();
+        svg.append(rendered);
+        rendered = svg;
+      }
+      return rendered;
+    },
+
+    get_svg: function(id) {
+      console.log("GET_SVG");
+      this.test_render = this.test_render || $(this.new("test-render", "root", {}).render_svg());
+      this.insts[id].sully_cached_svg_down();
+      this.insts[id].render_svg();
+      var rendered = $(this.insts[id].cached_svg);
+      if (!rendered.is("svg")) {
+        var svg = this.test_render;
+        svg.empty();
+        svg.append(rendered);
+        rendered = svg;
+      }
+      return rendered;
+    },
+
+    updt_par: function(id, p_name, val) {
+
+      var success = this.insts[id].updateParam(p_name, val);
+
+      if (success) {
+        this._call_back('change:svg', this.get_svg(id));
+      }
+
+      return success;
+    },
+
+    updt_mta: function(id, p_name, val) {
+      return this.insts[id].updateMeta(p_name, val);
+    },
+
+    rst_trm: function(silent) {
+      silent = silent || false;
+      _.each(this.insts, function(i) {
+        var didReset = i.resetTerminals();
+        if (didReset && !silent) this._call_back('change:terminals', i);
+      }, this);
+    },
+
+    //////////////////////////////
+
+    _call_back: function(cbk_id, params) {
+      if (this.callbacks[cbk_id] !== undefined) {
+        this.callbacks[cbk_id](params);
+      }
+    }
+
+  };
 
 };
 
@@ -532,332 +543,325 @@ bloqsnet.gimmeTheThing = function(callbacks) {
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-var Base = function (spec) {
-    console.log("++ NEW: " + spec.type + "-" + spec.id);
 
-    // init spec
-    spec.type = spec.type || "base";
-    spec.meta = spec.meta || {};
-    spec.params = spec.params || {};
+var Base = function(spec) {
+  console.log("++ NEW: " + spec.type + "-" + spec.id);
 
-    spec.children = bloqsnet.REGISTRY[spec.type].prototype.def.c[0] > 0 ? ["x"] : undefined;
-    spec.parent = bloqsnet.REGISTRY[spec.type].prototype.def.p[0] > 0 ? "x" : undefined;
+  // init spec
+  spec.type = spec.type || "base";
+  spec.meta = spec.meta || {};
+  spec.params = spec.params || {};
 
-    spec.local_env = {};
-    spec.env = {};
+  spec.children = bloqsnet.REGISTRY[spec.type].prototype.def.c[0] > 0 ? ["x"] : undefined;
+  spec.parent = bloqsnet.REGISTRY[spec.type].prototype.def.p[0] > 0 ? "x" : undefined;
 
-    spec.env_dirty = true;
-    spec.solution = {};
+  spec.local_env = {};
+  spec.env = {};
 
-    //                                               private member variable  //
-    var that = this;
+  spec.env_dirty = true;
+  spec.solution = {};
 
-    //                                                public member variable  //
-    this.spec = spec;
+  //                                               private member variable  //
+  //                                                public member variable  //
+  this.spec = spec;
 
-    //                                               private member function  //
+  //                                               private member function  //
 
-    //                                            privileged member function  //
+  //                                            privileged member function  //
 
-    this.get_type = function () {
-        return spec.type;
-    };
+  this.get_type = function() {
+    return spec.type;
+  };
 
-    this.get_id = function () {
-        return spec.id;
-    };
+  this.get_id = function() {
+    return spec.id;
+  };
 
-    this.get_params = function () {
-        return _.reduce(spec.params, function (m, p, k) {
-            m[k] = p.value;
-            return m;
-        }, {}, this);
-    };
+  this.get_params = function() {
+    return _.reduce(spec.params, function(m, p, k) {
+      m[k] = p.value;
+      return m;
+    }, {}, this);
+  };
 
-    this.env_val = function (var_name, env) {
-        return spec.env[var_name];
-    };
+  this.env_val = function(var_name, env) {
+    return spec.env[var_name];
+  };
 
-    this.solveParams = function () {
-        this.check_env();
-        return spec.solution;
-    };
+  this.solveParams = function() {
+    this.check_env();
+    return spec.solution;
+  };
 
-    this.updateMeta = function (p_name, val) {
-        spec.meta[p_name] = val;
-        return true;
-    };
+  this.updateMeta = function(p_name, val) {
+    spec.meta[p_name] = val;
+    return true;
+  };
 
-    //
+  //
 
-    this.getParentNode = function () {
-        return spec.parent;
-    };
+  this.getParentNode = function() {
+    return spec.parent;
+  };
 
-    this.getChildNodes = function () {
-        return spec.children;
-    };
+  this.getChildNodes = function() {
+    return spec.children;
+  };
 
-    this.addChild = function (child) {
-        spec.children.unshift(child);
-    };
+  this.addChild = function(child) {
+    spec.children.unshift(child);
+  };
 
-    this.addChildAt = function (child, idx) {
-        spec.children.splice(idx, 0, child);
-    };
+  this.addChildAt = function(child, idx) {
+    spec.children.splice(idx, 0, child);
+  };
 
-    this.getChildIdx = function (id) {
-        var r = -1, i;
-        for (i = 0; i < spec.children.length; i++) {
-            if (spec.children[i] !== "x" && spec.children[i].spec.id === id) {
-                r = i;
-            }
-        }
-        return r;
-    };
+  this.getChildIdx = function(id) {
+    var r = -1,
+        i;
+    for (i = 0; i < spec.children.length; i++) {
+      if (spec.children[i] !== "x" && spec.children[i].spec.id === id) {
+        r = i;
+      }
+    }
+    return r;
+  };
 
-    this.swapChild = function (idx, val) {
-        spec.children[idx] = val;
-    };
+  this.swapChild = function(idx, val) {
+    spec.children[idx] = val;
+  };
 
-    this.addParent = function (parent) {
-        spec.parent = parent;
-    };
+  this.addParent = function(parent) {
+    spec.parent = parent;
+  };
 
-    this.resetTerminals = function () {
-        var card, temp, before;
-        card = bloqsnet.REGISTRY[spec.type].prototype.def.c;
-        temp = {};
-        before = spec.children;
-        if (card[1] === "n") {
-            spec.children = _.without(spec.children, "x");
-            spec.children.push("x");
-        }
-        return !_.isEqual(spec.children, before);
-    };
+  this.resetTerminals = function() {
+    var card, temp, before;
+    card = bloqsnet.REGISTRY[spec.type].prototype.def.c;
+    temp = {};
+    before = spec.children;
+    if (card[1] === "n") {
+      spec.children = _.without(spec.children, "x");
+      spec.children.push("x");
+    }
+    return !_.isEqual(spec.children, before);
+  };
 
-    //
+  //
 
-    this.solve_expr = function (expr) {
-        console.log("solve expr:" + expr);
-        var start,
+  this.solve_expr = function(expr) {
+    console.log("solve expr:" + expr);
+    var start,
         node,
         filtered,
         res,
         keys,
         xxx,
         diff;
-        start = (new Date()).getTime();
-        node = math.parse(expr);
-        filtered = node.filter(function (node) {
-            return node.type == "SymbolNode";
-        });
-        res = expr;
-        if (filtered.length > 0) {
-            keys = _.keys(spec.env);
-            xxx = _.every(filtered, function (i) {
-                return _.contains(keys, i.name);
-            });
-            if (xxx) {
-                try {
-                    res = math.eval(expr, spec.env);
-                } catch (err) {
+    start = (new Date()).getTime();
+    node = math.parse(expr);
+    filtered = node.filter(function(node) {
+      return node.type == "SymbolNode";
+    });
+    res = expr;
+    if (filtered.length > 0) {
+      keys = _.keys(spec.env);
+      xxx = _.every(filtered, function(i) {
+        return _.contains(keys, i.name);
+      });
+      if (xxx) {
+        try {
+          res = math.eval(expr, spec.env);
+        } catch (err) {
 
-                    //res = this.solve(expr, _.clone(env).slice(1));
-                    res = undefined;
-                }
-            }
+          //res = this.solve(expr, _.clone(env).slice(1));
+          res = undefined;
         }
-        res = isNaN(res) ? undefined : res;
-        diff = (new Date()).getTime() - start;
-        return res;
-    };
+      }
+    }
+    res = isNaN(res) ? undefined : res;
+    diff = (new Date()).getTime() - start;
+    return res;
+  };
 
-    this.check_env = function () {
-        console.log("check env, " + spec.type + "-" + spec.id + " : " + spec.env_dirty);
-        var params_def,
+  this.check_env = function() {
+    console.log("check env, " + spec.type + "-" + spec.id + " : " + spec.env_dirty);
+    var params_def,
         raw_val,
         success;
-        if (spec.env_dirty) {
-            params_def = bloqsnet.REGISTRY[spec.type].prototype.def.params;
-            spec.solution = _.reduce(params_def, function (m, p_def) {
-                raw_val = spec.params[p_def.name].value;
-                success = spec.params[p_def.name].update(raw_val, spec.env);
-                m[p_def.name] = spec.params[p_def.name].solved;
-                return m;
-            }, {}, this);
-            console.log(spec.solution);
-        }
-
-        spec.env_dirty = false;
-    };
-
-    this.setLocalEnvironment = function (data) {
-
-        //if (!_.isEqual(data, spec.local_env)) {
-        console.log("SET LOCAL ENV: " + this.spec.type + "-" + this.spec.id);
-        spec.local_env = data;
-        this.refreshEnvironment();
-
-        //}
-    };
-
-    this.refreshEnvironment = function () {
-
-        console.log("REFRESH ENV: " + this.spec.type + "-" + this.spec.id);
-
-        if (spec.parent !== "x" && spec.parent !== undefined) {
-            spec.env = _.clone(spec.parent.getEnvironment());
-            _.each(spec.local_env, function (v, k, l) {
-                spec.env[k] = v;
-            });
-        } else {
-            spec.env = spec.local_env;
-        }
-
-        var spanks = false;
-
-        // no need to propogate nothing
-        if (!_.isEmpty(spec.env)) {
-
-            _.each(spec.children, function (c) {
-                if (c !== "x") {
-                    spanks = true;
-                    c.refreshEnvironment();
-                }
-            });
-
-        }
-
-        if (spanks === false) {
-            this.foo();
-        } else {
-            console.log("BAR, mutherfucker");
-        }
-    };
-
-    this.sully_env_down = function () {
-        console.log("SULLY ENV: " + this.spec.type + "-" + this.spec.id);
-        this.spec.env_dirty = true;
-        _.each(this.spec.children, function (c) {
-            if (c !== "x") {
-                c.sully_env_down();
-            }
-        });
-    };
-
-    // this.sully_cached_svg_up = function() {
-    //     this.cached_svg = undefined;
-
-    //     if (this.spec.parent != undefined && this.spec.parent !== "x") {
-    //         this.spec.parent.sully_cached_svg_up();
-    //     }
-    // };
-
-    this.getEnvironment = function () {
-        return spec.env;
-    };
-
-    //
-    this.kill = function () {
-        if (spec.parent !== undefined && spec.parent !== "x") {
-            var idx = -1;
-            _.find(spec.parent.getChildNodes(), function (c, i) {
-                idx = i;
-                return c === this;
-            });
-            spec.parent.swapChild(idx, "x");
-        }
-        spec.parent = "x";
-        _.each(spec.children, function (c, idx) {
-            if (c !== "x") {
-                c.addParent("x");
-                spec.children[idx] = "x";
-            }
-        });
-    };
-};
-
-Base.prototype.updateParam = function (p_name, val) {
-
-    console.log("UPDATE PARAM: " + this.spec.type + "-" + this.spec.id);
-
-    var success,
-    p;
-
-    success = false;
-    p = _.findWhere(bloqsnet.REGISTRY[this.spec.type].prototype.def.params, {
-        "name": p_name
-    });
-
-    success = this.spec.params[p_name].update(val, this.spec.env);
-
-    if (success) {
-        this.sully_env_down();
-        this.updateLocalEnvironment();
-    } else {
-        console.log("didnt update param: " + p_name + ", type: " + p.type + ", val: " + val);
+    if (spec.env_dirty) {
+      params_def = bloqsnet.REGISTRY[spec.type].prototype.def.params;
+      spec.solution = _.reduce(params_def, function(m, p_def) {
+        raw_val = spec.params[p_def.name].value;
+        success = spec.params[p_def.name].update(raw_val, spec.env);
+        m[p_def.name] = spec.params[p_def.name].solved;
+        return m;
+      }, {}, this);
+      console.log(spec.solution);
     }
 
-    return success;
+    spec.env_dirty = false;
+  };
 
-};
+  this.setLocalEnvironment = function(data) {
 
-Base.prototype.updateLocalEnvironment = function () {
-    this.setLocalEnvironment({});
-};
+    //if (!_.isEqual(data, spec.local_env)) {
+    console.log("SET LOCAL ENV: " + this.spec.type + "-" + this.spec.id);
+    spec.local_env = data;
+    this.refreshEnvironment();
 
-Base.prototype.toJSON = function () {
-    return _.reduce(this.spec, function (m, s, k) {
-        switch (k) {
-            case "parent":
-                if (s !== undefined) {
-                    if (s === "x") {
-                        m.p = ["x"];
-                    } else {
-                        m.p = [s.get_id()];
-                    }
-                } else {
-                    m.p = [];
-                }
-                break;
-            case "children":
-                if (s !== undefined) {
-                    m.c = _.map(s, function (c) {
-                        if (c === "x") {
-                            return "x";
-                        } else {
-                            return c.get_id();
-                        }
-                    });
-                } else {
-                    m.c = [];
-                }
-                break;
-            case "id":
-            case "type":
-            case "meta":
-                m[k] = s;
-                break;
-            case "params":
-                m[k] = _.reduce(s, function (mem, val, key) {
-                    if (val.value !== undefined) {
-                        mem[key] = val.value;
-                    }
-                    return mem;
-                }, {});
-                break;
-            default:
-                break;
+    //}
+  };
+
+  this.refreshEnvironment = function() {
+
+    console.log("REFRESH ENV: " + this.spec.type + "-" + this.spec.id);
+
+    if (spec.parent !== "x" && spec.parent !== undefined) {
+      spec.env = _.clone(spec.parent.getEnvironment());
+      _.each(spec.local_env, function(v, k, l) {
+        spec.env[k] = v;
+      });
+    } else {
+      spec.env = spec.local_env;
+    }
+
+    var spanks = false;
+
+    // no need to propogate nothing
+    if (!_.isEmpty(spec.env)) {
+
+      _.each(spec.children, function(c) {
+        if (c !== "x") {
+          spanks = true;
+          c.refreshEnvironment();
         }
-        return m;
-    }, {});
+      });
+
+    }
+
+    // if (spanks === false) {
+    //   this.foo();
+    // } else {
+    //   console.log("BAR, mutherfucker");
+    // }
+  };
+
+  this.sully_env_down = function() {
+    console.log("SULLY ENV: " + this.spec.type + "-" + this.spec.id);
+    this.spec.env_dirty = true;
+    _.each(this.spec.children, function(c) {
+      if (c !== "x") {
+        c.sully_env_down();
+      }
+    });
+  };
+
+
+  this.getEnvironment = function() {
+    return spec.env;
+  };
+
+  //
+  this.kill = function() {
+    if (spec.parent !== undefined && spec.parent !== "x") {
+      var idx = -1;
+      _.find(spec.parent.getChildNodes(), function(c, i) {
+        idx = i;
+        return c === this;
+      });
+      spec.parent.swapChild(idx, "x");
+    }
+    spec.parent = "x";
+    _.each(spec.children, function(c, idx) {
+      if (c !== "x") {
+        c.addParent("x");
+        spec.children[idx] = "x";
+      }
+    });
+  };
+};
+
+Base.prototype.updateParam = function(p_name, val) {
+
+  console.log("UPDATE PARAM: " + this.spec.type + "-" + this.spec.id);
+
+  var success,
+      p;
+
+  success = false;
+  p = _.findWhere(bloqsnet.REGISTRY[this.spec.type].prototype.def.params, {
+    "name": p_name
+  });
+
+  success = this.spec.params[p_name].update(val, this.spec.env);
+
+  if (success) {
+    this.sully_env_down();
+    this.updateLocalEnvironment();
+  } else {
+    console.log("didnt update param: " + p_name + ", type: " + p.type + ", val: " + val);
+  }
+
+  return success;
+
+};
+
+Base.prototype.updateLocalEnvironment = function() {
+  this.setLocalEnvironment({});
+};
+
+Base.prototype.toJSON = function() {
+  return _.reduce(this.spec, function(m, s, k) {
+    switch (k) {
+    case "parent":
+      if (s !== undefined) {
+        if (s === "x") {
+          m.p = ["x"];
+        } else {
+          m.p = [s.get_id()];
+        }
+      } else {
+        m.p = [];
+      }
+      break;
+    case "children":
+      if (s !== undefined) {
+        m.c = _.map(s, function(c) {
+          if (c === "x") {
+            return "x";
+          } else {
+            return c.get_id();
+          }
+        });
+      } else {
+        m.c = [];
+      }
+      break;
+    case "id":
+    case "type":
+    case "meta":
+      m[k] = s;
+      break;
+    case "params":
+      m[k] = _.reduce(s, function(mem, val, key) {
+        if (val.value !== undefined) {
+          mem[key] = val.value;
+        }
+        return mem;
+      }, {});
+      break;
+    default:
+      break;
+    }
+    return m;
+  }, {});
 };
 
 Base.prototype.def = {
-    display: false,
-    type: "base",
-    params: {}
+  display: false,
+  type: "base",
+  params: {}
 };
 
 bloqsnet.REGISTRY.base = Base;
@@ -867,84 +871,65 @@ bloqsnet.REGISTRY.base = Base;
 ////////////////////////////////////////////////////////////////////////////////
 
 var SVG_Proto = function(spec) {
-    spec.type = spec.type || "svg_proto";
-    Base.call(this, spec);
+  spec.type = spec.type || "svg_proto";
+  Base.call(this, spec);
 
-    var that = this;
+  this.cached_svg = undefined;
 
-    this.cached_svg = undefined;
+  var setAttribute = function(svg_elm, key, val) {
+    // NOTE: the undefined check here is a stopgap
+    // it really should be mitigated further upstream
+    if (val !== undefined && val !== "") {
+      svg_elm.setAttribute(key, val);
+    }
+  };
 
-    var setAttribute = function(svg_elm, key, val) {
-        // NOTE: the undefined check here is a stopgap
-        // it really should be mitigated further upstream
-        if (val !== undefined && val !== "") {
-            svg_elm.setAttribute(key, val);
-        }
-    };
+  this.setAttributes = function(svg_elem, attrs) {
+    _.each(attrs, function(attr, k, l) {
+      if (_.findWhere(bloqsnet.REGISTRY[spec.type].prototype.def.params, {
+        "name": k
+      }).renderSvg === true) {
 
-    this.setAttributes = function(svg_elem, attrs) {
-        _.each(attrs, function(attr, k, l) {
-            if (_.findWhere(bloqsnet.REGISTRY[spec.type].prototype.def.params, {
-                    "name": k
-                }).renderSvg === true) {
-
-                switch (k) {
-                    case "transform":
-                        var val = "";
-                        _.each(attr, function(a, ak) {
-                            switch (a.type) {
-                                case "trans":
-                                    val += "translate(" + a.x + ", " + a.y + ") ";
-                                    break;
-                                case "scale":
-                                    val += "scale(" + a.x + ", " + a.y + ") ";
-                                    break;
-                                case "rot":
-                                    val += "rotate(" + a.r;
-                                    if (a.x !== undefined)
-                                        val += ", " + a.x + ", " + a.y;
-                                    val += ") ";
-                                    break;
-                                case "skewX":
-                                    val += "skewX(" + a.x + ") ";
-                                    break;
-                                case "skewY":
-                                    val += "skewY(" + a.y + ") ";
-                                    break;
-                            }
-                        });
-
-                        val = val.slice(0, -1);
-
-                        setAttribute(svg_elem, k, val);
-                        break;
-                    default:
-                        setAttribute(svg_elem, k, attr);
-                        break;
-                }
-
+        switch (k) {
+        case "transform":
+          var val = "";
+          _.each(attr, function(a, ak) {
+            switch (a.type) {
+            case "trans":
+              val += "translate(" + a.x + ", " + a.y + ") ";
+              break;
+            case "scale":
+              val += "scale(" + a.x + ", " + a.y + ") ";
+              break;
+            case "rot":
+              val += "rotate(" + a.r;
+              if (a.x !== undefined)
+                val += ", " + a.x + ", " + a.y;
+              val += ") ";
+              break;
+            case "skewX":
+              val += "skewX(" + a.x + ") ";
+              break;
+            case "skewY":
+              val += "skewY(" + a.y + ") ";
+              break;
             }
-        });
-    };
+          });
 
-    // this.sully_cached_svg_down = function() {
-    //     this.cached_svg = undefined;
-    //     _.each(this.spec.children, function(c) {
-    //         if (c !== "x") {
-    //             c.sully_cached_svg_down();
-    //         }
-    //     });
-    // };
+          val = val.slice(0, -1);
 
-    // this.sully_cached_svg_up = function() {
-    //     this.cached_svg = undefined;
+          setAttribute(svg_elem, k, val);
+          break;
+        default:
+          setAttribute(svg_elem, k, attr);
+          break;
+        }
 
-    //     if (this.spec.parent != undefined && this.spec.parent !== "x") {
-    //         this.spec.parent.sully_cached_svg_up();
-    //     }
-    // };
+      }
+    });
+  };
 
-    this.render_svg();
+  this.render_svg();
 
 };
 
@@ -953,66 +938,75 @@ SVG_Proto.prototype.constructor = SVG_Proto;
 
 SVG_Proto.prototype.updateParam = function(p_name, val) {
 
-    // this.sully_cached_svg_up();
-    // this.sully_cached_svg_down();
-    var success = Base.prototype.updateParam.call(this, p_name, val);
-
-
-
-
-    // if (success) {
-    //     this.cached_svg = undefined;
-    //     this.render_svg();
-    // }
-
-
-
-    return success;
+  // this.sully_cached_svg_up();
+  // this.sully_cached_svg_down();
+  var success = Base.prototype.updateParam.call(this, p_name, val);
+  // if (success) {
+  //     this.cached_svg = undefined;
+  //     this.render_svg();
+  // }
+  return success;
 
 };
 
-SVG_Proto.prototype.foo = function() {
-
-    console.log('FOO');
-    this.cached_svg = undefined;
-    this.render_svg();
-
-};
+// SVG_Proto.prototype.foo = function() {
+//   console.log('FOO');
+//   this.cached_svg = undefined;
+//   this.render_svg();
+// };
 
 SVG_Proto.prototype.render_svg = function() {
-    if (this.cached_svg === undefined) {
-        console.log('RENDER SVG : ' + this.spec.type + "-" + this.spec.id);
-        this.cached_svg = this.get_svg();
-        if (this.spec.children != undefined && this.spec.children.length > 0) {
-            for (var i = 0; i < this.spec.children.length; i++) {
-                var child = this.spec.children[i];
-                if (child !== "x") {
-                    this.cached_svg.appendChild(this.spec.children[i].render_svg().cloneNode(true));
-                }
-            }
+  console.log('RENDER SVG, FOOL');
+  if (this.cached_svg === undefined) {
+    console.log('RENDER SVG : ' + this.spec.type + "-" + this.spec.id);
+    this.cached_svg = this.get_svg();
+    if (this.spec.children != undefined && this.spec.children.length > 0) {
+      for (var i = 0; i < this.spec.children.length; i++) {
+        var child = this.spec.children[i];
+        if (child !== "x") {
+          this.cached_svg.appendChild(this.spec.children[i].render_svg().cloneNode(true));
         }
-
-
-        // if (this.spec.parent != undefined && this.spec.parent !== "x") {
-        //     console.log("------> " + this.spec.parent.cached_svg);
-        //     this.spec.parent.cached_svg = undefined;
-        //     this.spec.parent.render_svg();
-        // }
-
+      }
     }
-    return this.cached_svg;
+
+    // if (this.spec.parent != undefined && this.spec.parent !== "x") {
+    //     console.log("------> " + this.spec.parent.cached_svg);
+    //     this.spec.parent.cached_svg = undefined;
+    //     this.spec.parent.render_svg();
+    // }
+
+  }
+  return this.cached_svg;
 };
 
 SVG_Proto.prototype.get_svg = function() {
-    var solution = this.solveParams();
-    var elm = document.createElementNS(bloqsnet.svgNS, this.def.svg_elem);
-    this.setAttributes(elm, solution);
-    return elm;
+  console.log('GET SVG, FOOL');
+  var solution = this.solveParams();
+  var elm = document.createElementNS(bloqsnet.svgNS, this.def.svg_elem);
+  this.setAttributes(elm, solution);
+  return elm;
 };
 
+SVG_Proto.prototype.sully_cached_svg_down = function() {
+  this.cached_svg = undefined;
+  _.each(this.spec.children, function(c) {
+    if (c !== "x") {
+      c.sully_cached_svg_down();
+    }
+  });
+};
+
+// this.sully_cached_svg_up = function() {
+//     this.cached_svg = undefined;
+
+//     if (this.spec.parent != undefined && this.spec.parent !== "x") {
+//         this.spec.parent.sully_cached_svg_up();
+//     }
+// };
+
 SVG_Proto.prototype.def = {
-    display: false,
-    type: 'svg_proto'
+  display: false,
+  type: 'svg_proto'
 };
 
 bloqsnet.REGISTRY["svg_proto"] = SVG_Proto;
@@ -1022,35 +1016,36 @@ bloqsnet.REGISTRY["svg_proto"] = SVG_Proto;
 ////////////////////////////////////////////////////////////////////////////////
 
 var paramObj = function(config) {
-    var ret = {};
+  var ret = {};
 
-    ret.name = config[0];
-    ret.type = config[1];
+  ret.name = config[0];
+  ret.type = config[1];
 
-    if (ret.type === "enum") {
-        ret.choices = config[2];
-    } else {
-        ret.defaultVal = config[2];
-    }
+  if (ret.type === "enum") {
+    ret.choices = config[2];
+  } else {
+    ret.defaultVal = config[2];
+  }
 
-    ret.groupName = config[3];
-    ret.renderSvg = config[4];
+  ret.groupName = config[3];
+  ret.renderSvg = config[4];
 
-    return ret;
+  return ret;
 };
 
 var svg_conditional_processing_attributes = [
-    paramObj(["requiredExtensions", "string", "", "svg conditional processing attributes", true]),
-    paramObj(["requiredFeatures", "string", "", "svg conditional processing attributes", true]),
-    paramObj(["systemLanguage", "string", "", "svg conditional processing attributes", true])
+  paramObj(["requiredExtensions", "string", "", "svg conditional processing attributes", true]),
+  paramObj(["requiredFeatures", "string", "", "svg conditional processing attributes", true]),
+  paramObj(["systemLanguage", "string", "", "svg conditional processing attributes", true])
 ];
 
 var svg_core_attributes = [
-    paramObj(["id", "string", "", "svg core attributes", true]),
-    paramObj(["xml:base", "string", "", "svg core attributes", true]),
-    paramObj(["xml:lang", "string", "", "svg core attributes", true]),
-    paramObj(["xml:space", "string", "", "svg core attributes", true])
+  paramObj(["id", "string", "", "svg core attributes", true]),
+  paramObj(["xml:base", "string", "", "svg core attributes", true]),
+  paramObj(["xml:lang", "string", "", "svg core attributes", true]),
+  paramObj(["xml:space", "string", "", "svg core attributes", true])
 ];
+
 // ////////////////////////////////////////////////////////////////////////////////
 // //                                                                   SVG_SVG  //
 // ////////////////////////////////////////////////////////////////////////////////

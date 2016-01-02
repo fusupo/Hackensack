@@ -1,0 +1,23 @@
+{
+  "name": "Hackensack",
+  "homepage": "https://github.com/fusupo/Hackensack",
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^0.5",
+    "core-ajax": "Polymer/core-ajax",
+    "webcomponentsjs": "~0.7.20"
+  },
+  "resolutions": {
+    "webcomponentsjs": "^0.6.0"
+  }
+}
