@@ -1,0 +1,116 @@
+[{
+  "id": "b23",
+  "type": "root",
+  "meta": {
+    "x": 180,
+    "y": 171
+  },
+  "params": {
+    "width": "100%",
+    "height": "100%",
+    "data": "{\"l\":[1,2,3],\n\"cy\":25}"
+  },
+  "c": ["b28", "x"],
+  "p": []
+}, {
+  "id": "b27",
+  "type": "svg_each",
+  "meta": {
+    "x": 213,
+    "y": 236
+  },
+  "params": {
+    "transform": [],
+    "list": "l"
+  },
+  "c": ["b30"],
+  "p": ["b28"]
+}, {
+  "id": "b28",
+  "type": "svg_g",
+  "meta": {
+    "x": 390,
+    "y": 109
+  },
+  "params": {
+    "transform": [{
+      "type": "trans",
+      "y": "200",
+      "x": "200"
+    }]
+  },
+  "c": ["b27", "x"],
+  "p": ["b23"]
+}, {
+  "id": "b30",
+  "type": "svg_g",
+  "meta": {
+    "x": 98,
+    "y": 251
+  },
+  "params": {
+    "transform": [{
+      "type": "trans",
+      "x": "(sin(b27_idx/size(l)*(2*pi))*50)",
+      "y": "(cos(b27_idx/size(l)*(2*pi))*50)"
+    }, {
+      "type": "rot",
+      "r": "360-360/size(l)*b27_idx",
+      "x": 0,
+      "y": 0
+    }]
+  },
+  "c": ["b31", "b32", "b33", "x"],
+  "p": ["b27"]
+}, {
+  "id": "b31",
+  "type": "svg_circle",
+  "meta": {
+    "x": 25,
+    "y": 235
+  },
+  "params": {
+    "cx": "0px",
+    "cy": "0px",
+    "r": "10px",
+    "fill": "#ffffff",
+    "transform": []
+  },
+  "c": ["x"],
+  "p": ["b30"]
+}, {
+  "id": "b32",
+  "type": "svg_rect",
+  "meta": {
+    "x": 67,
+    "y": 288
+  },
+  "params": {
+    "x": "-10px",
+    "y": "0px",
+    "width": "20px",
+    "height": "cypx",
+    "rx": "0px",
+    "ry": "0px",
+    "fill": "#ffffff",
+    "transform": []
+  },
+  "c": ["x"],
+  "p": ["b30"]
+}, {
+  "id": "b33",
+  "type": "svg_circle",
+  "meta": {
+    "x": 69,
+    "y": 361
+  },
+  "params": {
+    "cx": "0px",
+    "cy": "cypx",
+    "r": "10px",
+    "fill": "#ffffff",
+    "transform": []
+  },
+  "c": ["x"],
+  "p": ["b30"]
+}]
