@@ -106,7 +106,7 @@ var SVG_Proto = function(spec) {
     });
     return svg_elem;
   };
-  this.render_svg();
+    //this.render_svg();
 };
 
 SVG_Proto.prototype = Object.create(Base.prototype);

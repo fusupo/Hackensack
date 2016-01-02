@@ -43,20 +43,20 @@ var BaseParam = function(spec, initVal) {
       } catch (err) {
         res = undefined;
       }
-        //}
-  }
+      //}
+    }
 
-  //problem here is that sometimes we want a result thats NaN as in Array
-  // but we don't want results that are NaN as a result of failed solution
-  // how to tell the difference?
-  //res = isNaN(res) ? undefined : res;
+    //problem here is that sometimes we want a result thats NaN as in Array
+    // but we don't want results that are NaN as a result of failed solution
+    // how to tell the difference?
+    //res = isNaN(res) ? undefined : res;
 
-  diff = (new Date()).getTime() - start;
+    diff = (new Date()).getTime() - start;
 
-  return res;
-  //return expr;
+    return res;
+    //return expr;
 
-};
+  };
 };
 BaseParam.prototype.toJSON = function() {
   return {};
@@ -324,7 +324,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
       }
     },
 
-    add: function(type, pos) {
+    add: function(type, pos, params, meta) {
       var meta = {
         x: pos[0],
         y: pos[1]
@@ -355,6 +355,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
     },
 
     con: function(a, b, silent) {
+      console.log('//////////////////// CON', a, b);
       silent = silent || false;
       if (a[0] !== b[0] && a[1] != b[1]) {
         this.dscon(a, silent);
@@ -362,7 +363,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
 
         // from child to parent
         var st = a[1] === "p" ? a : b;
-        var et = a[1] === "p" ? b : a;
+        var et = a[1] === "p" ? b : a; 
         var c_bloq = this.insts[st[0]];
         var p_bloq = this.insts[et[0]];
 
@@ -454,16 +455,19 @@ bloqsnet.gimmeTheThing = function(callbacks) {
       _.each(data, function(d) {
         var b = this.new(d.id, d.type, _.clone(d.meta), _.clone(d.params));
         this.insts[b.get_id()] = b;
+        this._call_back('add', b);
       }, this);
 
       // wire them up
       _.each(data, function(d) {
         _.each(d.c, function(c, idx) {
           if (c !== "x") {
-            //this.con([d.id, "c", idx], [c, "p", 0], true); //c, idx, d.id);
-            this.insts[d.id].swapChild(idx, this.insts[c]);
-            this.insts[c].addParent(this.insts[d.id]);
-            this.rst_trm(true);
+            console.log('\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ BOOYAH!');
+            this.con([c, "p", 0], [d.id, "c", idx], false); //c, idx, d.id);
+            // this.insts[d.id].swapChild(idx, this.insts[c]);
+            // this.insts[c].addParent(this.insts[d.id]);
+            // this.rst_trm(true);
+            // this._call_back('change:connected', [a, b]);
           }
         }, this);
       }, this);
