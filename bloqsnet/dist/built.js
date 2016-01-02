@@ -23,8 +23,10 @@ var BaseParam = function(spec, initVal) {
     start = (new Date()).getTime();
 
     node = math.parse(expr);
-    filtered = node.filter(function(node) {
-      return node.type == 'SymbolNode';
+    console.log(node);
+    filtered = node.filter(function(no) {
+      console.log(no.type);
+      return no.type == 'SymbolNode' || no.type == 'FunctionNode';
     });
 
     res = expr;
@@ -35,25 +37,26 @@ var BaseParam = function(spec, initVal) {
         return _.contains(keys, i.name);
       });
 
-      if (haveValsForVars) {
-        try {
-          res = math.eval(expr, env);
-        } catch (err) {
-          res = undefined;
-        }
+      // if (haveValsForVars) {
+      try {
+        res = math.eval(expr, env);
+      } catch (err) {
+        res = undefined;
       }
-    }
+        //}
+  }
 
-    //problem here is that sometimes we want a result thats NaN as in Array
-    // but we don't want results that are NaN as a result of failed solution
-    // how to tell the difference?
-    //res = isNaN(res) ? undefined : res;
+  //problem here is that sometimes we want a result thats NaN as in Array
+  // but we don't want results that are NaN as a result of failed solution
+  // how to tell the difference?
+  //res = isNaN(res) ? undefined : res;
 
-    diff = (new Date()).getTime() - start;
+  diff = (new Date()).getTime() - start;
 
-    return res;
+  return res;
+  //return expr;
 
-  };
+};
 };
 BaseParam.prototype.toJSON = function() {
   return {};
@@ -660,6 +663,7 @@ var Base = function(spec) {
         diff;
     start = (new Date()).getTime();
     node = math.parse(expr);
+    console.log(node);
     filtered = node.filter(function(node) {
       return node.type == "SymbolNode";
     });
@@ -704,12 +708,10 @@ var Base = function(spec) {
   };
 
   this.setLocalEnvironment = function(data) {
-
     //if (!_.isEqual(data, spec.local_env)) {
     console.log("SET LOCAL ENV: " + this.spec.type + "-" + this.spec.id);
     spec.local_env = data;
     this.refreshEnvironment();
-
     //}
   };
 
@@ -726,14 +728,14 @@ var Base = function(spec) {
       spec.env = spec.local_env;
     }
 
-    var spanks = false;
+    //var spanks = false;
 
     // no need to propogate nothing
     if (!_.isEmpty(spec.env)) {
 
       _.each(spec.children, function(c) {
         if (c !== "x") {
-          spanks = true;
+          // spanks = true;
           c.refreshEnvironment();
         }
       });
@@ -885,15 +887,55 @@ var SVG_Proto = function(spec) {
   };
 
   this.setAttributes = function(svg_elem, attrs) {
-    _.each(attrs, function(attr, k, l) {
+    _.each(attrs, function(attr, k) {
       if (_.findWhere(bloqsnet.REGISTRY[spec.type].prototype.def.params, {
         "name": k
       }).renderSvg === true) {
-
         switch (k) {
         case "transform":
           var val = "";
-          _.each(attr, function(a, ak) {
+          _.each(attr, function(a) {
+            switch (a.type) {
+            case "trans":
+              val += "translate(" + a.x + ", " + a.y + ") ";
+              break;
+            case "scale":
+              val += "scale(" + a.x + ", " + a.y + ") ";
+              break;
+            case "rot":
+              val += "rotate(" + a.r;
+              if (a.x !== undefined)
+                val += ", " + a.x + ", " + a.y;
+              val += ") ";
+              break;
+            case "skewX":
+              val += "skewX(" + a.x + ") ";
+              break;
+            case "skewY":
+              val += "skewY(" + a.y + ") ";
+              break;
+            }
+          });
+          val = val.slice(0, -1);
+          setAttribute(svg_elem, k, val);
+          break;
+        default:
+          setAttribute(svg_elem, k, attr);
+          break;
+        }
+      }
+    });
+  };
+
+  this.setAttributesStr = function(svg_elem, attrs) {
+    _.each(attrs, function(attr, k) {
+      if (_.findWhere(bloqsnet.REGISTRY[spec.type].prototype.def.params, {
+        "name": k
+      }).renderSvg === true) {
+        var val = "";
+        switch (k) {
+        case "transform":
+          _.each(attr, function(a) {
             switch (a.type) {
             case "trans":
               val += "translate(" + a.x + ", " + a.y + ") ";
@@ -918,42 +960,27 @@ var SVG_Proto = function(spec) {
 
           val = val.slice(0, -1);
 
-          setAttribute(svg_elem, k, val);
           break;
         default:
-          setAttribute(svg_elem, k, attr);
+          val = attr;
           break;
         }
 
+        var endOfOpenIdx = svg_elem.indexOf(">");
+        var strStart = svg_elem.slice(0, endOfOpenIdx);
+        var strEnd = svg_elem.slice(endOfOpenIdx);
+        if (val !== undefined && val !== "") {
+          svg_elem = strStart + " " + k + "=\"" + val + "\"" + strEnd;
+        }
       }
     });
+    return svg_elem;
   };
-
   this.render_svg();
-
 };
 
 SVG_Proto.prototype = Object.create(Base.prototype);
 SVG_Proto.prototype.constructor = SVG_Proto;
-
-SVG_Proto.prototype.updateParam = function(p_name, val) {
-
-  // this.sully_cached_svg_up();
-  // this.sully_cached_svg_down();
-  var success = Base.prototype.updateParam.call(this, p_name, val);
-  // if (success) {
-  //     this.cached_svg = undefined;
-  //     this.render_svg();
-  // }
-  return success;
-
-};
-
-// SVG_Proto.prototype.foo = function() {
-//   console.log('FOO');
-//   this.cached_svg = undefined;
-//   this.render_svg();
-// };
 
 SVG_Proto.prototype.render_svg = function() {
   console.log('RENDER SVG, FOOL');
@@ -968,14 +995,8 @@ SVG_Proto.prototype.render_svg = function() {
         }
       }
     }
-
-    // if (this.spec.parent != undefined && this.spec.parent !== "x") {
-    //     console.log("------> " + this.spec.parent.cached_svg);
-    //     this.spec.parent.cached_svg = undefined;
-    //     this.spec.parent.render_svg();
-    // }
-
   }
+  console.log(this.cached_svg);
   return this.cached_svg;
 };
 
@@ -984,6 +1005,11 @@ SVG_Proto.prototype.get_svg = function() {
   var solution = this.solveParams();
   var elm = document.createElementNS(bloqsnet.svgNS, this.def.svg_elem);
   this.setAttributes(elm, solution);
+
+  var elmStr = "<" + this.def.svg_elem + "></" + this.def.svg_elem + ">";
+  console.log(elmStr);
+  elmStr = this.setAttributesStr(elmStr, solution);
+  console.log(elmStr);
   return elm;
 };
 
@@ -996,14 +1022,6 @@ SVG_Proto.prototype.sully_cached_svg_down = function() {
   });
 };
 
-// this.sully_cached_svg_up = function() {
-//     this.cached_svg = undefined;
-
-//     if (this.spec.parent != undefined && this.spec.parent !== "x") {
-//         this.spec.parent.sully_cached_svg_up();
-//     }
-// };
-
 SVG_Proto.prototype.def = {
   display: false,
   type: 'svg_proto'
@@ -1012,7 +1030,6 @@ SVG_Proto.prototype.def = {
 bloqsnet.REGISTRY["svg_proto"] = SVG_Proto;
 
 //                              DEFINING DEFAULT PARAM GROUPS (per svg spec)  //
-
 ////////////////////////////////////////////////////////////////////////////////
 
 var paramObj = function(config) {
@@ -1397,8 +1414,9 @@ SVG_each.prototype.render_svg = function() {
                     obj[this.spec.id + "_idx"] = idx;
                     this.setLocalEnvironment(obj);
                     child.sully_cached_svg_down();
-                    child.cached_svg = undefined;
-                    xxx.appendChild(child.render_svg().cloneNode(true));
+                  child.sully_env_down();
+                  child.cached_svg = undefined;
+                  xxx.appendChild(child.render_svg().cloneNode(true));
                 }, this);
             }
         }

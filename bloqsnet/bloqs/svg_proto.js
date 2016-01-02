@@ -17,15 +17,55 @@ var SVG_Proto = function(spec) {
   };
 
   this.setAttributes = function(svg_elem, attrs) {
-    _.each(attrs, function(attr, k, l) {
+    _.each(attrs, function(attr, k) {
       if (_.findWhere(bloqsnet.REGISTRY[spec.type].prototype.def.params, {
         "name": k
       }).renderSvg === true) {
-
         switch (k) {
         case "transform":
           var val = "";
-          _.each(attr, function(a, ak) {
+          _.each(attr, function(a) {
+            switch (a.type) {
+            case "trans":
+              val += "translate(" + a.x + ", " + a.y + ") ";
+              break;
+            case "scale":
+              val += "scale(" + a.x + ", " + a.y + ") ";
+              break;
+            case "rot":
+              val += "rotate(" + a.r;
+              if (a.x !== undefined)
+                val += ", " + a.x + ", " + a.y;
+              val += ") ";
+              break;
+            case "skewX":
+              val += "skewX(" + a.x + ") ";
+              break;
+            case "skewY":
+              val += "skewY(" + a.y + ") ";
+              break;
+            }
+          });
+          val = val.slice(0, -1);
+          setAttribute(svg_elem, k, val);
+          break;
+        default:
+          setAttribute(svg_elem, k, attr);
+          break;
+        }
+      }
+    });
+  };
+
+  this.setAttributesStr = function(svg_elem, attrs) {
+    _.each(attrs, function(attr, k) {
+      if (_.findWhere(bloqsnet.REGISTRY[spec.type].prototype.def.params, {
+        "name": k
+      }).renderSvg === true) {
+        var val = "";
+        switch (k) {
+        case "transform":
+          _.each(attr, function(a) {
             switch (a.type) {
             case "trans":
               val += "translate(" + a.x + ", " + a.y + ") ";
@@ -50,42 +90,27 @@ var SVG_Proto = function(spec) {
 
           val = val.slice(0, -1);
 
-          setAttribute(svg_elem, k, val);
           break;
         default:
-          setAttribute(svg_elem, k, attr);
+          val = attr;
           break;
         }
 
+        var endOfOpenIdx = svg_elem.indexOf(">");
+        var strStart = svg_elem.slice(0, endOfOpenIdx);
+        var strEnd = svg_elem.slice(endOfOpenIdx);
+        if (val !== undefined && val !== "") {
+          svg_elem = strStart + " " + k + "=\"" + val + "\"" + strEnd;
+        }
       }
     });
+    return svg_elem;
   };
-
   this.render_svg();
-
 };
 
 SVG_Proto.prototype = Object.create(Base.prototype);
 SVG_Proto.prototype.constructor = SVG_Proto;
-
-SVG_Proto.prototype.updateParam = function(p_name, val) {
-
-  // this.sully_cached_svg_up();
-  // this.sully_cached_svg_down();
-  var success = Base.prototype.updateParam.call(this, p_name, val);
-  // if (success) {
-  //     this.cached_svg = undefined;
-  //     this.render_svg();
-  // }
-  return success;
-
-};
-
-// SVG_Proto.prototype.foo = function() {
-//   console.log('FOO');
-//   this.cached_svg = undefined;
-//   this.render_svg();
-// };
 
 SVG_Proto.prototype.render_svg = function() {
   console.log('RENDER SVG, FOOL');
@@ -100,14 +125,8 @@ SVG_Proto.prototype.render_svg = function() {
         }
       }
     }
-
-    // if (this.spec.parent != undefined && this.spec.parent !== "x") {
-    //     console.log("------> " + this.spec.parent.cached_svg);
-    //     this.spec.parent.cached_svg = undefined;
-    //     this.spec.parent.render_svg();
-    // }
-
   }
+  console.log(this.cached_svg);
   return this.cached_svg;
 };
 
@@ -116,6 +135,11 @@ SVG_Proto.prototype.get_svg = function() {
   var solution = this.solveParams();
   var elm = document.createElementNS(bloqsnet.svgNS, this.def.svg_elem);
   this.setAttributes(elm, solution);
+
+  var elmStr = "<" + this.def.svg_elem + "></" + this.def.svg_elem + ">";
+  console.log(elmStr);
+  elmStr = this.setAttributesStr(elmStr, solution);
+  console.log(elmStr);
   return elm;
 };
 
@@ -128,14 +152,6 @@ SVG_Proto.prototype.sully_cached_svg_down = function() {
   });
 };
 
-// this.sully_cached_svg_up = function() {
-//     this.cached_svg = undefined;
-
-//     if (this.spec.parent != undefined && this.spec.parent !== "x") {
-//         this.spec.parent.sully_cached_svg_up();
-//     }
-// };
-
 SVG_Proto.prototype.def = {
   display: false,
   type: 'svg_proto'
@@ -144,7 +160,6 @@ SVG_Proto.prototype.def = {
 bloqsnet.REGISTRY["svg_proto"] = SVG_Proto;
 
 //                              DEFINING DEFAULT PARAM GROUPS (per svg spec)  //
-
 ////////////////////////////////////////////////////////////////////////////////
 
 var paramObj = function(config) {

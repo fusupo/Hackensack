@@ -17,6 +17,7 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.12.0/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.6.1/spectrum.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js">
 
     <link rel="stylesheet" type="text/css" href="css/style.css">
 
@@ -33,189 +34,189 @@
 </head>
 
 <body>
-    <div id="app">
-        <div id="row-a">
-            <div id="manifest"></div>
-            <div id="composition"></div>
-            <div id="params"></div>
-        </div>
-        <div id="row-b">
-            <div id="io">
-                <div id="tabs">
-                    <ul>
-                        <li><a href="#svg-io">SVG</a>
-                        </li>
-                        <li>
-                            <a href="#spec-io">Spec</a>
-                        </li>
-                    </ul>
-                    <div id="svg-io">
-                        <textarea id="svg-io-textarea"></textarea>
-                    </div>
-                    <div id="spec-io">
-                        <p>
-                            <button id="spec-io-reload" type="button">
-                                Reload
-                            </button>
-                            <button id="spec-io-clear" type="button">
-                                Clear
-                            </button>
-                        </p>
-                        <textarea id="spec-io-textarea"></textarea>
-                    </div>
-                </div>
-            </div>
-            <div id="render"></div>
-            <div id="env"></div>
-        </div>
+  <div id="app">
+    <div id="row-a">
+      <div id="manifest"></div>
+      <div id="composition"></div>
+      <div id="params"></div>
     </div>
-
-    <!-- Templates -->
-
-    <script type="text/template" id="params-container-template">
-        <div id="params-container">
+    <div id="row-b">
+      <div id="io">
+        <div id="tabs">
+          <ul>
+            <li><a href="#svg-io">SVG</a>
+            </li>
+            <li>
+              <a href="#spec-io">Spec</a>
+            </li>
+          </ul>
+          <div id="svg-io">
+            <textarea id="svg-io-textarea"></textarea>
+          </div>
+          <div id="spec-io">
+            <p>
+              <button id="spec-io-reload" type="button">
+                Reload
+              </button>
+              <button id="spec-io-clear" type="button">
+                Clear
+              </button>
+            </p>
+            <textarea id="spec-io-textarea"></textarea>
+          </div>
         </div>
-    </script>
+      </div>
+      <div id="render"></div>
+      <div id="env"></div>
+    </div>
+  </div>
 
-    <script type="text/template" id="params-group-template">
-        <h3><%= groupName %></h3>
-        <div id=<%=groupId %>>
-            <form>
-            </form>
-        </div>
-    </script>
+  <!-- Templates -->
 
-    <script type="text/template" id="params-item-template">
-        <p>
-            <label>
-                <%=label %>
-            </label>
-            <input class=".form-control" value='<%=val %>'>
-        </p>
-    </script>
+  <script type="text/template" id="params-container-template">
+    <div id="params-container">
+    </div>
+  </script>
 
-    <script type="text/template" id="params-enum-item-template">
-        <p>
-            <label>
-                <%=label %>
-            </label>
-            <select class=".form-control">
-        </p>
-    </script>
+  <script type="text/template" id="params-group-template">
+    <h3><%= groupName %></h3>
+    <div id=<%=groupId %>>
+      <form>
+      </form>
+    </div>
+  </script>
 
-    <script type="text/template" id="params-percpx-item-template">
-        <p>
-            <label>
-                <%=label %>
-            </label>
-            <input-percpx class=".form-control" value=<%=val %>>
-        </p>
-    </script>
+  <script type="text/template" id="params-item-template">
+    <p>
+      <label>
+        <%=label %>
+      </label>
+      <input class=".form-control" value='<%=val %>'>
+    </p>
+  </script>
 
-    <script type="text/template" id="params-transform-item-template">
-        <p>
-            <label>
-                <%=label %>
-            </label>
-            <input-transform class=".form-control" valueObj='<%=val %>'>
-        </p>
-    </script>
+  <script type="text/template" id="params-enum-item-template">
+    <p>
+      <label>
+        <%=label %>
+      </label>
+      <select class=".form-control">
+    </p>
+  </script>
 
-    <script type="text/template" id="params-color-item-template">
-        <p>
-            <label>
-                <%=label %>
-            </label>
-            <input type="text" class=".form-control" />
-        </p>
-    </script>
+  <script type="text/template" id="params-percpx-item-template">
+    <p>
+      <label>
+        <%=label %>
+      </label>
+      <input-percpx class=".form-control" value=<%=val %>>
+    </p>
+  </script>
 
-    <script type="text/template" id="params-textarea-item-template">
-        <div class="row">
-            <div class="form-group col-xs-10 col-lg-10 form-group-sm">
-                <label>
-                    <%=label %>
-                </label>
-                <textarea class="cm-control"></textarea>
-            </div>
-        </div>
-    </script>
+  <script type="text/template" id="params-transform-item-template">
+    <p>
+      <label>
+        <%=label %>
+      </label>
+      <input-transform class=".form-control" valueObj='<%=val %>'>
+    </p>
+  </script>
 
-    <script type="text/template" id="params-preserveaspectratio-item-template">
-        <p>
-            <label>
-                <%=label %>
-            </label>
-            <input-preserveaspectratio class=".form-control" value='<%=val %>'></input-preserveaspectratio>
-        </p>
-    </script>
+  <script type="text/template" id="params-color-item-template">
+    <p>
+      <label>
+        <%=label %>
+      </label>
+      <input type="text" class=".form-control" />
+    </p>
+  </script>
 
-    <script type="text/template" id="params-viewbox-item-template">
-        <p>
-            <label>
-                <%=label %>
-            </label>
-            <input-viewbox class=".form-control" value='<%=val %>'></input-viewbox>
-        </p>
-    </script>
+  <script type="text/template" id="params-textarea-item-template">
+    <div class="row">
+      <div class="form-group col-xs-10 col-lg-10 form-group-sm">
+        <label>
+          <%=label %>
+        </label>
+        <textarea class="cm-control"></textarea>
+      </div>
+    </div>
+  </script>
 
-    <script type="text/template" id="composition-stage-template">
-        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width=<%=win_w%> height=
-            <%=win_h %> viewBox=
-                <%=view_box %> "preserveAspectRatio"="xMinYMin meet" "class"="stage" "id", "composition-composite-svg">
-    </script>
-    <!-- JS -->
+  <script type="text/template" id="params-preserveaspectratio-item-template">
+    <p>
+      <label>
+        <%=label %>
+      </label>
+      <input-preserveaspectratio class=".form-control" value='<%=val %>'></input-preserveaspectratio>
+    </p>
+  </script>
+
+  <script type="text/template" id="params-viewbox-item-template">
+    <p>
+      <label>
+        <%=label %>
+      </label>
+      <input-viewbox class=".form-control" value='<%=val %>'></input-viewbox>
+    </p>
+  </script>
+
+  <script type="text/template" id="composition-stage-template">
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width=<%=win_w%> height=
+      <%=win_h %> viewBox=
+      <%=view_box %> "preserveAspectRatio"="xMinYMin meet" "class"="stage" "id", "composition-composite-svg">
+  </script>
+  <!-- JS -->
 
 
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/json2/20140204/json2.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/1.2.0/math.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/json2/20140204/json2.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/1.2.0/math.min.js"></script>
 
-    <!-- CodeMirror -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/mode/xml/xml.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/mode/javascript/javascript.min.js"></script>
-    <script src="http://codemirror.net/2/lib/util/formatting.js"></script>
+  <!-- CodeMirror -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.11.0/mode/javascript/javascript.min.js"></script>
+  <script src="http://codemirror.net/2/lib/util/formatting.js"></script>
 
-    <!-- Underscore -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
+  <!-- Underscore -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.js"></script>
-    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.12/jquery.mousewheel.js"></script>-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.6.1/spectrum.min.js"></script>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.js"></script>
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.12/jquery.mousewheel.js"></script>-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.6.1/spectrum.min.js"></script>
 
-    <!-- Backbone -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.1.15/backbone.localStorage.js"></script>
+  <!-- Backbone -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.1.15/backbone.localStorage.js"></script>
 
-    <!--<script src="/skewer"></script>-->
+  <!--<script src="/skewer"></script>-->
 
-    <script src="bloqsnet/dist/built.js"></script>
+  <script src="bloqsnet/dist/built.js"></script>
 
-    <script src="js/model/src-bloq.js"></script>
+  <script src="js/model/src-bloq.js"></script>
 
-    <script src="js/compstage/conn.js" charset="utf-8"></script>
-    <script src="js/compstage/term.js" charset="utf-8"></script>
-    <script src="js/compstage/node.js" charset="utf-8"></script>
-    <script src="js/compstage/stage.js" charset="utf-8"></script>
+  <script src="js/compstage/conn.js" charset="utf-8"></script>
+  <script src="js/compstage/term.js" charset="utf-8"></script>
+  <script src="js/compstage/node.js" charset="utf-8"></script>
+  <script src="js/compstage/stage.js" charset="utf-8"></script>
 
-    <!-- -->
-    <script src="js/collections/src-bloqs.js"></script>
-    <script src="js/collections/composition-bloqs.js"></script>
-    <!-- -->
-    <script src="js/views/manifest-view.js"></script>
-    <script src="js/views/composition-view.js"></script>
-    <script src="js/views/params-view.js"></script>
-    <script src="js/views/render-view.js"></script>
-    <script src="js/views/spec-io-view.js"></script>
-    <script src="js/views/svg-io-view.js"></script>
-    <script src="js/views/env-view.js"></script>
-    <!-- -->
-    <script src="js/views/app-view.js"></script>
-    <!-- -->
-    <script src="js/app.js"></script>
+  <!-- -->
+  <script src="js/collections/src-bloqs.js"></script>
+  <script src="js/collections/composition-bloqs.js"></script>
+  <!-- -->
+  <script src="js/views/manifest-view.js"></script>
+  <script src="js/views/composition-view.js"></script>
+  <script src="js/views/params-view.js"></script>
+  <script src="js/views/render-view.js"></script>
+  <script src="js/views/spec-io-view.js"></script>
+  <script src="js/views/svg-io-view.js"></script>
+  <script src="js/views/env-view.js"></script>
+  <!-- -->
+  <script src="js/views/app-view.js"></script>
+  <!-- -->
+  <script src="js/app.js"></script>
 
 </body>
 

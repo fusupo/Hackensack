@@ -23,8 +23,10 @@ var BaseParam = function(spec, initVal) {
     start = (new Date()).getTime();
 
     node = math.parse(expr);
-    filtered = node.filter(function(node) {
-      return node.type == 'SymbolNode';
+    console.log(node);
+    filtered = node.filter(function(no) {
+      console.log(no.type);
+      return no.type == 'SymbolNode' || no.type == 'FunctionNode';
     });
 
     res = expr;
@@ -35,25 +37,26 @@ var BaseParam = function(spec, initVal) {
         return _.contains(keys, i.name);
       });
 
-      if (haveValsForVars) {
-        try {
-          res = math.eval(expr, env);
-        } catch (err) {
-          res = undefined;
-        }
+      // if (haveValsForVars) {
+      try {
+        res = math.eval(expr, env);
+      } catch (err) {
+        res = undefined;
       }
-    }
+        //}
+  }
 
-    //problem here is that sometimes we want a result thats NaN as in Array
-    // but we don't want results that are NaN as a result of failed solution
-    // how to tell the difference?
-    //res = isNaN(res) ? undefined : res;
+  //problem here is that sometimes we want a result thats NaN as in Array
+  // but we don't want results that are NaN as a result of failed solution
+  // how to tell the difference?
+  //res = isNaN(res) ? undefined : res;
 
-    diff = (new Date()).getTime() - start;
+  diff = (new Date()).getTime() - start;
 
-    return res;
+  return res;
+  //return expr;
 
-  };
+};
 };
 BaseParam.prototype.toJSON = function() {
   return {};

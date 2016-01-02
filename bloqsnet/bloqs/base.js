@@ -114,6 +114,7 @@ var Base = function(spec) {
         diff;
     start = (new Date()).getTime();
     node = math.parse(expr);
+    console.log(node);
     filtered = node.filter(function(node) {
       return node.type == "SymbolNode";
     });
@@ -158,12 +159,10 @@ var Base = function(spec) {
   };
 
   this.setLocalEnvironment = function(data) {
-
     //if (!_.isEqual(data, spec.local_env)) {
     console.log("SET LOCAL ENV: " + this.spec.type + "-" + this.spec.id);
     spec.local_env = data;
     this.refreshEnvironment();
-
     //}
   };
 
@@ -180,14 +179,14 @@ var Base = function(spec) {
       spec.env = spec.local_env;
     }
 
-    var spanks = false;
+    //var spanks = false;
 
     // no need to propogate nothing
     if (!_.isEmpty(spec.env)) {
 
       _.each(spec.children, function(c) {
         if (c !== "x") {
-          spanks = true;
+          // spanks = true;
           c.refreshEnvironment();
         }
       });

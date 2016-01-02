@@ -22,8 +22,9 @@ SVG_each.prototype.render_svg = function() {
                     obj[this.spec.id + "_idx"] = idx;
                     this.setLocalEnvironment(obj);
                     child.sully_cached_svg_down();
-                    child.cached_svg = undefined;
-                    xxx.appendChild(child.render_svg().cloneNode(true));
+                  child.sully_env_down();
+                  child.cached_svg = undefined;
+                  xxx.appendChild(child.render_svg().cloneNode(true));
                 }, this);
             }
         }
