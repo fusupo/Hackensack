@@ -59,7 +59,7 @@ var BaseParam = function(spec, initVal) {
   };
 };
 BaseParam.prototype.toJSON = function() {
-  return {};
+  return this.value;
 };
 BaseParam.prototype.toString = function() {
   return "";
@@ -453,7 +453,11 @@ bloqsnet.gimmeTheThing = function(callbacks) {
 
       // create bloqs
       _.each(data, function(d) {
-        var b = this.new(d.id, d.type, _.clone(d.meta), _.clone(d.params));
+        var b = this.new(d.id, d.type, _.clone(d.meta));
+        _.each(d.params, function(param, key){
+          console.log(key,':',param);
+          b.spec.params[key].update(param,{});
+        });
         this.insts[b.get_id()] = b;
         this._call_back('add', b);
       }, this);

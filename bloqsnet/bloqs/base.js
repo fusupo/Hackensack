@@ -299,7 +299,7 @@ Base.prototype.toJSON = function() {
     case "params":
       m[k] = _.reduce(s, function(mem, val, key) {
         if (val.value !== undefined) {
-          mem[key] = val.value;
+          mem[key] = val.toJSON();
         }
         return mem;
       }, {});
