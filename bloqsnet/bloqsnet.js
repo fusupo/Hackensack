@@ -299,9 +299,18 @@ bloqsnet.gimmeTheThing = function(callbacks) {
     insts: {},
     callbacks: callbacks,
     test_render: undefined,
+    maxId:0,
 
     new: function(id, type, meta, params) {
-      id = id || _.uniqueId('b');
+      //      id = id || 'b' + _.now();//_.uniqueId('b');
+      if(id && id !== 'test-render'){
+        console.log('#################### ',id.substr(1));
+        this.maxId = Math.max(parseInt(id.substr(1))+1, this.maxId); 
+        console.log('%%%%%%%%%%%%%%%%%%%% ', this.maxId);
+      }else{
+        id = 'b' + this.maxId;
+        this.maxId++; 
+      }
       params = params || {};
       if (this.insts[id] === undefined) {
         var def = bloqsnet.REGISTRY[type].prototype.def;
@@ -363,7 +372,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
 
         // from child to parent
         var st = a[1] === "p" ? a : b;
-        var et = a[1] === "p" ? b : a; 
+        var et = a[1] === "p" ? b : a;
         var c_bloq = this.insts[st[0]];
         var p_bloq = this.insts[et[0]];
 
@@ -454,9 +463,9 @@ bloqsnet.gimmeTheThing = function(callbacks) {
       // create bloqs
       _.each(data, function(d) {
         var b = this.new(d.id, d.type, _.clone(d.meta));
-        _.each(d.params, function(param, key){
-          console.log(key,':',param);
-          b.spec.params[key].update(param,{});
+        _.each(d.params, function(param, key) {
+          console.log(key, ':', param);
+          b.spec.params[key].update(param, {});
         });
         this.insts[b.get_id()] = b;
         this._call_back('add', b);
