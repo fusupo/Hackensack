@@ -462,7 +462,8 @@ bloqsnet.gimmeTheThing = function(callbacks) {
         var b = this.new(d.id, d.type, _.clone(d.meta));
         _.each(d.params, function(param, key) {
           console.log(key, ':', param);
-          b.spec.params[key].update(param, {});
+          //b.spec.params[key].update(param, {});
+          b.spec.params[key].value = param;
         });
         this.insts[b.get_id()] = b;
         this._call_back('add', b);
