@@ -53,7 +53,7 @@ var BaseParam = function(spec, initVal) {
 
     diff = (new Date()).getTime() - start;
 
-    return res;
+    return typeof res === "string" ? res.replace(/['"]+/g, '') : res;
     //return expr;
 
   };
@@ -668,7 +668,7 @@ var Base = function(spec) {
   //
 
   this.solve_expr = function(expr) {
-    console.log("solve expr:" + expr);
+    console.log("MUTHERFUCK solve expr:" + expr);
     var start,
         node,
         filtered,
@@ -896,7 +896,7 @@ var SVG_Proto = function(spec) {
   var setAttribute = function(svg_elm, key, val) {
     // NOTE: the undefined check here is a stopgap
     // it really should be mitigated further upstream
-    if (val !== undefined && val !== "") {
+    if (val !== undefined && val !== "" && val !== "0px" && val !== "0px") {
       svg_elm.setAttribute(key, val);
     }
   };
@@ -1319,7 +1319,7 @@ SVG_text.prototype.def = {
     categories: ['Graphics Elements',
                  'Text Content Elements'],
     params: [
-        paramObj(["text", "string", "default", "specific attributes", false]),
+        paramObj(["text", "string", "\"default\"", "specific attributes", false]),
         paramObj(["x", "percpx", "10px", "specific attributes", true]),
         paramObj(["y", "percpx", "10px", "specific attributes", true]),
         paramObj(["fill", "color", "#ffffff", "specific attributes", true]),
@@ -1349,29 +1349,29 @@ SVG_animate.prototype.def = {
     categories: ['Animation Elements'],
     params: [
         paramObj(["attributeName", "string", "", "specific attributes", true]),
-        paramObj(["attributeType", "string", "auto", "specific attributes", true]),
+      paramObj(["attributeType", "string", "\"auto\"", "specific attributes", true]),
 
-        paramObj(["from", "string", "", "specific attributes", true]),
-        paramObj(["to", "string", "", "specific attributes", true]),
-        paramObj(["by", "string", "", "specific attributes", true]),
+      paramObj(["from", "percpx", "0px", "specific attributes", true]),
+      paramObj(["to", "percpx", "0px", "specific attributes", true]),
+      paramObj(["by", "percpx", "0px", "specific attributes", true]),
 
-        paramObj(["begin", "string", "", "specific attributes", true]),
-        paramObj(["dur", "string", "1", "specific attributes", true]),
-        paramObj(["end", "string", "", "specific attributes", true]),
-        paramObj(["repeatCount", "string", "indefinite", "specific attributes", true]),
-        paramObj(["fill", "string", "remove", "specific attributes", true])
+      paramObj(["begin", "string", "", "specific attributes", true]),
+      paramObj(["dur", "string", "1", "specific attributes", true]),
+      paramObj(["end", "string", "", "specific attributes", true]),
+      paramObj(["repeatCount", "string", "\"indefinite\"", "specific attributes", true]),
+      paramObj(["fill", "string", "\"remove\"", "specific attributes", true])
     ] // enum : "remove" | "freeze"
-        .concat(
-            svg_conditional_processing_attributes,
-            svg_core_attributes
-            //graphical_event_attributes,
-            //presentation_attributes,
-            // - class,
-            // - style,
-            // - externalResourcesRequired,
-        ),
-    p: [1, 1],
-    c: [0, 0]
+    .concat(
+      svg_conditional_processing_attributes,
+      svg_core_attributes
+      //graphical_event_attributes,
+      //presentation_attributes,
+      // - class,
+      // - style,
+      // - externalResourcesRequired,
+    ),
+  p: [1, 1],
+  c: [0, 0]
 };
 bloqsnet.REGISTRY["svg_animate"] = SVG_animate;
 

@@ -104,7 +104,7 @@ var Base = function(spec) {
   //
 
   this.solve_expr = function(expr) {
-    console.log("solve expr:" + expr);
+    console.log("MUTHERFUCK solve expr:" + expr);
     var start,
         node,
         filtered,

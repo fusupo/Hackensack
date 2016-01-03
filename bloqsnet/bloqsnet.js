@@ -53,7 +53,7 @@ var BaseParam = function(spec, initVal) {
 
     diff = (new Date()).getTime() - start;
 
-    return res;
+    return typeof res === "string" ? res.replace(/['"]+/g, '') : res;
     //return expr;
 
   };

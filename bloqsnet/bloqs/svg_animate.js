@@ -14,28 +14,28 @@ SVG_animate.prototype.def = {
     categories: ['Animation Elements'],
     params: [
         paramObj(["attributeName", "string", "", "specific attributes", true]),
-        paramObj(["attributeType", "string", "auto", "specific attributes", true]),
+      paramObj(["attributeType", "string", "\"auto\"", "specific attributes", true]),
 
-        paramObj(["from", "string", "", "specific attributes", true]),
-        paramObj(["to", "string", "", "specific attributes", true]),
-        paramObj(["by", "string", "", "specific attributes", true]),
+      paramObj(["from", "percpx", "0px", "specific attributes", true]),
+      paramObj(["to", "percpx", "0px", "specific attributes", true]),
+      paramObj(["by", "percpx", "0px", "specific attributes", true]),
 
-        paramObj(["begin", "string", "", "specific attributes", true]),
-        paramObj(["dur", "string", "1", "specific attributes", true]),
-        paramObj(["end", "string", "", "specific attributes", true]),
-        paramObj(["repeatCount", "string", "indefinite", "specific attributes", true]),
-        paramObj(["fill", "string", "remove", "specific attributes", true])
+      paramObj(["begin", "string", "", "specific attributes", true]),
+      paramObj(["dur", "string", "1", "specific attributes", true]),
+      paramObj(["end", "string", "", "specific attributes", true]),
+      paramObj(["repeatCount", "string", "\"indefinite\"", "specific attributes", true]),
+      paramObj(["fill", "string", "\"remove\"", "specific attributes", true])
     ] // enum : "remove" | "freeze"
-        .concat(
-            svg_conditional_processing_attributes,
-            svg_core_attributes
-            //graphical_event_attributes,
-            //presentation_attributes,
-            // - class,
-            // - style,
-            // - externalResourcesRequired,
-        ),
-    p: [1, 1],
-    c: [0, 0]
+    .concat(
+      svg_conditional_processing_attributes,
+      svg_core_attributes
+      //graphical_event_attributes,
+      //presentation_attributes,
+      // - class,
+      // - style,
+      // - externalResourcesRequired,
+    ),
+  p: [1, 1],
+  c: [0, 0]
 };
 bloqsnet.REGISTRY["svg_animate"] = SVG_animate;

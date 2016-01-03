@@ -11,7 +11,7 @@ var SVG_Proto = function(spec) {
   var setAttribute = function(svg_elm, key, val) {
     // NOTE: the undefined check here is a stopgap
     // it really should be mitigated further upstream
-    if (val !== undefined && val !== "") {
+    if (val !== undefined && val !== "" && val !== "0px" && val !== "0px") {
       svg_elm.setAttribute(key, val);
     }
   };

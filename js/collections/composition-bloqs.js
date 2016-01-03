@@ -110,6 +110,13 @@ var app = app || {};
       return app.vm.get(id);
     },
 
+    getRootId:function(){
+      var r = _.find(app.vm.insts, function(inst){
+        return inst.spec.type === 'root';
+      });
+      return r.spec.id;
+    },
+
     updateMeta: function(id, data) {
       _.each(data, function(v, k) {
         app.vm.updt_mta(id, k, v);

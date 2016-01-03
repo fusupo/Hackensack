@@ -22,7 +22,7 @@ SVG_text.prototype.def = {
     categories: ['Graphics Elements',
                  'Text Content Elements'],
     params: [
-        paramObj(["text", "string", "default", "specific attributes", false]),
+        paramObj(["text", "string", "\"default\"", "specific attributes", false]),
         paramObj(["x", "percpx", "10px", "specific attributes", true]),
         paramObj(["y", "percpx", "10px", "specific attributes", true]),
         paramObj(["fill", "color", "#ffffff", "specific attributes", true]),

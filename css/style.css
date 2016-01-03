@@ -52,7 +52,7 @@ body {
     user-select: none;
 }
 #params {
-    flex-basis: 470px;
+    flex-basis: 360px;
     background-color: #e6e6e6;
     border-style: solid;
     border-width: 1px;
