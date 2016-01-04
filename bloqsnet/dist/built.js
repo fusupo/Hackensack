@@ -522,38 +522,35 @@ bloqsnet.gimmeTheThing = function(callbacks) {
     },
 
     updt_par: function(id, p_name, val) {
-
       var success = this.insts[id].updateParam(p_name, val);
+      //if (success) {
+      this._call_back('change:svg', this.get_svg(id));
+        // }
+    return success;
+  },
 
-      if (success) {
-        this._call_back('change:svg', this.get_svg(id));
-      }
+  updt_mta: function(id, p_name, val) {
+    this.insts[id].updateMeta(p_name, val);
+    this._call_back('change:meta', [p_name, val]);
+  },
 
-      return success;
-    },
+  rst_trm: function(silent) {
+    silent = silent || false;
+    _.each(this.insts, function(i) {
+      var didReset = i.resetTerminals();
+      if (didReset && !silent) this._call_back('change:terminals', i);
+    }, this);
+  },
 
-    updt_mta: function(id, p_name, val) {
-      this.insts[id].updateMeta(p_name, val);
-      this._call_back('change:meta', [p_name, val]);
-    },
+  //////////////////////////////
 
-    rst_trm: function(silent) {
-      silent = silent || false;
-      _.each(this.insts, function(i) {
-        var didReset = i.resetTerminals();
-        if (didReset && !silent) this._call_back('change:terminals', i);
-      }, this);
-    },
-
-    //////////////////////////////
-
-    _call_back: function(cbk_id, params) {
-      if (this.callbacks[cbk_id] !== undefined) {
-        this.callbacks[cbk_id](params);
-      }
+  _call_back: function(cbk_id, params) {
+    if (this.callbacks[cbk_id] !== undefined) {
+      this.callbacks[cbk_id](params);
     }
+  }
 
-  };
+};
 
 };
 

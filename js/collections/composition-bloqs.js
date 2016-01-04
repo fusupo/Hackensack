@@ -15,8 +15,6 @@ var app = app || {};
     model: app.BloqsnetModel,
 
     initialize: function() {
-      console.log("COMPOSITION BLOQS INITIALIZE !!");
-
       var that = this;
       app.vm = bloqsnet.gimmeTheThing({
         "add": function(bloq) {
@@ -30,7 +28,6 @@ var app = app || {};
         },
         "change:terminals": function(m, v, o) {
           that.trigger("change:terminals", m);
-          console.log("change terminals" + m, v, o);
         },
         // "term:add": function(m) {
         //     that.trigger("term:add", m);
@@ -43,15 +40,10 @@ var app = app || {};
         },
         "change:disconnected": function(m, v, o) {
           that.trigger("change:disconnected", m);
-          //console.log(m,v,o);
         },
         //"change:[attribute]" (model, value, options) — when a specific attribute has been updated.
         //"invalid" (model, error, options) — when a model's validation fails on the client.
         "change:svg": function(m, v, o) {
-          //that.trigger("change:disconnected", m);
-          console.log('------------------------------');
-          console.log(m, v, o);
-
           that.trigger("change:svg", m);
         },
         "change:meta": function(m, v, o){
@@ -124,7 +116,6 @@ var app = app || {};
     }
   });
 
-  // Create our global collection of **Todos**.
   app.CompositionBloqs = new CompositionBloqs();
 
 })(jQuery);
