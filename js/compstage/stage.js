@@ -127,12 +127,29 @@ hacsac.Stage = function Stage(el_id, w, h) {
   this.targTerm = undefined;
 
   var mat = [1, 0, 0, 1, 0, 0];
-  stage_def_bg_rect.onwheel = function(evt) {
-    var d = evt.wheelDeltaY / 120;
+
+  var updateNavBox = function(){
+    if (mat[0] * stage_w < w) {
+      mat[0] = w / stage_w;
+      mat[3] = h / stage_h;
+    }
+    if (mat[4] > 0) mat[4] = 0;
+    if (mat[5] > 0) mat[5] = 0;
+    if (mat[4] < w - (stage_w * mat[0])) mat[4] = w - (stage_w * mat[0]);
+    if (mat[5] < h - (stage_h * mat[3])) mat[5] = h - (stage_h * mat[3]);
+    xxx.setAttributeNS(null, "transform", "matrix(" + mat.join(' ') + ")");
+    var mat2 = [1/mat[0], mat[1],
+                mat[2], 1/mat[3], -mat[4]/mat[0], -mat[5]/mat[3]
+               ];
+    nav_box.setAttributeNS(null, "transform", "matrix(" + mat2.join(' ') + ")");
+  };
+
+  stage_def_bg_rect.onwheel = (function(evt) {
+    var d = evt.wheelDeltaY / 30;
     mat[0] += d / 100;
     mat[3] += d / 100;
-    xxx.setAttributeNS(null, "transform", "matrix(" + mat.join(' ') + ")");
-  };
+    updateNavBox();
+  }).bind(this);
 
   stage_def_bg_rect.onmousedown = (function(e) {
     var ox = e.clientX;
@@ -143,18 +160,11 @@ hacsac.Stage = function Stage(el_id, w, h) {
       var dy = oy - e1.clientY;
       mat[4] -= dx;
       mat[5] -= dy;
-      if (mat[4] > 0) mat[4] = 0;
-      if (mat[5] > 0) mat[5] = 0;
-      if (mat[4] < (-stage_w + this.w)) mat[4] = -stage_w + this.w;
-      if (mat[5] < (-stage_h + this.h)) mat[5] = -stage_h + this.h;
-      xxx.setAttributeNS(null, "transform", "matrix(" + mat.join(' ') + ")");
-      var mat2 = [2-mat[0], mat[1],
-                  mat[2], 2-mat[3],
-                  -mat[4], -mat[5]];
-      nav_box.setAttributeNS(null, "transform", "matrix(" + mat2.join(' ') + ")");
+      updateNavBox(mat);
       ox -= dx;
       oy -= dy;
     }).bind(this);
+
     window.onmouseup = function(e2) {
       stage_def_bg_rect.onmousemove = undefined;
       stage_def_bg_rect.onmouseup = undefined;
@@ -195,45 +205,45 @@ hacsac.Stage.prototype.addNode = function(id, type, x, y) {
       this.moveNode(n.id, pos.x + dx, pos.y + dy);
       this.$el.trigger("mousedrag:block:body", [id, pos.x + dx, pos.y + dy]);
     }).bind(this);
-    this.stage_def.onmouseup = (function(e2) {
+      this.stage_def.onmouseup = (function(e2) {
       this.stage_def.onmousemove = undefined;
       this.stage_def.onmouseup = undefined;
     }).bind(this);
-  }).bind(this));
+    }).bind(this));
 
-  n.el.addEventListener('termmousedown', function(e) {
-    var term = e.detail.term;
-    var isConnected = term.isConnected();
-    that.targTerm = term;
-    var targPos = term.getPos();
-    if (isConnected) {
+      n.el.addEventListener('termmousedown', function(e) {
+      var term = e.detail.term;
+      var isConnected = term.isConnected();
+      that.targTerm = term;
+      var targPos = term.getPos();
+      if (isConnected) {
       console.log('supposedly connnected');
       that.targTerm = term.conn.getOpposite(term);
       var evtobj;
       if (term.side === 'o') {
-        evtobj = [term.parent.id, term.getIdx(), that.targTerm.parent.id, that.targTerm.getIdx()];
+      evtobj = [term.parent.id, term.getIdx(), that.targTerm.parent.id, that.targTerm.getIdx()];
       } else {
-        evtobj = [that.targTerm.parent.id, that.targTerm.getIdx(), term.parent.id, term.getIdx()];
+      evtobj = [that.targTerm.parent.id, that.targTerm.getIdx(), term.parent.id, term.getIdx()];
       }
       that.$el.trigger("try:terminal:disconnect", evtobj);
       term.disconn();
       if (term.side === 'i') {
-        term.parent.remTerm('i', term.getIdx());
+      term.parent.remTerm('i', term.getIdx());
       }
     }
-    var anchorPos = that.targTerm.getPos();
-    mouseLine = document.createElementNS(that.svgNS, "line");
-    mouseLine.setAttributeNS(null, "class", "mouse-line");
-    // mouseLine.setAttribute('stroke', 'black');
-    mouseLine.setAttribute('x1', anchorPos.x);
-    mouseLine.setAttribute('y1', anchorPos.y);
-    mouseLine.setAttribute('x2', targPos.x);
-    mouseLine.setAttribute('y2', targPos.y);
-    //mouseLine.setAttribute("pointer-events", "none");
-    that.stage_def.appendChild(mouseLine);
-    that.currentX = e.detail.clientX;
-    that.currentY = e.detail.clientY;
-    that.stage_def.onmousemove = function(e1) {
+      var anchorPos = that.targTerm.getPos();
+      mouseLine = document.createElementNS(that.svgNS, "line");
+      mouseLine.setAttributeNS(null, "class", "mouse-line");
+      // mouseLine.setAttribute('stroke', 'black');
+      mouseLine.setAttribute('x1', anchorPos.x);
+      mouseLine.setAttribute('y1', anchorPos.y);
+      mouseLine.setAttribute('x2', targPos.x);
+      mouseLine.setAttribute('y2', targPos.y);
+      //mouseLine.setAttribute("pointer-events", "none");
+      that.stage_def.appendChild(mouseLine);
+      that.currentX = e.detail.clientX;
+      that.currentY = e.detail.clientY;
+      that.stage_def.onmousemove = function(e1) {
       var cx = e1.clientX;
       var cy = e1.clientY;
       var dx = cx - that.currentX;
@@ -245,18 +255,18 @@ hacsac.Stage.prototype.addNode = function(id, type, x, y) {
       mouseLine.setAttribute('x2', posx + dx);
       mouseLine.setAttribute('y2', posy + dy);
     };
-    that.stage_def.onmouseup = function(e2) {
+      that.stage_def.onmouseup = function(e2) {
       that.stage_def.removeChild(mouseLine);
       mouseLine = undefined;
       that.targTerm = undefined;
       that.stage_def.onmousemove = undefined;
       that.stage_def.onmouseup = undefined;
     };
-  });
-  
-  n.el.addEventListener('termmouseup', function(e) {
-    var term = e.detail.term;
-    if (that.targTerm !== undefined &&
+      });
+
+      n.el.addEventListener('termmouseup', function(e) {
+      var term = e.detail.term;
+      if (that.targTerm !== undefined &&
         term !== that.targTerm &&
         term.isConnected() === false &&
         that.targTerm.isConnected() === false &&
@@ -267,82 +277,82 @@ hacsac.Stage.prototype.addNode = function(id, type, x, y) {
       var id2;
       var idx2;
       if (term.side === "o") {
-        id1 = term.parent.id;
-        idx1 = term.parent.getTermIdx(term);
-        id2 = that.targTerm.parent.id;
-        idx2 = that.targTerm.parent.getTermIdx(that.targTerm);
+      id1 = term.parent.id;
+      idx1 = term.parent.getTermIdx(term);
+      id2 = that.targTerm.parent.id;
+      idx2 = that.targTerm.parent.getTermIdx(that.targTerm);
       } else {
-        id2 = term.parent.id;
-        idx2 = term.parent.getTermIdx(term);
-        id1 = that.targTerm.parent.id;
-        idx1 = that.targTerm.parent.getTermIdx(that.targTerm);
+      id2 = term.parent.id;
+      idx2 = term.parent.getTermIdx(term);
+      id1 = that.targTerm.parent.id;
+      idx1 = that.targTerm.parent.getTermIdx(that.targTerm);
       }
       that.$el.trigger('try:terminal:connect', [id1, idx1, id2, idx2]);
     }
-  });
-  
-  return n;
-};
+      });
 
-hacsac.Stage.prototype.removeNode = function(id) {
-  var n = this.nodes[id];
-  var ti = n.ti;
-  var to = n.to;
-  for (var j = 0; j < to.length; j++) {
-    var conn = to[j].conn;
-    if (conn !== undefined) {
+      return n;
+    };
+
+      hacsac.Stage.prototype.removeNode = function(id) {
+      var n = this.nodes[id];
+      var ti = n.ti;
+      var to = n.to;
+      for (var j = 0; j < to.length; j++) {
+      var conn = to[j].conn;
+      if (conn !== undefined) {
       var opp = conn.getOpposite(to[j]);
       opp.parent.remTerm('i', opp.getIdx());
     }
-  }
-  this.stage_def.removeChild(n.el);
-  delete this.nodes[id];
-  n.destroy();
+      }
+      this.stage_def.removeChild(n.el);
+      delete this.nodes[id];
+      n.destroy();
+    };
+
+      hacsac.Stage.prototype.moveNode = function(id, x, y) {
+      var n = this.nodes[id];
+      n.setPos(x, y);
+    };
+
+      hacsac.Stage.prototype.addNodeClass = function(id, className) {
+      var n = this.nodes[id];
+      n.addClass(className);
+    };
+
+      hacsac.Stage.prototype.removeNodeClass = function(id, className) {
+      var n = this.nodes[id];
+      n.removeClass(className);
+    };
+
+      hacsac.Stage.prototype.addTerm = function(id, side) {
+      var n = this.nodes[id];
+      n.addTerm(side);
+    };
+
+      hacsac.Stage.prototype.remTerm = function(id, side, idx) {
+      var n = this.nodes[id];
+      n.remTerm(side, idx);
+    };
+
+      hacsac.Stage.prototype.connect = function(id1, idx1, id2, idx2) {
+      var n1 = this.nodes[id1];
+      var n2 = this.nodes[id2];
+      var to = n1.getTerm("o", idx1);
+      var ti = n2.getTerm("i", idx2);
+      var conn = new hacsac.Conn(to, ti);
+      this.stage_def.appendChild(conn.el);
+      if (n2.getTermIdx(ti) === n2.getMaxTermIdx('i')) {
+      n2.addTerm("i");
+      }
 };
 
-hacsac.Stage.prototype.moveNode = function(id, x, y) {
-  var n = this.nodes[id];
-  n.setPos(x, y);
-};
+      hacsac.Stage.prototype.resetNodeTerms = function(id) {
+      this.nodes[id].refreshTerms();
+    };
 
-hacsac.Stage.prototype.addNodeClass = function(id, className){
-  var n = this.nodes[id];
-  n.addClass(className);
-};
-
-hacsac.Stage.prototype.removeNodeClass = function(id, className){
-  var n = this.nodes[id];
-  n.removeClass(className);
-};
-
-hacsac.Stage.prototype.addTerm = function(id, side) {
-  var n = this.nodes[id];
-  n.addTerm(side);
-};
-
-hacsac.Stage.prototype.remTerm = function(id, side, idx) {
-  var n = this.nodes[id];
-  n.remTerm(side, idx);
-};
-
-hacsac.Stage.prototype.connect = function(id1, idx1, id2, idx2) {
-  var n1 = this.nodes[id1];
-  var n2 = this.nodes[id2];
-  var to = n1.getTerm("o", idx1);
-  var ti = n2.getTerm("i", idx2);
-  var conn = new hacsac.Conn(to, ti);
-  this.stage_def.appendChild(conn.el);
-  if (n2.getTermIdx(ti) === n2.getMaxTermIdx('i')) {
-    n2.addTerm("i");
-  }
-};
-
-hacsac.Stage.prototype.resetNodeTerms = function(id) {
-  this.nodes[id].refreshTerms();
-};
-
-hacsac.Stage.prototype.reset = function(){
-  _.each(this.nodes, function(n){
-    this.removeNode(n.id);
-  }, this);
+      hacsac.Stage.prototype.reset = function() {
+      _.each(this.nodes, function(n) {
+      this.removeNode(n.id);
+    }, this);
 };

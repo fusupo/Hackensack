@@ -105,31 +105,10 @@ var app = app || {};
       }
       this.currSelectedBloq = id;
       this.trigger("bloqSelection", id);
-      // d3.selectAll(".face").classed({
-      //     "selected": false
-      // });
-      // if (b !== undefined) {
-      //     this.trigger('bloqSelection', d3.select(b).datum().id);
-      //     d3.select(b).select(".face").classed({
-      //         "selected": true
-      //     });
-      // } else {
-      //     this.trigger('bloqSelection', undefined);
-      // }
-      // this.currentSelectedBloq = b;
     },
 
     addBloq: function(d, coll, o) {
       var datapoint = d.toJSON();
-      // this.bloqData.push({
-      //     x: datapoint['meta'].x,
-      //     y: datapoint['meta'].y,
-      //     type: datapoint['type'],
-      //     id: datapoint['id'],
-      //     c: datapoint["c"], 
-      //     p: datapoint["p"],
-      //     params: datapoint["params"]
-      // });
       var id = datapoint['id'];
       this.stage.addNode(id, datapoint['type'], datapoint['meta'].x, datapoint['meta'].y);
       _.each(datapoint["c"], function(t) {
@@ -183,10 +162,6 @@ var app = app || {};
     //////////////////////////////////
     // END DATA COMPOSITION METHODS //
     //////////////////////////////////
-
-
-
-
   });
 
   app.CompositionView = new CompositionView(app.CompositionBloqs, {});
