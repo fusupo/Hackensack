@@ -202,7 +202,7 @@ hacsac.Stage.prototype.addNode = function(id, type, x, y) {
       var pos = n.getPos();
       this.currentX = cx;
       this.currentY = cy;
-      this.moveNode(n.id, pos.x + dx, pos.y + dy);
+      this.moveNode(n.id, pos.x + (dx/this.viewMatrix[0]), pos.y + (dy/this.viewMatrix[3]));
       this.$el.trigger("mousedrag:block:body", [id, pos.x + dx, pos.y + dy]);
     }).bind(this);
     this.stage_def.onmouseup = (function(e2) {
