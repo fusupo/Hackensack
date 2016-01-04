@@ -288,13 +288,6 @@ hacsac.Stage.prototype.removeNode = function(id) {
   var n = this.nodes[id];
   var ti = n.ti;
   var to = n.to;
-  // for(var i = 0; i < ti.length; i++) {
-  //     var conn = ti[i].conn;
-  //     if(conn !== undefined){
-  //         var opp = conn.getOpposite(ti[i]);
-  //         opp.parent.remTerm('o', opp.getIdx());
-  //     }
-  // }
   for (var j = 0; j < to.length; j++) {
     var conn = to[j].conn;
     if (conn !== undefined) {
@@ -343,10 +336,6 @@ hacsac.Stage.prototype.connect = function(id1, idx1, id2, idx2) {
     n2.addTerm("i");
   }
 };
-
-// Stage.prototype.disconnect = function(id, side, idx) {
-//     var n = this.nodes[id]
-// };
 
 hacsac.Stage.prototype.resetNodeTerms = function(id) {
   this.nodes[id].refreshTerms();
