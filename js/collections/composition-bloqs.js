@@ -53,6 +53,7 @@ var app = app || {};
     },
 
     reload: function(data) {
+      this.reset();
       //assuming there is a root
       var r = _.findWhere(data, {
         type: 'root'
