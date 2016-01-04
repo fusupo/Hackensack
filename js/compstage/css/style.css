@@ -1,0 +1,19 @@
+.node-body {
+    fill: #A3B2C1;
+}
+
+.selected .node-body{
+    fill: #E4f0FF;
+}
+
+.node-shadow {
+    fill: rgba(67, 82, 97, 0.5);
+    x: 1px;
+    y: 2px;
+}
+
+.mouse-line {
+    stroke:red;
+    stroke-dasharray:10,5,2.5,2.5,2.5,5;
+    pointer-events:none;
+}
