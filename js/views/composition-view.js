@@ -18,31 +18,25 @@ var app = app || {};
       this.listenTo(compositionBloqs, 'remove', this.removeBloq);
       this.listenTo(compositionBloqs, 'change:connected', this.addConnection);
       this.listenTo(compositionBloqs, 'change:disconnected', this.removeConnection);
+
       this.listenTo(compositionBloqs, 'change:terminals', (function(m, v, o) {
-        console.log("CHANG TERMINAL" + m.toJSON()['id']);
         this.stage.resetNodeTerms(m.toJSON()['id']);
       }).bind(this));
+
       this.listenTo(compositionBloqs, 'term:add', (function(id, idx) {
-        console.log('ADDTERM: ' + id[0]);
         this.stage.addTerm(id[0], 'i');
       }).bind(this));
+
       this.listenTo(compositionBloqs, 'term:rem', (function(id, idx) {
-        console.log('REMTERM: ' + id[0]);
         this.stage.remTerm(id[0], 'i', id[1]);
       }).bind(this));
 
-      // this.listenTo(compositionBloqs, 'reset', this.resetComposition);
+      this.listenTo(compositionBloqs, 'reset', this.resetComposition);
 
       this.settings = settings || {};
       this.currentSelectedBloq = undefined;
       this.mouseLine = undefined;
       this.zoom_scale = 1;
-
-      // app.CompositionBloqs.on("all", function(f, r, j) {
-      //     console.log(f, r);
-      //     // console.log(r);
-      //     // console.log(j);
-      // });
 
       this.linesData = [];
       this.bloqData = [];
@@ -96,6 +90,10 @@ var app = app || {};
       stage.$el.on("try:terminal:disconnect", function(e, id1, idx1, id2, idx2) {
         app.CompositionBloqs.disconnect([id1, "p", idx1]); //, [id2, "c", idx2]);
       });
+    },
+
+    resetComposition:function(){
+      this.stage.reset();
     },
 
     setBlockSelection: function(id) {

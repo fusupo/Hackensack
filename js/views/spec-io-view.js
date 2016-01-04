@@ -10,20 +10,15 @@ var app = app || {};
     el: '#spec-io',
 
     initialize: function() {
-      console.log('IO SPEC VIEW INIT');
-      this.listenTo(app.CompositionView, 'bloqSelection', this.bloqSelection);
       this.currId = undefined;
       var that = this;
       this.$("#spec-io-reload").on('click', function() {
         app.CompositionBloqs.reload(JSON.parse(that.textarea.getValue()));
       });
-      //this.$("#spec-io-clear").on("click", function() {
-      //     console.log("clear");
-      // });
+      this.$("#spec-io-clear").on("click", function() {
+        that.clear();
+      });
       app.CompositionBloqs.on("all", function(f, r, j) {
-        //console.log(f, r);
-        //     console.log(r);
-        //     console.log(j);
         that.draw();
       });
     },
@@ -41,29 +36,15 @@ var app = app || {};
       });
     },
 
-    bloqSelection: function(id) {
-      this.clear();
-      if (id !== undefined) {
-        this.currId = id;
-        this.draw();
-      } else {
-        this.currId = undefined;
-      }
-    },
-
-    bloqChange: function() {
-      this.bloqSelection(this.currId);
-    },
-
     clear: function() {
       this.textarea.setValue('');
+      app.CompositionBloqs.reset();
     },
 
     draw: function() {
       var json = _.map(app.CompositionBloqs.getBloqs(), function(b) {
         return b.toJSON();
       });
-      // console.log(json);
       (function filter(obj) {
         if (typeof(obj) !== "string") {
           $.each(obj, function(key, value) {
@@ -79,13 +60,11 @@ var app = app || {};
           });
         }
       })(json);
-      //console.log(json);
       var str = JSON.stringify(json);
       this.textarea.setValue(str);
-      var that = this;
-      setTimeout(function() {
-        that.textarea.refresh();
-      }, 1);
+      setTimeout((function() {
+        this.textarea.refresh();
+      }).bind(this), 1);
     }
   });
 

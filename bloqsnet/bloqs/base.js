@@ -18,9 +18,7 @@ var Base = function(spec) {
   //                                               private member variable  //
   //                                                public member variable  //
   this.spec = spec;
-
   //                                               private member function  //
-
   //                                            privileged member function  //
 
   this.get_type = function() {
@@ -103,44 +101,43 @@ var Base = function(spec) {
 
   //
 
-  this.solve_expr = function(expr) {
-    console.log("MUTHERFUCK solve expr:" + expr);
-    var start,
-        node,
-        filtered,
-        res,
-        keys,
-        xxx,
-        diff;
-    start = (new Date()).getTime();
-    node = math.parse(expr);
-    console.log(node);
-    filtered = node.filter(function(node) {
-      return node.type == "SymbolNode";
-    });
-    res = expr;
-    if (filtered.length > 0) {
-      keys = _.keys(spec.env);
-      xxx = _.every(filtered, function(i) {
-        return _.contains(keys, i.name);
-      });
-      if (xxx) {
-        try {
-          res = math.eval(expr, spec.env);
-        } catch (err) {
+  // this.solve_expr = function(expr) {
+  //   console.log("MUTHERFUCK solve expr:" + expr);
+  //   var start,
+  //       node,
+  //       filtered,
+  //       res,
+  //       keys,
+  //       xxx,
+  //       diff;
+  //   start = (new Date()).getTime();
+  //   node = math.parse(expr);
+  //   console.log(node);
+  //   filtered = node.filter(function(node) {
+  //     return node.type == "SymbolNode";
+  //   });
+  //   res = expr;
+  //   if (filtered.length > 0) {
+  //     keys = _.keys(spec.env);
+  //     xxx = _.every(filtered, function(i) {
+  //       return _.contains(keys, i.name);
+  //     });
+  //     if (xxx) {
+  //       try {
+  //         res = math.eval(expr, spec.env);
+  //       } catch (err) {
 
-          //res = this.solve(expr, _.clone(env).slice(1));
-          res = undefined;
-        }
-      }
-    }
-    res = isNaN(res) ? undefined : res;
-    diff = (new Date()).getTime() - start;
-    return res;
-  };
+  //         //res = this.solve(expr, _.clone(env).slice(1));
+  //         res = undefined;
+  //       }
+  //     }
+  //   }
+  //   res = isNaN(res) ? undefined : res;
+  //   diff = (new Date()).getTime() - start;
+  //   return res;
+  // };
 
   this.check_env = function() {
-    console.log("check env, " + spec.type + "-" + spec.id + " : " + spec.env_dirty);
     var params_def,
         raw_val,
         success;
@@ -154,7 +151,6 @@ var Base = function(spec) {
       }, {}, this);
       console.log(spec.solution);
     }
-
     spec.env_dirty = false;
   };
 
@@ -167,9 +163,6 @@ var Base = function(spec) {
   };
 
   this.refreshEnvironment = function() {
-
-    console.log("REFRESH ENV: " + this.spec.type + "-" + this.spec.id);
-
     if (spec.parent !== "x" && spec.parent !== undefined) {
       spec.env = _.clone(spec.parent.getEnvironment());
       _.each(spec.local_env, function(v, k, l) {
@@ -178,9 +171,7 @@ var Base = function(spec) {
     } else {
       spec.env = spec.local_env;
     }
-
     //var spanks = false;
-
     // no need to propogate nothing
     if (!_.isEmpty(spec.env)) {
 
@@ -192,7 +183,6 @@ var Base = function(spec) {
       });
 
     }
-
     // if (spanks === false) {
     //   this.foo();
     // } else {
@@ -201,7 +191,6 @@ var Base = function(spec) {
   };
 
   this.sully_env_down = function() {
-    console.log("SULLY ENV: " + this.spec.type + "-" + this.spec.id);
     this.spec.env_dirty = true;
     _.each(this.spec.children, function(c) {
       if (c !== "x") {
@@ -210,12 +199,10 @@ var Base = function(spec) {
     });
   };
 
-
   this.getEnvironment = function() {
     return spec.env;
   };
 
-  //
   this.kill = function() {
     if (spec.parent !== undefined && spec.parent !== "x") {
       var idx = -1;
@@ -236,28 +223,20 @@ var Base = function(spec) {
 };
 
 Base.prototype.updateParam = function(p_name, val) {
-
-  console.log("UPDATE PARAM: " + this.spec.type + "-" + this.spec.id);
-
   var success,
       p;
-
   success = false;
   p = _.findWhere(bloqsnet.REGISTRY[this.spec.type].prototype.def.params, {
     "name": p_name
   });
-
   success = this.spec.params[p_name].update(val, this.spec.env);
-
   if (success) {
     this.sully_env_down();
     this.updateLocalEnvironment();
   } else {
     console.log("didnt update param: " + p_name + ", type: " + p.type + ", val: " + val);
   }
-
   return success;
-
 };
 
 Base.prototype.updateLocalEnvironment = function() {

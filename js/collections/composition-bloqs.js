@@ -60,6 +60,10 @@ var app = app || {};
       app.vm.crt(data, r.id);
     },
 
+    reset: function(){
+      app.vm.rst();
+    },
+
     get_svg: function(id) {
       //return app.vm.rndr(id);
       return app.vm.get_svg(id);

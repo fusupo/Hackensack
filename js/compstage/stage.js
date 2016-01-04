@@ -351,3 +351,9 @@ hacsac.Stage.prototype.connect = function(id1, idx1, id2, idx2) {
 hacsac.Stage.prototype.resetNodeTerms = function(id) {
   this.nodes[id].refreshTerms();
 };
+
+hacsac.Stage.prototype.reset = function(){
+  _.each(this.nodes, function(n){
+    this.removeNode(n.id);
+  }, this);
+};

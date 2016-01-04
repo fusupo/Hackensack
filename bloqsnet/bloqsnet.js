@@ -329,60 +329,53 @@ bloqsnet.gimmeTheThing = function(callbacks) {
         });
       }
     },
+    
+    rst: function(){
+      this.inst= undefined;
+      this.insts= {};
+      this.callbacks= callbacks;
+      this.test_render= undefined;
+      this.maxId=0; 
+      this._call_back('reset');
+    },
 
     add: function(type, pos, params, meta) {
       var meta = {
         x: pos[0],
         y: pos[1]
       };
-
       var b = this.new(null, type, meta, null);
       this.insts[b.get_id()] = b;
-
       this._call_back('add', b);
     },
 
     rem: function(id) {
       var bloq = this.insts[id];
-      //
       var bloq_json = bloq.toJSON();
-
       this.dscon([id, 'p', 0]);
-
       _.each(bloq_json.c, function(c, idx) {
         this.dscon([id, 'c', idx]);
       }, this);
-
-      //
       bloq.kill();
       delete this.insts[id];
-
       this._call_back('remove', id);
     },
 
     con: function(a, b, silent) {
-      console.log('//////////////////// CON', a, b);
       silent = silent || false;
       if (a[0] !== b[0] && a[1] != b[1]) {
         this.dscon(a, silent);
         this.dscon(b, silent);
-
         // from child to parent
         var st = a[1] === "p" ? a : b;
         var et = a[1] === "p" ? b : a;
         var c_bloq = this.insts[st[0]];
         var p_bloq = this.insts[et[0]];
-
         p_bloq.swapChild(et[2], c_bloq);
         c_bloq.addParent(p_bloq);
         c_bloq.refreshEnvironment();
-
-        // this.rst_trm(silent);
-
         this._call_back('term:add', b[0]);
-
         if (!silent) this._call_back('change:connected', [a, b]);
-
       }
     },
 
@@ -400,9 +393,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
         p_bloq.swapChild(idx, "x");
         success = true;
       }
-
       return success;
-
     },
 
     dscon_prnt: function(id, idx) {
@@ -416,9 +407,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
         c_bloq.addParent("x");
         success = true;
       }
-
       return success;
-
     },
 
     dscon: function(term, silent) {
@@ -429,9 +418,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
       } else {
         success = this.dscon_prnt(term[0], term[2]);
       }
-
       if (success) this.rst_trm(silent);
-
       if (!silent && success) this._call_back('change:disconnected', term);
     },
 
@@ -456,46 +443,30 @@ bloqsnet.gimmeTheThing = function(callbacks) {
     },
 
     crt: function(data, id) {
-
       // create bloqs
       _.each(data, function(d) {
         var b = this.new(d.id, d.type, _.clone(d.meta));
         _.each(d.params, function(param, key) {
-          console.log(key, ':', param);
-          //b.spec.params[key].update(param, {});
           b.spec.params[key].value = param;
         });
         this.insts[b.get_id()] = b;
         this._call_back('add', b);
       }, this);
-
       // wire them up
       _.each(data, function(d) {
         _.each(d.c, function(c, idx) {
           if (c !== "x") {
-            console.log('\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ BOOYAH!');
             this.con([c, "p", 0], [d.id, "c", idx], false); //c, idx, d.id);
-            // this.insts[d.id].swapChild(idx, this.insts[c]);
-            // this.insts[c].addParent(this.insts[d.id]);
-            // this.rst_trm(true);
-            // this._call_back('change:connected', [a, b]);
           }
         }, this);
       }, this);
-
       this.inst = this.insts[id];
-
       this.inst.updateLocalEnvironment();
       this.inst.render_svg();
-      console.log('crt complete');
-
-      this._call_back('reset', this._inst);
-
+      // this._call_back('reset', this._inst);
     },
 
     rndr: function(id) {
-      console.log("RNDR");
-      // this.test_render = this.test_render === undefined ? $(this.new("test-render", "root", {}).render_svg()) : this.test_render;
       var rendered = $(this.insts[id].render_svg());
       if (!rendered.is("svg")) {
         var svg = this.test_render;
@@ -507,7 +478,6 @@ bloqsnet.gimmeTheThing = function(callbacks) {
     },
 
     get_svg: function(id) {
-      console.log("GET_SVG");
       this.test_render = this.test_render || $(this.new("test-render", "root", {}).render_svg());
       this.insts[id].sully_cached_svg_down();
       this.insts[id].render_svg();
@@ -525,37 +495,31 @@ bloqsnet.gimmeTheThing = function(callbacks) {
       var success = this.insts[id].updateParam(p_name, val);
       //if (success) {
       this._call_back('change:svg', this.get_svg(id));
-        // }
-    return success;
-  },
+      // }
+      return success;
+    },
 
-  updt_mta: function(id, p_name, val) {
-    this.insts[id].updateMeta(p_name, val);
-    this._call_back('change:meta', [p_name, val]);
-  },
+    updt_mta: function(id, p_name, val) {
+      this.insts[id].updateMeta(p_name, val);
+      this._call_back('change:meta', [p_name, val]);
+    },
 
-  rst_trm: function(silent) {
-    silent = silent || false;
-    _.each(this.insts, function(i) {
-      var didReset = i.resetTerminals();
-      if (didReset && !silent) this._call_back('change:terminals', i);
-    }, this);
-  },
+    rst_trm: function(silent) {
+      silent = silent || false;
+      _.each(this.insts, function(i) {
+        var didReset = i.resetTerminals();
+        if (didReset && !silent) this._call_back('change:terminals', i);
+      }, this);
+    },
 
-  //////////////////////////////
+    //////////////////////////////
 
-  _call_back: function(cbk_id, params) {
-    if (this.callbacks[cbk_id] !== undefined) {
-      this.callbacks[cbk_id](params);
+    _call_back: function(cbk_id, params) {
+      if (this.callbacks[cbk_id] !== undefined) {
+        this.callbacks[cbk_id](params);
+      }
     }
-  }
+
+  };
 
 };
-
-};
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////

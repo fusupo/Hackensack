@@ -329,60 +329,53 @@ bloqsnet.gimmeTheThing = function(callbacks) {
         });
       }
     },
+    
+    rst: function(){
+      this.inst= undefined;
+      this.insts= {};
+      this.callbacks= callbacks;
+      this.test_render= undefined;
+      this.maxId=0; 
+      this._call_back('reset');
+    },
 
     add: function(type, pos, params, meta) {
       var meta = {
         x: pos[0],
         y: pos[1]
       };
-
       var b = this.new(null, type, meta, null);
       this.insts[b.get_id()] = b;
-
       this._call_back('add', b);
     },
 
     rem: function(id) {
       var bloq = this.insts[id];
-      //
       var bloq_json = bloq.toJSON();
-
       this.dscon([id, 'p', 0]);
-
       _.each(bloq_json.c, function(c, idx) {
         this.dscon([id, 'c', idx]);
       }, this);
-
-      //
       bloq.kill();
       delete this.insts[id];
-
       this._call_back('remove', id);
     },
 
     con: function(a, b, silent) {
-      console.log('//////////////////// CON', a, b);
       silent = silent || false;
       if (a[0] !== b[0] && a[1] != b[1]) {
         this.dscon(a, silent);
         this.dscon(b, silent);
-
         // from child to parent
         var st = a[1] === "p" ? a : b;
         var et = a[1] === "p" ? b : a;
         var c_bloq = this.insts[st[0]];
         var p_bloq = this.insts[et[0]];
-
         p_bloq.swapChild(et[2], c_bloq);
         c_bloq.addParent(p_bloq);
         c_bloq.refreshEnvironment();
-
-        // this.rst_trm(silent);
-
         this._call_back('term:add', b[0]);
-
         if (!silent) this._call_back('change:connected', [a, b]);
-
       }
     },
 
@@ -400,9 +393,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
         p_bloq.swapChild(idx, "x");
         success = true;
       }
-
       return success;
-
     },
 
     dscon_prnt: function(id, idx) {
@@ -416,9 +407,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
         c_bloq.addParent("x");
         success = true;
       }
-
       return success;
-
     },
 
     dscon: function(term, silent) {
@@ -429,9 +418,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
       } else {
         success = this.dscon_prnt(term[0], term[2]);
       }
-
       if (success) this.rst_trm(silent);
-
       if (!silent && success) this._call_back('change:disconnected', term);
     },
 
@@ -456,46 +443,30 @@ bloqsnet.gimmeTheThing = function(callbacks) {
     },
 
     crt: function(data, id) {
-
       // create bloqs
       _.each(data, function(d) {
         var b = this.new(d.id, d.type, _.clone(d.meta));
         _.each(d.params, function(param, key) {
-          console.log(key, ':', param);
-          //b.spec.params[key].update(param, {});
           b.spec.params[key].value = param;
         });
         this.insts[b.get_id()] = b;
         this._call_back('add', b);
       }, this);
-
       // wire them up
       _.each(data, function(d) {
         _.each(d.c, function(c, idx) {
           if (c !== "x") {
-            console.log('\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ BOOYAH!');
             this.con([c, "p", 0], [d.id, "c", idx], false); //c, idx, d.id);
-            // this.insts[d.id].swapChild(idx, this.insts[c]);
-            // this.insts[c].addParent(this.insts[d.id]);
-            // this.rst_trm(true);
-            // this._call_back('change:connected', [a, b]);
           }
         }, this);
       }, this);
-
       this.inst = this.insts[id];
-
       this.inst.updateLocalEnvironment();
       this.inst.render_svg();
-      console.log('crt complete');
-
-      this._call_back('reset', this._inst);
-
+      // this._call_back('reset', this._inst);
     },
 
     rndr: function(id) {
-      console.log("RNDR");
-      // this.test_render = this.test_render === undefined ? $(this.new("test-render", "root", {}).render_svg()) : this.test_render;
       var rendered = $(this.insts[id].render_svg());
       if (!rendered.is("svg")) {
         var svg = this.test_render;
@@ -507,7 +478,6 @@ bloqsnet.gimmeTheThing = function(callbacks) {
     },
 
     get_svg: function(id) {
-      console.log("GET_SVG");
       this.test_render = this.test_render || $(this.new("test-render", "root", {}).render_svg());
       this.insts[id].sully_cached_svg_down();
       this.insts[id].render_svg();
@@ -525,40 +495,34 @@ bloqsnet.gimmeTheThing = function(callbacks) {
       var success = this.insts[id].updateParam(p_name, val);
       //if (success) {
       this._call_back('change:svg', this.get_svg(id));
-        // }
-    return success;
-  },
+      // }
+      return success;
+    },
 
-  updt_mta: function(id, p_name, val) {
-    this.insts[id].updateMeta(p_name, val);
-    this._call_back('change:meta', [p_name, val]);
-  },
+    updt_mta: function(id, p_name, val) {
+      this.insts[id].updateMeta(p_name, val);
+      this._call_back('change:meta', [p_name, val]);
+    },
 
-  rst_trm: function(silent) {
-    silent = silent || false;
-    _.each(this.insts, function(i) {
-      var didReset = i.resetTerminals();
-      if (didReset && !silent) this._call_back('change:terminals', i);
-    }, this);
-  },
+    rst_trm: function(silent) {
+      silent = silent || false;
+      _.each(this.insts, function(i) {
+        var didReset = i.resetTerminals();
+        if (didReset && !silent) this._call_back('change:terminals', i);
+      }, this);
+    },
 
-  //////////////////////////////
+    //////////////////////////////
 
-  _call_back: function(cbk_id, params) {
-    if (this.callbacks[cbk_id] !== undefined) {
-      this.callbacks[cbk_id](params);
+    _call_back: function(cbk_id, params) {
+      if (this.callbacks[cbk_id] !== undefined) {
+        this.callbacks[cbk_id](params);
+      }
     }
-  }
+
+  };
 
 };
-
-};
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
 
 var Base = function(spec) {
   console.log("++ NEW: " + spec.type + "-" + spec.id);
@@ -580,9 +544,7 @@ var Base = function(spec) {
   //                                               private member variable  //
   //                                                public member variable  //
   this.spec = spec;
-
   //                                               private member function  //
-
   //                                            privileged member function  //
 
   this.get_type = function() {
@@ -665,44 +627,43 @@ var Base = function(spec) {
 
   //
 
-  this.solve_expr = function(expr) {
-    console.log("MUTHERFUCK solve expr:" + expr);
-    var start,
-        node,
-        filtered,
-        res,
-        keys,
-        xxx,
-        diff;
-    start = (new Date()).getTime();
-    node = math.parse(expr);
-    console.log(node);
-    filtered = node.filter(function(node) {
-      return node.type == "SymbolNode";
-    });
-    res = expr;
-    if (filtered.length > 0) {
-      keys = _.keys(spec.env);
-      xxx = _.every(filtered, function(i) {
-        return _.contains(keys, i.name);
-      });
-      if (xxx) {
-        try {
-          res = math.eval(expr, spec.env);
-        } catch (err) {
+  // this.solve_expr = function(expr) {
+  //   console.log("MUTHERFUCK solve expr:" + expr);
+  //   var start,
+  //       node,
+  //       filtered,
+  //       res,
+  //       keys,
+  //       xxx,
+  //       diff;
+  //   start = (new Date()).getTime();
+  //   node = math.parse(expr);
+  //   console.log(node);
+  //   filtered = node.filter(function(node) {
+  //     return node.type == "SymbolNode";
+  //   });
+  //   res = expr;
+  //   if (filtered.length > 0) {
+  //     keys = _.keys(spec.env);
+  //     xxx = _.every(filtered, function(i) {
+  //       return _.contains(keys, i.name);
+  //     });
+  //     if (xxx) {
+  //       try {
+  //         res = math.eval(expr, spec.env);
+  //       } catch (err) {
 
-          //res = this.solve(expr, _.clone(env).slice(1));
-          res = undefined;
-        }
-      }
-    }
-    res = isNaN(res) ? undefined : res;
-    diff = (new Date()).getTime() - start;
-    return res;
-  };
+  //         //res = this.solve(expr, _.clone(env).slice(1));
+  //         res = undefined;
+  //       }
+  //     }
+  //   }
+  //   res = isNaN(res) ? undefined : res;
+  //   diff = (new Date()).getTime() - start;
+  //   return res;
+  // };
 
   this.check_env = function() {
-    console.log("check env, " + spec.type + "-" + spec.id + " : " + spec.env_dirty);
     var params_def,
         raw_val,
         success;
@@ -716,7 +677,6 @@ var Base = function(spec) {
       }, {}, this);
       console.log(spec.solution);
     }
-
     spec.env_dirty = false;
   };
 
@@ -729,9 +689,6 @@ var Base = function(spec) {
   };
 
   this.refreshEnvironment = function() {
-
-    console.log("REFRESH ENV: " + this.spec.type + "-" + this.spec.id);
-
     if (spec.parent !== "x" && spec.parent !== undefined) {
       spec.env = _.clone(spec.parent.getEnvironment());
       _.each(spec.local_env, function(v, k, l) {
@@ -740,9 +697,7 @@ var Base = function(spec) {
     } else {
       spec.env = spec.local_env;
     }
-
     //var spanks = false;
-
     // no need to propogate nothing
     if (!_.isEmpty(spec.env)) {
 
@@ -754,7 +709,6 @@ var Base = function(spec) {
       });
 
     }
-
     // if (spanks === false) {
     //   this.foo();
     // } else {
@@ -763,7 +717,6 @@ var Base = function(spec) {
   };
 
   this.sully_env_down = function() {
-    console.log("SULLY ENV: " + this.spec.type + "-" + this.spec.id);
     this.spec.env_dirty = true;
     _.each(this.spec.children, function(c) {
       if (c !== "x") {
@@ -772,12 +725,10 @@ var Base = function(spec) {
     });
   };
 
-
   this.getEnvironment = function() {
     return spec.env;
   };
 
-  //
   this.kill = function() {
     if (spec.parent !== undefined && spec.parent !== "x") {
       var idx = -1;
@@ -798,28 +749,20 @@ var Base = function(spec) {
 };
 
 Base.prototype.updateParam = function(p_name, val) {
-
-  console.log("UPDATE PARAM: " + this.spec.type + "-" + this.spec.id);
-
   var success,
       p;
-
   success = false;
   p = _.findWhere(bloqsnet.REGISTRY[this.spec.type].prototype.def.params, {
     "name": p_name
   });
-
   success = this.spec.params[p_name].update(val, this.spec.env);
-
   if (success) {
     this.sully_env_down();
     this.updateLocalEnvironment();
   } else {
     console.log("didnt update param: " + p_name + ", type: " + p.type + ", val: " + val);
   }
-
   return success;
-
 };
 
 Base.prototype.updateLocalEnvironment = function() {
