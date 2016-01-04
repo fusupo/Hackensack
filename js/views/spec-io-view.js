@@ -6,12 +6,15 @@ var app = app || {};
   'use strict';
 
   var IOSpecView = Backbone.View.extend({
-    
+
     el: '#spec-io',
 
     initialize: function() {
       this.currId = undefined;
       var that = this;
+      this.$("#spec-io-paste").on('click', function() {
+
+      });
       this.$("#spec-io-reload").on('click', function() {
         app.CompositionBloqs.reload(JSON.parse(that.textarea.getValue()));
       });
@@ -34,6 +37,14 @@ var app = app || {};
         },
         lineWrapping: true
       });
+      new Clipboard('#spec-io-copy', {
+        text: (function() {
+          console.log(this.textarea.getDoc().getValue());
+          return this.textarea.getDoc().getValue();
+        }).bind(this)
+      });
+      this.$("#spec-io-copy").on('click', (function() {
+      }).bind(this));
     },
 
     clear: function() {
