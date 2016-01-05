@@ -61,14 +61,11 @@ var app = app || {};
     draw: function() {
       var rendered = app.CompositionBloqs.get_svg(this.currId);
       if (rendered !== undefined) {
-        var s = new XMLSerializer();
-        this.textarea.setValue(rendered.prop('outerHTML'));
-
-        var that = this;
-        setTimeout(function() {
-          that.textarea.refresh();
-          that.autoFormat();
-        }, 1);
+        this.textarea.setValue(rendered);
+        setTimeout((function() {
+          this.textarea.refresh();
+          this.autoFormat();
+        }).bind(this), 1);
       }
     },
 

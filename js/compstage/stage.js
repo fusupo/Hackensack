@@ -5,7 +5,7 @@ hacsac.Stage = function Stage(el_id, w, h) {
   this.xlinkNS = "http://www.w3.org/1999/xlink",
 
   this.nodes = {};
-  this.conns = [];
+  //this.conns = [];
   this.w = w;
   this.h = h;
 
@@ -129,8 +129,11 @@ hacsac.Stage = function Stage(el_id, w, h) {
   var mat = this.viewMatrix = [1, 0, 0, 1, 0, 0];
 
   var updateNavBox = function() {
-    if (mat[0] * stage_w < w) {
+    if (mat[0] * stage_w < w ) {
       mat[0] = w / stage_w;
+      mat[3] = w / stage_w;
+    }else if( mat[3] * stage_h < h){
+      mat[0] = h / stage_h;
       mat[3] = h / stage_h;
     }
     if (mat[4] > 0) mat[4] = 0;
@@ -194,6 +197,7 @@ hacsac.Stage.prototype.addNode = function(id, type, x, y) {
   n.el.addEventListener('bodymousedown', (function(e) {
     this.currentX = e.detail.clientX;
     this.currentY = e.detail.clientY;
+    this.$el.css( 'cursor', 'move' );
     this.stage_def.onmousemove = (function(e1) {
       var cx = e1.clientX;
       var cy = e1.clientY;
@@ -206,6 +210,7 @@ hacsac.Stage.prototype.addNode = function(id, type, x, y) {
       this.$el.trigger("mousedrag:block:body", [id, pos.x + dx, pos.y + dy]);
     }).bind(this);
     this.stage_def.onmouseup = (function(e2) {
+      this.$el.css( 'cursor', 'default' );
       this.stage_def.onmousemove = undefined;
       this.stage_def.onmouseup = undefined;
     }).bind(this);
@@ -289,9 +294,9 @@ hacsac.Stage.prototype.addNode = function(id, type, x, y) {
       }
       that.$el.trigger('try:terminal:connect', [id1, idx1, id2, idx2]);
     }
-  });
+});
 
-  return n;
+return n;
 };
 
 hacsac.Stage.prototype.removeNode = function(id) {
@@ -355,4 +360,5 @@ hacsac.Stage.prototype.reset = function() {
   _.each(this.nodes, function(n) {
     this.removeNode(n.id);
   }, this);
+  this.nodes={};
 };

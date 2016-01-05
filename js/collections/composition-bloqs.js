@@ -66,7 +66,6 @@ var app = app || {};
     },
 
     get_svg: function(id) {
-      //return app.vm.rndr(id);
       return app.vm.get_svg(id);
     },
 
@@ -76,6 +75,10 @@ var app = app || {};
 
     updateParam: function(bloq_id, param_name, val) {
       return app.vm.updt_par(bloq_id, param_name, val);
+    },
+
+    setParam: function(bloq_id, param_name, val){
+      app.vm.set_par(bloq_id, param_name, val);      
     },
 
     disconnect: function(term, silent) {

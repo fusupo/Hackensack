@@ -114,33 +114,38 @@ SVG_Proto.prototype.constructor = SVG_Proto;
 
 SVG_Proto.prototype.render_svg = function() {
   console.log('RENDER SVG, FOOL');
-  if (this.cached_svg === undefined) {
-    console.log('RENDER SVG : ' + this.spec.type + "-" + this.spec.id);
-    this.cached_svg = this.get_svg();
-    if (this.spec.children != undefined && this.spec.children.length > 0) {
-      for (var i = 0; i < this.spec.children.length; i++) {
-        var child = this.spec.children[i];
-        if (child !== "x") {
-          this.cached_svg.appendChild(this.spec.children[i].render_svg().cloneNode(true));
-        }
+  //if (this.cached_svg === undefined) {
+  console.log('RENDER SVG : ' + this.spec.type + "-" + this.spec.id);
+  this.cached_svg_str = this.get_svg_str();
+  if (this.spec.children != undefined && this.spec.children.length > 0) {
+    for (var i = 0; i < this.spec.children.length; i++) {
+      var child = this.spec.children[i];
+      if (child !== "x") {
+        this.spec.children[i].render_svg();
+        var insertIdx = this.cached_svg_str.indexOf(">");
+        this.cached_svg_str = this.cached_svg_str.substr(0, insertIdx + 1) +
+          this.spec.children[i].cached_svg_str +
+          this.cached_svg_str.substr(insertIdx + 1);
       }
     }
   }
-  console.log(this.cached_svg);
-  return this.cached_svg;
+    //}
+return this.cached_svg_str;
 };
 
-SVG_Proto.prototype.get_svg = function() {
-  console.log('GET SVG, FOOL');
-  var solution = this.solveParams();
-  var elm = document.createElementNS(bloqsnet.svgNS, this.def.svg_elem);
-  this.setAttributes(elm, solution);
-
+SVG_Proto.prototype.get_svg_str = function() {
+  console.log('GET SVG STR, FOOL');
+  // var solution = this.solveParams();
+  // console.log(solution);
+  var params_def = bloqsnet.REGISTRY[this.spec.type].prototype.def.params;
+  var solution2 = _.reduce(params_def, function(m, p_def) {
+    m[p_def.name] = this.spec.params[p_def.name].value;
+    return m;
+  }, {}, this);
+  console.log(solution2);
   var elmStr = "<" + this.def.svg_elem + "></" + this.def.svg_elem + ">";
-  console.log(elmStr);
-  elmStr = this.setAttributesStr(elmStr, solution);
-  console.log(elmStr);
-  return elm;
+  elmStr = this.setAttributesStr(elmStr, solution2);
+  return elmStr;
 };
 
 SVG_Proto.prototype.sully_cached_svg_down = function() {
@@ -150,6 +155,33 @@ SVG_Proto.prototype.sully_cached_svg_down = function() {
       c.sully_cached_svg_down();
     }
   });
+};
+
+SVG_Proto.prototype.reduce_exprs = function(svg, obj){
+  return _.map(svg.match(/\{.*?\}|.+?(?=\{|$)/g), function(str) {
+    if (str.substr(0, 1) === "{") {
+      var expr = str.substr(1, str.length - 2);
+      var node = math.parse(expr, obj);
+      var transformed = node.transform(function(n, path, parent) {
+        if (n.type === "SymbolNode") {
+          if (_.has(obj, n.name)) {
+            return new math.expression.node.ConstantNode(obj[n.name]);
+          }
+          return n;
+        } else {
+          return n;
+        }
+      });
+      var r = transformed.toString().replace(/\s+/g, '');;
+      try{
+        r = math.compile(transformed.toString()).eval({});
+      }catch(e){
+        r = '{'+ r +'}';
+      }
+      str = r;
+    }
+    return str;
+  }).join('');
 };
 
 SVG_Proto.prototype.def = {

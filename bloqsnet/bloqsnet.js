@@ -11,7 +11,6 @@ var BaseParam = function(spec, initVal) {
   this.solved = undefined;
   this.value = initVal !== undefined ? initVal : spec.defaultVal; // || undefined;
   this.solve_expr = function(expr, env) {
-
     var start,
         node,
         filtered,
@@ -19,24 +18,19 @@ var BaseParam = function(spec, initVal) {
         keys,
         haveValsForVars,
         diff;
-
     start = (new Date()).getTime();
-
     node = math.parse(expr);
     console.log(node);
     filtered = node.filter(function(no) {
       console.log(no.type);
       return no.type == 'SymbolNode' || no.type == 'FunctionNode';
     });
-
     res = expr;
-
     if (filtered.length > 0) {
       keys = _.keys(env);
       haveValsForVars = _.every(filtered, function(i) {
         return _.contains(keys, i.name);
       });
-
       // if (haveValsForVars) {
       try {
         res = math.eval(expr, env);
@@ -45,17 +39,13 @@ var BaseParam = function(spec, initVal) {
       }
       //}
     }
-
     //problem here is that sometimes we want a result thats NaN as in Array
     // but we don't want results that are NaN as a result of failed solution
     // how to tell the difference?
     //res = isNaN(res) ? undefined : res;
-
     diff = (new Date()).getTime() - start;
-
     return typeof res === "string" ? res.replace(/['"]+/g, '') : res;
     //return expr;
-
   };
 };
 BaseParam.prototype.toJSON = function() {
@@ -67,7 +57,10 @@ BaseParam.prototype.toString = function() {
 BaseParam.prototype.update = function(val, env) {
   return this.solve_expr(val, env);
 };
-
+BaseParam.prototype.set = function(val) {
+  // return this.solve_expr(val, env);
+  this.value = val;
+};
 //////// NUMBER
 
 var number_param = function(spec, initVal) {
@@ -481,13 +474,13 @@ bloqsnet.gimmeTheThing = function(callbacks) {
       this.test_render = this.test_render || $(this.new("test-render", "root", {}).render_svg());
       this.insts[id].sully_cached_svg_down();
       this.insts[id].render_svg();
-      var rendered = $(this.insts[id].cached_svg);
-      if (!rendered.is("svg")) {
-        var svg = this.test_render;
-        svg.empty();
-        svg.append(rendered);
-        rendered = svg;
-      }
+      var rendered = this.insts[id].cached_svg_str;
+      // if (!rendered.is("svg")) {
+      //   var svg = this.test_render;
+      //   svg.empty();
+      //   svg.append(rendered);
+      //   rendered = svg;
+      // }
       return rendered;
     },
 
@@ -497,6 +490,11 @@ bloqsnet.gimmeTheThing = function(callbacks) {
       this._call_back('change:svg', this.get_svg(id));
       // }
       return success;
+    },
+
+    set_par: function(id, p_name, val){
+      this.insts[id].setParam(p_name, val);      
+      this._call_back('change:svg', this.get_svg(id));
     },
 
     updt_mta: function(id, p_name, val) {

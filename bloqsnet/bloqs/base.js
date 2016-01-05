@@ -99,44 +99,6 @@ var Base = function(spec) {
     return !_.isEqual(spec.children, before);
   };
 
-  //
-
-  // this.solve_expr = function(expr) {
-  //   console.log("MUTHERFUCK solve expr:" + expr);
-  //   var start,
-  //       node,
-  //       filtered,
-  //       res,
-  //       keys,
-  //       xxx,
-  //       diff;
-  //   start = (new Date()).getTime();
-  //   node = math.parse(expr);
-  //   console.log(node);
-  //   filtered = node.filter(function(node) {
-  //     return node.type == "SymbolNode";
-  //   });
-  //   res = expr;
-  //   if (filtered.length > 0) {
-  //     keys = _.keys(spec.env);
-  //     xxx = _.every(filtered, function(i) {
-  //       return _.contains(keys, i.name);
-  //     });
-  //     if (xxx) {
-  //       try {
-  //         res = math.eval(expr, spec.env);
-  //       } catch (err) {
-
-  //         //res = this.solve(expr, _.clone(env).slice(1));
-  //         res = undefined;
-  //       }
-  //     }
-  //   }
-  //   res = isNaN(res) ? undefined : res;
-  //   diff = (new Date()).getTime() - start;
-  //   return res;
-  // };
-
   this.check_env = function() {
     var params_def,
         raw_val,
@@ -149,17 +111,13 @@ var Base = function(spec) {
         m[p_def.name] = spec.params[p_def.name].solved;
         return m;
       }, {}, this);
-      console.log(spec.solution);
     }
     spec.env_dirty = false;
   };
 
   this.setLocalEnvironment = function(data) {
-    //if (!_.isEqual(data, spec.local_env)) {
-    console.log("SET LOCAL ENV: " + this.spec.type + "-" + this.spec.id);
     spec.local_env = data;
     this.refreshEnvironment();
-    //}
   };
 
   this.refreshEnvironment = function() {
@@ -171,23 +129,13 @@ var Base = function(spec) {
     } else {
       spec.env = spec.local_env;
     }
-    //var spanks = false;
-    // no need to propogate nothing
     if (!_.isEmpty(spec.env)) {
-
       _.each(spec.children, function(c) {
         if (c !== "x") {
-          // spanks = true;
           c.refreshEnvironment();
         }
       });
-
     }
-    // if (spanks === false) {
-    //   this.foo();
-    // } else {
-    //   console.log("BAR, mutherfucker");
-    // }
   };
 
   this.sully_env_down = function() {
@@ -237,6 +185,10 @@ Base.prototype.updateParam = function(p_name, val) {
     console.log("didnt update param: " + p_name + ", type: " + p.type + ", val: " + val);
   }
   return success;
+};
+
+Base.prototype.setParam = function(p_name, val){
+  this.spec.params[p_name].set(val);
 };
 
 Base.prototype.updateLocalEnvironment = function() {

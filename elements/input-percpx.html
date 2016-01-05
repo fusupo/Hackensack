@@ -3,7 +3,7 @@
 
 <polymer-element name="input-percpx" attributes="value">
     <template>
-        <input id="scalar" step="1" value="{{scalar}}" on-input="{{updateVal}}" on-mousewheel="{{mw}}">
+        <input type="text" id="scalar" value="{{scalar}}" on-input="{{updateVal}}" on-mousewheel="{{mw}}">
         <select id="unit" on-change="{{updateVal}}">
             <option value="px">px</option>
             <option value="%">%</option>

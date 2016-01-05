@@ -18,17 +18,13 @@ hacsac.Node = function(id, type) {
 
   var bodyRect = document.createElementNS(this.svgNS, "rect");
   bodyRect.setAttributeNS(null, "class", "draggable node-body");
-  // bodyRect.setAttribute('fill', '#A3B2C1');
   bodyRect.setAttribute('width', this.w);
   bodyRect.setAttribute('height', this.h);
 
   var shadowRect = document.createElementNS(this.svgNS, "rect");
   shadowRect.setAttributeNS(null, "class", "draggable node-shadow");
-  // shadowRect.setAttribute('fill', '#435261');
   shadowRect.setAttribute('width', this.w);
   shadowRect.setAttribute('height', this.h);
-  // shadowRect.setAttribute('x', 1);
-  // shadowRect.setAttribute('y', 2);
 
   var text = document.createElementNS(this.svgNS, "text");
   text.setAttribute("x", 5);
