@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 var SVG_Proto = function(spec) {
-  spec.type = spec.type || "svg_proto";
+  spec.type = spec.type || 'svg_proto';
   Base.call(this, spec);
 
   this.cached_svg = undefined;
@@ -11,7 +11,7 @@ var SVG_Proto = function(spec) {
   var setAttribute = function(svg_elm, key, val) {
     // NOTE: the undefined check here is a stopgap
     // it really should be mitigated further upstream
-    if (val !== undefined && val !== "" && val !== "0px" && val !== "0px") {
+    if (val !== undefined && val !== '' && val !== '0px' && val !== '0px') {
       svg_elm.setAttribute(key, val);
     }
   };
@@ -19,30 +19,30 @@ var SVG_Proto = function(spec) {
   this.setAttributes = function(svg_elem, attrs) {
     _.each(attrs, function(attr, k) {
       if (_.findWhere(bloqsnet.REGISTRY[spec.type].prototype.def.params, {
-        "name": k
+        'name': k
       }).renderSvg === true) {
         switch (k) {
-        case "transform":
-          var val = "";
+        case 'transform':
+          var val = '';
           _.each(attr, function(a) {
             switch (a.type) {
-            case "trans":
-              val += "translate(" + a.x + ", " + a.y + ") ";
+            case 'trans':
+              val += 'translate(' + a.x + ', ' + a.y + ') ';
               break;
-            case "scale":
-              val += "scale(" + a.x + ", " + a.y + ") ";
+            case 'scale':
+              val += 'scale(' + a.x + ', ' + a.y + ') ';
               break;
-            case "rot":
-              val += "rotate(" + a.r;
+            case 'rot':
+              val += 'rotate(' + a.r;
               if (a.x !== undefined)
-                val += ", " + a.x + ", " + a.y;
-              val += ") ";
+                val += ', ' + a.x + ', ' + a.y;
+              val += ') ';
               break;
-            case "skewX":
-              val += "skewX(" + a.x + ") ";
+            case 'skewX':
+              val += 'skewX(' + a.x + ') ';
               break;
-            case "skewY":
-              val += "skewY(" + a.y + ") ";
+            case 'skewY':
+              val += 'skewY(' + a.y + ') ';
               break;
             }
           });
@@ -60,30 +60,30 @@ var SVG_Proto = function(spec) {
   this.setAttributesStr = function(svg_elem, attrs) {
     _.each(attrs, function(attr, k) {
       if (_.findWhere(bloqsnet.REGISTRY[spec.type].prototype.def.params, {
-        "name": k
+        'name': k
       }).renderSvg === true) {
-        var val = "";
+        var val = '';
         switch (k) {
-        case "transform":
+        case 'transform':
           _.each(attr, function(a) {
             switch (a.type) {
-            case "trans":
-              val += "translate(" + a.x + ", " + a.y + ") ";
+            case 'trans':
+              val += 'translate(' + a.x + ', ' + a.y + ') ';
               break;
-            case "scale":
-              val += "scale(" + a.x + ", " + a.y + ") ";
+            case 'scale':
+              val += 'scale(' + a.x + ', ' + a.y + ') ';
               break;
-            case "rot":
-              val += "rotate(" + a.r;
+            case 'rot':
+              val += 'rotate(' + a.r;
               if (a.x !== undefined)
-                val += ", " + a.x + ", " + a.y;
-              val += ") ";
+                val += ', ' + a.x + ', ' + a.y;
+              val += ') ';
               break;
-            case "skewX":
-              val += "skewX(" + a.x + ") ";
+            case 'skewX':
+              val += 'skewX(' + a.x + ') ';
               break;
-            case "skewY":
-              val += "skewY(" + a.y + ") ";
+            case 'skewY':
+              val += 'skewY(' + a.y + ') ';
               break;
             }
           });
@@ -96,17 +96,17 @@ var SVG_Proto = function(spec) {
           break;
         }
 
-        var endOfOpenIdx = svg_elem.indexOf(">");
+        var endOfOpenIdx = svg_elem.indexOf('>');
         var strStart = svg_elem.slice(0, endOfOpenIdx);
         var strEnd = svg_elem.slice(endOfOpenIdx);
-        if (val !== undefined && val !== "") {
-          svg_elem = strStart + " " + k + "=\"" + val + "\"" + strEnd;
+        if (val !== undefined && val !== '') {
+          svg_elem = strStart + ' ' + k + '=\'' + val + '\'' + strEnd;
         }
       }
     });
     return svg_elem;
   };
-    //this.render_svg();
+  //this.render_svg();
 };
 
 SVG_Proto.prototype = Object.create(Base.prototype);
@@ -115,22 +115,22 @@ SVG_Proto.prototype.constructor = SVG_Proto;
 SVG_Proto.prototype.render_svg = function() {
   console.log('RENDER SVG, FOOL');
   //if (this.cached_svg === undefined) {
-  console.log('RENDER SVG : ' + this.spec.type + "-" + this.spec.id);
+  console.log('RENDER SVG : ' + this.spec.type + '-' + this.spec.id);
   this.cached_svg_str = this.get_svg_str();
   if (this.spec.children != undefined && this.spec.children.length > 0) {
     for (var i = 0; i < this.spec.children.length; i++) {
       var child = this.spec.children[i];
-      if (child !== "x") {
+      if (child !== 'x') {
         this.spec.children[i].render_svg();
-        var insertIdx = this.cached_svg_str.indexOf(">");
+        var insertIdx = this.cached_svg_str.indexOf('>');
         this.cached_svg_str = this.cached_svg_str.substr(0, insertIdx + 1) +
           this.spec.children[i].cached_svg_str +
           this.cached_svg_str.substr(insertIdx + 1);
       }
     }
   }
-    //}
-return this.cached_svg_str;
+  //}
+  return this.cached_svg_str;
 };
 
 SVG_Proto.prototype.get_svg_str = function() {
@@ -143,7 +143,7 @@ SVG_Proto.prototype.get_svg_str = function() {
     return m;
   }, {}, this);
   console.log(solution2);
-  var elmStr = "<" + this.def.svg_elem + "></" + this.def.svg_elem + ">";
+  var elmStr = '<' + this.def.svg_elem + '></' + this.def.svg_elem + '>';
   elmStr = this.setAttributesStr(elmStr, solution2);
   return elmStr;
 };
@@ -151,37 +151,57 @@ SVG_Proto.prototype.get_svg_str = function() {
 SVG_Proto.prototype.sully_cached_svg_down = function() {
   this.cached_svg = undefined;
   _.each(this.spec.children, function(c) {
-    if (c !== "x") {
+    if (c !== 'x') {
       c.sully_cached_svg_down();
     }
   });
 };
 
-SVG_Proto.prototype.reduce_exprs = function(svg, obj){
-  return _.map(svg.match(/\{.*?\}|.+?(?=\{|$)/g), function(str) {
-    if (str.substr(0, 1) === "{") {
+SVG_Proto.prototype.reduce_exprs = function(svg, obj) {
+  var exprs = svg.match(/\{.*?\}|.+?(?=\{|$)/g);
+  return _.map(exprs, function(str) {
+    if (str.substr(0, 1) === '{') {
       var expr = str.substr(1, str.length - 2);
       var node = math.parse(expr, obj);
-      var transformed = node.transform(function(n, path, parent) {
-        if (n.type === "SymbolNode") {
+      var transformed = node.transform(( function(n, path, parent) {
+        if (n.type === 'SymbolNode') {
           if (_.has(obj, n.name)) {
             return new math.expression.node.ConstantNode(obj[n.name]);
           }
           return n;
-        } else {
-          return n;
-        }
-      });
-      var r = transformed.toString().replace(/\s+/g, '');;
-      try{
+        } else if(n.type === 'FunctionNode'){
+          var foo = this.reduce_exprs_func(n, obj);
+        } 
+        return n;
+      }).bind(this));
+      var r = transformed.toString().replace(/\s+/g, '');
+      try {
         r = math.compile(transformed.toString()).eval({});
-      }catch(e){
-        r = '{'+ r +'}';
+      } catch (e) {
+        r = '{' + r + '}';
       }
       str = r;
     }
     return str;
-  }).join('');
+  }, this).join('');
+};
+
+SVG_Proto.prototype.reduce_exprs_func = function(fn_expr, obj){
+  console.log(fn_expr);
+  var resolved = true;
+  _.each(fn_expr.args, function(arg){
+    switch(arg.type){
+    case 'SymbolNode':
+      // solve for symbol somehow
+      break;
+    default:
+      resolved = false;
+      break;
+    };
+  });
+  var r = math.compile(fn_expr.toString()).eval(obj);
+  console.log(r);
+  return 'foo';
 };
 
 SVG_Proto.prototype.def = {
@@ -189,38 +209,34 @@ SVG_Proto.prototype.def = {
   type: 'svg_proto'
 };
 
-bloqsnet.REGISTRY["svg_proto"] = SVG_Proto;
+bloqsnet.REGISTRY['svg_proto'] = SVG_Proto;
 
 //                              DEFINING DEFAULT PARAM GROUPS (per svg spec)  //
 ////////////////////////////////////////////////////////////////////////////////
 
 var paramObj = function(config) {
   var ret = {};
-
   ret.name = config[0];
   ret.type = config[1];
-
-  if (ret.type === "enum") {
+  if (ret.type === 'enum') {
     ret.choices = config[2];
   } else {
     ret.defaultVal = config[2];
   }
-
   ret.groupName = config[3];
   ret.renderSvg = config[4];
-
   return ret;
 };
 
 var svg_conditional_processing_attributes = [
-  paramObj(["requiredExtensions", "string", "", "svg conditional processing attributes", true]),
-  paramObj(["requiredFeatures", "string", "", "svg conditional processing attributes", true]),
-  paramObj(["systemLanguage", "string", "", "svg conditional processing attributes", true])
+  paramObj(['requiredExtensions', 'string', '', 'svg conditional processing attributes', true]),
+  paramObj(['requiredFeatures', 'string', '', 'svg conditional processing attributes', true]),
+  paramObj(['systemLanguage', 'string', '', 'svg conditional processing attributes', true])
 ];
 
 var svg_core_attributes = [
-  paramObj(["id", "string", "", "svg core attributes", true]),
-  paramObj(["xml:base", "string", "", "svg core attributes", true]),
-  paramObj(["xml:lang", "string", "", "svg core attributes", true]),
-  paramObj(["xml:space", "string", "", "svg core attributes", true])
+  paramObj(['id', 'string', '', 'svg core attributes', true]),
+  paramObj(['xml:base', 'string', '', 'svg core attributes', true]),
+  paramObj(['xml:lang', 'string', '', 'svg core attributes', true]),
+  paramObj(['xml:space', 'string', '', 'svg core attributes', true])
 ];

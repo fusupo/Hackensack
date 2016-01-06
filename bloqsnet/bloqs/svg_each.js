@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 var SVG_each = function(spec) {
-  spec.type = "svg_each";
+  spec.type = 'svg_each';
   SVG_Proto.call(this, spec);
 };
 SVG_each.prototype = Object.create(SVG_Proto.prototype);
@@ -14,14 +14,14 @@ SVG_each.prototype.render_svg = function() {
   this.cached_svg_str = this.get_svg_str();
   if (this.spec.children.length > 0) {
     var child = this.spec.children[0];
-    if (child !== "x") {
+    if (child !== 'x') {
       var child_svg = child.render_svg();
       var l = this.env_val(this.spec.params.list.value);
       _.each(l, function(d, idx) {
         var obj = {};
-        obj[this.spec.id + "_d"] = d;
-        obj[this.spec.id + "_idx"] = idx;
-        var insertIdx = this.cached_svg_str.indexOf(">");
+        obj[this.spec.id + '_d'] = d;
+        obj[this.spec.id + '_idx'] = idx;
+        var insertIdx = this.cached_svg_str.indexOf('>');
         this.cached_svg_str = this.cached_svg_str.substr(0, insertIdx + 1) +
           this.reduce_exprs(child_svg, obj) +
           this.cached_svg_str.substr(insertIdx + 1);
@@ -37,11 +37,11 @@ SVG_each.prototype.def = {
   type: 'svg_each',
   svg_elem: 'g',
   params: [
-    paramObj(["transform", "transform", [], "specific attributes", true]),
-    paramObj(["list", "string", "", "specific attributes", false])
+    paramObj(['transform', 'transform', [], 'specific attributes', true]),
+    paramObj(['list', 'string', '', 'specific attributes', false])
   ],
   p: [1, 1],
   c: [1, 1]
 };
 
-bloqsnet.REGISTRY["svg_each"] = SVG_each;
+bloqsnet.REGISTRY['svg_each'] = SVG_each;
