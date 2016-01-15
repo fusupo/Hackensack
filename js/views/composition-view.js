@@ -44,7 +44,7 @@ var app = app || {};
 
     finalizeInitialization: function() {
 
-      var divname = "composition";
+      var divname = 'composition';
 
       this.w = this.settings.w || parseInt(this.$el.width());
       this.h = this.settings.h || parseInt(this.$el.height());
@@ -67,55 +67,58 @@ var app = app || {};
         }).bind(this)
       });
 
-      stage.$el.on("mousedown:block:body", (function(e, id) {
+      stage.$el.on('mousedown:block:body', (function(e, id) {
         this.setBlockSelection(id);
       }).bind(this));
 
-      stage.$el.on("mousedrag:block:body", function(e, id, x, y){
-        app.CompositionBloqs.updateMeta(id, {"x":x,"y":y});
+      stage.$el.on('mousedrag:block:body', function(e, id, x, y) {
+        app.CompositionBloqs.updateMeta(id, {
+          'x': x,
+          'y': y
+        });
       });
 
-      stage.$el.on("mousedown:block:close", function(e, id) {
+      stage.$el.on('mousedown:block:close', function(e, id) {
         app.CompositionBloqs.deleteBloq(id);
       });
 
-      stage.$el.on("mousedown:stage:bg", (function(e) {
+      stage.$el.on('mousedown:stage:bg', (function(e) {
         this.setBlockSelection(undefined);
       }).bind(this));
 
-      stage.$el.on("try:terminal:connect", function(e, id1, idx1, id2, idx2) {
-        app.CompositionBloqs.addConnection([id1, "p", idx1], [id2, "c", idx2]);
+      stage.$el.on('try:terminal:connect', function(e, id1, idx1, id2, idx2) {
+        app.CompositionBloqs.addConnection([id1, 'p', idx1], [id2, 'c', idx2]);
       });
 
-      stage.$el.on("try:terminal:disconnect", function(e, id1, idx1, id2, idx2) {
-        app.CompositionBloqs.disconnect([id1, "p", idx1]); //, [id2, "c", idx2]);
+      stage.$el.on('try:terminal:disconnect', function(e, id1, idx1, id2, idx2) {
+        app.CompositionBloqs.disconnect([id1, 'p', idx1]); //, [id2, 'c', idx2]);
       });
     },
 
-    resetComposition:function(){
+    resetComposition: function() {
       this.stage.reset();
     },
 
     setBlockSelection: function(id) {
-      if(this.currSelectedBloq && this.currSelectedBloq !== id){
+      if (this.currSelectedBloq && this.currSelectedBloq !== id) {
         this.stage.removeNodeClass(this.currSelectedBloq, 'selected');
       }
-      if(id){
+      if (id) {
         this.stage.addNodeClass(id, 'selected');
       }
       this.currSelectedBloq = id;
-      this.trigger("bloqSelection", id);
+      this.trigger('bloqSelection', id);
     },
 
     addBloq: function(d, coll, o) {
       var datapoint = d.toJSON();
       var id = datapoint['id'];
       this.stage.addNode(id, datapoint['type'], datapoint['meta'].x, datapoint['meta'].y);
-      _.each(datapoint["c"], function(t) {
-        this.stage.addTerm(id, "i");
+      _.each(datapoint['c'], function(t) {
+        this.stage.addTerm(id, 'i');
       }, this);
-      _.each(datapoint["p"], function(t) {
-        this.stage.addTerm(id, "o");
+      _.each(datapoint['p'], function(t) {
+        this.stage.addTerm(id, 'o');
       }, this);
     },
 
@@ -145,9 +148,9 @@ var app = app || {};
         var p = b.p;
         if (p !== undefined) {
           _.each(p, function(targ_id, idx, l) {
-            var this_term = [b.id, "p", idx];
+            var this_term = [b.id, 'p', idx];
             var other_term = app.CompositionBloqs.getConnectedTerm(this_term);
-            if (other_term !== "x") {
+            if (other_term !== 'x') {
               var bar_term = this_term.concat(this.terminalPos(this_term));
               bar_term = bar_term.concat(other_term.concat(this.terminalPos(other_term)));
               bar_terms.push(bar_term);

@@ -110,26 +110,28 @@ var app = app || {};
           case "percpx":
             var xxx = (this.currBloqModel.get_params()[p.name]);
             console.log(xxx);
-            item = $(this.paramsPercPxItemTpl({
+            var rendered = this.paramsPercPxItemTpl({
               label: p.name,
               val: xxx
-            })).bind("change", function(e) {
-              that.commitUpdateParam(p.name, e.originalEvent.detail);
-            }).on('mousewheel', function(e) {
-              var raw_val = e.target.value;
-              var val;
-              if (typeof(raw_val) === "string" && raw_val.slice(-1) === "%") {
-                val = raw_val.slice(0, -1);
-                if (!isNaN(val)) {
-                  val = parseFloat(val);
-                  e.target.value = (val + e.deltaY) + "%";
-                }
-              } else if (!isNaN(raw_val)) {
-                e.target.value = parseFloat(raw_val) + e.deltaY;
-              }
-              that.tryUpdateParamNumber(p.name, e.target.value, p.type);
-              return false;
             });
+            item = $(rendered).bind("change", function(e) {
+              that.commitUpdateParam(p.name, e.originalEvent.detail);
+            });
+            // .on('mousewheel', function(e) {
+            //   var raw_val = e.target.value;
+            //   var val;
+            //   if (typeof(raw_val) === "string" && raw_val.slice(-1) === "%") {
+            //     val = raw_val.slice(0, -1);
+            //     if (!isNaN(val)) {
+            //       val = parseFloat(val);
+            //       e.target.value = (val + e.deltaY) + "%";
+            //     }
+            //   } else if (!isNaN(raw_val)) {
+            //     e.target.value = parseFloat(raw_val) + e.deltaY;
+            //   }
+            //   that.tryUpdateParamNumber(p.name, e.target.value, p.type);
+            //   return false;
+            // });
             break;
 
           case "transform":

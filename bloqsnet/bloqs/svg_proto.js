@@ -162,25 +162,25 @@ SVG_Proto.prototype.reduce_exprs = function(svg, obj) {
   return _.map(exprs, function(str) {
     if (str.substr(0, 1) === '{') {
       var expr = str.substr(1, str.length - 2);
-      var node = math.parse(expr, obj);
-      var transformed = node.transform(( function(n, path, parent) {
-        if (n.type === 'SymbolNode') {
-          if (_.has(obj, n.name)) {
-            return new math.expression.node.ConstantNode(obj[n.name]);
-          }
-          return n;
-        } else if(n.type === 'FunctionNode'){
-          var foo = this.reduce_exprs_func(n, obj);
-        } 
-        return n;
-      }).bind(this));
-      var r = transformed.toString().replace(/\s+/g, '');
-      try {
-        r = math.compile(transformed.toString()).eval({});
-      } catch (e) {
-        r = '{' + r + '}';
-      }
-      str = r;
+      str = minilisp.reduceExpr(expr, obj);
+      //   var transformed = node.transform(( function(n, path, parent) {
+      //     if (n.type === 'SymbolNode') {
+      //       if (_.has(obj, n.name)) {
+      //         return new math.expression.node.ConstantNode(obj[n.name]);
+      //       }
+      //       return n;
+      //     } else if(n.type === 'FunctionNode'){
+      //       var foo = this.reduce_exprs_func(n, obj);
+      //     } 
+      //     return n;
+      //   }).bind(this));
+      //   var r = transformed.toString().replace(/\s+/g, '');
+      //   try {
+      //     r = math.compile(transformed.toString()).eval({});
+      //   } catch (e) {
+      //     r = '{' + r + '}';
+      //   }
+      //   str = r;
     }
     return str;
   }, this).join('');
