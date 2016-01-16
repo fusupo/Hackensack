@@ -18,7 +18,6 @@ module.exports = function(grunt) {
       // },
       dist: {
         src: [
-          'lib/js-expression-eval/parser.js',
           'lib/bundle.js',
           'bloqsnet.js',
           'bloqs/base.js',
