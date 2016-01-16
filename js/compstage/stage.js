@@ -213,6 +213,8 @@ hacsac.Stage.prototype.addNode = function(id, type, x, y) {
       this.$el.css( 'cursor', 'default' );
       this.stage_def.onmousemove = undefined;
       this.stage_def.onmouseup = undefined;
+      var pos = n.getPos();
+      this.$el.trigger("mouseup:block:body", [id, pos.x, pos.y]);
     }).bind(this);
   }).bind(this));
 
@@ -294,9 +296,9 @@ hacsac.Stage.prototype.addNode = function(id, type, x, y) {
       }
       that.$el.trigger('try:terminal:connect', [id1, idx1, id2, idx2]);
     }
-});
+  });
 
-return n;
+  return n;
 };
 
 hacsac.Stage.prototype.removeNode = function(id) {

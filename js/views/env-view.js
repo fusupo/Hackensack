@@ -30,17 +30,21 @@ var app = app || {};
     update: function(id) {
       this.clear();
       if (id != undefined) {
-        var env = app.vm.get(id).getEnvironment();
-        //_.each(env, function(ctx, idx) {
-        var gr = $('<div></div>');
-        gr.addClass("env-vars env-vars-0"); // + idx);
-        _.each(env, function(v, k, l) {
-          var xxx = $("<div></div>").text(k + " : " + v);
-          xxx.addClass("env-var");
-          gr.append(xxx);
-        });
-        this.$el.append(gr);
-        //}, this);
+        var node = app.vm.get(id);
+        var first = true;
+        do{
+          var env = node.getEnvironment();
+          var gr = $('<div></div>');
+          gr.addClass(first ? "env-vars env-vars-0" : "env-vars env-vars"); // + idx);
+          first = false && first;
+          _.each(env, function(v, k, l) {
+            var xxx = $("<div></div>").text(k + " : " + v);
+            xxx.addClass("env-var");
+            gr.append(xxx);
+          });
+          this.$el.append(gr);
+          node = node.spec.parent;
+        }while(node!==undefined && node !== 'x');
       }
     },
 

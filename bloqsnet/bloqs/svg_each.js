@@ -18,6 +18,10 @@ SVG_each.prototype.render_svg = function() {
     if (child !== 'x') {
       var child_svg = child.render_svg();
       var l = this.findInParentEnvironment(this.spec.params.list.value);
+      var tenv = {};
+      tenv[this.spec.id + '_d'] = "*undetermined";
+      tenv[this.spec.id + '_idx'] = "*[0.."+(l.length - 1)+"]";
+      this.setLocalEnvironment(tenv);
       //this.spec.parent.getEnvironment();
       _.each(l, function(d, idx) {
         var obj = {};

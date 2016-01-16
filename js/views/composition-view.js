@@ -71,11 +71,18 @@ var app = app || {};
         this.setBlockSelection(id);
       }).bind(this));
 
-      stage.$el.on('mousedrag:block:body', function(e, id, x, y) {
+      stage.$el.on('mouseup:block:body', (function(e, id, x, y) {
         app.CompositionBloqs.updateMeta(id, {
           'x': x,
           'y': y
         });
+      }).bind(this));
+
+      stage.$el.on('mousedrag:block:body', function(e, id, x, y) {
+        // app.CompositionBloqs.updateMeta(id, {
+        //   'x': x,
+        //   'y': y
+        // });
       });
 
       stage.$el.on('mousedown:block:close', function(e, id) {
