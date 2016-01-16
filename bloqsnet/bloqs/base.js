@@ -121,21 +121,30 @@ var Base = function(spec) {
   };
 
   this.refreshEnvironment = function() {
-    if (spec.parent !== "x" && spec.parent !== undefined) {
-      spec.env = _.clone(spec.parent.getEnvironment());
-      _.each(spec.local_env, function(v, k, l) {
-        spec.env[k] = v;
-      });
-    } else {
-      spec.env = spec.local_env;
+    // if (spec.parent !== "x" && spec.parent !== undefined) {
+    //   // spec.env = _.clone(spec.parent.getEnvironment());
+    //   // _.each(spec.local_env, function(v, k, l) {
+    //   //   spec.env[k] = v;
+    //   // });
+    // } else {
+    spec.env = spec.local_env;
+    // }
+    // if (!_.isEmpty(spec.env)) {
+    //   _.each(spec.children, function(c) {
+    //     if (c !== "x") {
+    //       c.refreshEnvironment();
+    //     }
+    //   });
+    // }
+  };
+
+  this.findInParentEnvironment = function(key) {
+    if (_.has(this.spec.env, key)) {
+      return this.spec.env[key];
+    } else if (this.spec.parent !== undefined && this.spec.parent !== 'x') {
+      return this.spec.parent.findInParentEnvironment(key);
     }
-    if (!_.isEmpty(spec.env)) {
-      _.each(spec.children, function(c) {
-        if (c !== "x") {
-          c.refreshEnvironment();
-        }
-      });
-    }
+    return undefined;
   };
 
   this.sully_env_down = function() {
@@ -179,15 +188,15 @@ Base.prototype.updateParam = function(p_name, val) {
   });
   success = this.spec.params[p_name].update(val, this.spec.env);
   if (success) {
-    this.sully_env_down();
-    this.updateLocalEnvironment();
+    //this.sully_env_down();
+    //this.updateLocalEnvironment();
   } else {
     console.log("didnt update param: " + p_name + ", type: " + p.type + ", val: " + val);
   }
   return success;
 };
 
-Base.prototype.setParam = function(p_name, val){
+Base.prototype.setParam = function(p_name, val) {
   this.spec.params[p_name].set(val);
 };
 

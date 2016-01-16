@@ -154,7 +154,8 @@
 	        value: token
 	      });
 	    } else if (constants.isALetter(token)) {
-	      while (constants.isALetter(tokenStream.nextToken())) {
+	      while (constants.isALetter(tokenStream.nextToken()) ||
+	             constants.isANumber(tokenStream.nextToken())) {
 	        tokenStream.advance();
 	        token += tokenStream.currentToken();
 	      }
@@ -215,6 +216,10 @@
 	  return this.text[this.index + 1];
 	};
 
+	TokenStream.prototype.prevToken = function() {
+	  return this.text[this.index - 1];
+	};
+
 
 /***/ },
 /* 2 */
@@ -232,7 +237,7 @@
 	  times: '*',
 	  divide: '/',
 	  quote: '"',
-	  isALetter: _.partial(_.contains, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+	  isALetter: _.partial(_.contains, '_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
 	  isANumber: _.partial(_.contains, '0123456789'),
 	  isAToken: _.partial(_.contains, '[]()*+-/'),
 	  functionMap: {
@@ -240,9 +245,9 @@
 	    '-': 'subtract',
 	    '*': 'multiply',
 	    '/': 'divide',
-	    'print': 'print',
-	    'ct': 'ct',
-	    'gt': 'gt'
+	    print: 'print',
+	    ct: 'ct',
+	    gt: 'gt'
 	  },
 	  coreFunctions: ['print', 'defn', 'ct', 'gt']
 	};
@@ -2797,21 +2802,30 @@ var Base = function(spec) {
   };
 
   this.refreshEnvironment = function() {
-    if (spec.parent !== "x" && spec.parent !== undefined) {
-      spec.env = _.clone(spec.parent.getEnvironment());
-      _.each(spec.local_env, function(v, k, l) {
-        spec.env[k] = v;
-      });
-    } else {
-      spec.env = spec.local_env;
+    // if (spec.parent !== "x" && spec.parent !== undefined) {
+    //   // spec.env = _.clone(spec.parent.getEnvironment());
+    //   // _.each(spec.local_env, function(v, k, l) {
+    //   //   spec.env[k] = v;
+    //   // });
+    // } else {
+    spec.env = spec.local_env;
+    // }
+    // if (!_.isEmpty(spec.env)) {
+    //   _.each(spec.children, function(c) {
+    //     if (c !== "x") {
+    //       c.refreshEnvironment();
+    //     }
+    //   });
+    // }
+  };
+
+  this.findInParentEnvironment = function(key) {
+    if (_.has(this.spec.env, key)) {
+      return this.spec.env[key];
+    } else if (this.spec.parent !== undefined && this.spec.parent !== 'x') {
+      return this.spec.parent.findInParentEnvironment(key);
     }
-    if (!_.isEmpty(spec.env)) {
-      _.each(spec.children, function(c) {
-        if (c !== "x") {
-          c.refreshEnvironment();
-        }
-      });
-    }
+    return undefined;
   };
 
   this.sully_env_down = function() {
@@ -2855,15 +2869,15 @@ Base.prototype.updateParam = function(p_name, val) {
   });
   success = this.spec.params[p_name].update(val, this.spec.env);
   if (success) {
-    this.sully_env_down();
-    this.updateLocalEnvironment();
+    //this.sully_env_down();
+    //this.updateLocalEnvironment();
   } else {
     console.log("didnt update param: " + p_name + ", type: " + p.type + ", val: " + val);
   }
   return success;
 };
 
-Base.prototype.setParam = function(p_name, val){
+Base.prototype.setParam = function(p_name, val) {
   this.spec.params[p_name].set(val);
 };
 
@@ -3091,6 +3105,10 @@ SVG_Proto.prototype.reduce_exprs = function(svg, obj) {
     if (str.substr(0, 1) === '{') {
       var expr = str.substr(1, str.length - 2);
       str = minilisp.reduceExpr(expr, obj);
+      if (isNaN(parseFloat(str)) && str[0] === '(' && str[str.length - 1] === ')') {
+        str = '{' + str + '}';
+      }
+      console.log('foo');
       //   var transformed = node.transform(( function(n, path, parent) {
       //     if (n.type === 'SymbolNode') {
       //       if (_.has(obj, n.name)) {
@@ -3114,11 +3132,11 @@ SVG_Proto.prototype.reduce_exprs = function(svg, obj) {
   }, this).join('');
 };
 
-SVG_Proto.prototype.reduce_exprs_func = function(fn_expr, obj){
+SVG_Proto.prototype.reduce_exprs_func = function(fn_expr, obj) {
   console.log(fn_expr);
   var resolved = true;
-  _.each(fn_expr.args, function(arg){
-    switch(arg.type){
+  _.each(fn_expr.args, function(arg) {
+    switch (arg.type) {
     case 'SymbolNode':
       // solve for symbol somehow
       break;
@@ -3390,37 +3408,72 @@ bloqsnet.REGISTRY["svg_rect"] = SVG_rect;
 // //                                                                  SVG_TEXT  //
 // ////////////////////////////////////////////////////////////////////////////////
 var SVG_text = function(spec) {
-    spec.type = "svg_text";
-    SVG_Proto.call(this, spec);
+  spec.type = "svg_text";
+  SVG_Proto.call(this, spec);
 };
 SVG_text.prototype = Object.create(SVG_Proto.prototype);
 SVG_text.prototype.constructor = SVG_text;
-SVG_text.prototype.get_svg = function() {
-    // TODO: Try an factor this out, as has been done with other svg elements
-    var solution = this.solveParams();
-    var elm = document.createElementNS(bloqsnet.svgNS, this.def.svg_elem);
-    this.setAttributes(elm, solution);
-    elm.textContent = solution.text;
-    return elm;
+// SVG_text.prototype.get_svg = function() {
+//   // TODO: Try an factor this out, as has been done with other svg elements
+//   var solution = this.solveParams();
+//   var elm = document.createElementNS(bloqsnet.svgNS, this.def.svg_elem);
+//   this.setAttributes(elm, solution);
+//   elm.textContent = solution.text;
+//   return elm;
+// };
+SVG_text.prototype.render_svg = function() {
+  console.log('RENDER SVG TEXT, FOOL');
+  console.log('RENDER SVG : ' + this.spec.type + '-' + this.spec.id);
+  this.cached_svg_str = this.get_svg_str();
+  if (this.spec.children != undefined && this.spec.children.length > 0) {
+    for (var i = 0; i < this.spec.children.length; i++) {
+      var child = this.spec.children[i];
+      if (child !== 'x') {
+        this.spec.children[i].render_svg();
+        var insertIdx = this.cached_svg_str.indexOf('>');
+        this.cached_svg_str = this.cached_svg_str.substr(0, insertIdx + 1) +
+          this.spec.children[i].cached_svg_str +
+          this.cached_svg_str.substr(insertIdx + 1);
+      }
+    }
+  }
+  return this.cached_svg_str;
 };
+
+SVG_text.prototype.get_svg_str = function() {
+  console.log('GET SVG TEXT STR, FOOL');
+  // var solution = this.solveParams();
+  // console.log(solution);
+  var params_def = bloqsnet.REGISTRY[this.spec.type].prototype.def.params;
+  var solution2 = _.reduce(params_def, function(m, p_def) {
+    m[p_def.name] = this.spec.params[p_def.name].value;
+    return m;
+  }, {}, this);
+  console.log(solution2);
+  var elmStr = '<' + this.def.svg_elem + '>'+solution2.text+'</' + this.def.svg_elem + '>';
+  elmStr = this.setAttributesStr(elmStr, solution2);
+  return elmStr;
+};
+
 SVG_text.prototype.def = {
-    display: true,
-    type: 'svg_text',
-    svg_elem: 'text',
-    categories: ['Graphics Elements',
-                 'Text Content Elements'],
-    params: [
-        paramObj(["text", "string", "\"default\"", "specific attributes", false]),
-        paramObj(["x", "percpx", "10px", "specific attributes", true]),
-        paramObj(["y", "percpx", "10px", "specific attributes", true]),
-        paramObj(["fill", "color", "#ffffff", "specific attributes", true]),
-        paramObj(["opacity", "number", "1", "specific attributes", true])
-    ].concat(
-        svg_conditional_processing_attributes,
-        svg_core_attributes
-    ),
-    p: [1, 1],
-    c: [1, "n"]
+  display: true,
+  type: 'svg_text',
+  svg_elem: 'text',
+  categories: ['Graphics Elements',
+               'Text Content Elements'
+              ],
+  params: [
+    paramObj(["text", "string", "\"default\"", "specific attributes", false]),
+    paramObj(["x", "percpx", "10px", "specific attributes", true]),
+    paramObj(["y", "percpx", "10px", "specific attributes", true]),
+    paramObj(["fill", "color", "#ffffff", "specific attributes", true]),
+    paramObj(["opacity", "number", "1", "specific attributes", true])
+  ].concat(
+    svg_conditional_processing_attributes,
+    svg_core_attributes
+  ),
+  p: [1, 1],
+  c: [1, "n"]
 };
 bloqsnet.REGISTRY["svg_text"] = SVG_text;
 
@@ -3478,6 +3531,7 @@ Root.prototype = Object.create(SVG_Proto.prototype); // See note below
 Root.prototype.constructor = Root;
 
 Root.prototype.render_svg = function() {
+  this.updateLocalEnvironment();
   if (this.cached_svg === undefined) {
     this.cached_svg_str = this.get_svg_str();
     // if (this.spec.children.length > 0) {
@@ -3530,21 +3584,23 @@ SVG_each.prototype = Object.create(SVG_Proto.prototype);
 SVG_each.prototype.constructor = SVG_each;
 
 SVG_each.prototype.render_svg = function() {
+  console.log('RENDER_EACH');
   //if (this.cached_svg === undefined) {
   this.cached_svg_str = this.get_svg_str();
   if (this.spec.children.length > 0) {
     var child = this.spec.children[0];
     if (child !== 'x') {
       var child_svg = child.render_svg();
-      var l = this.env_val(this.spec.params.list.value);
+      var l = this.findInParentEnvironment(this.spec.params.list.value);
+      //this.spec.parent.getEnvironment();
       _.each(l, function(d, idx) {
         var obj = {};
         obj[this.spec.id + '_d'] = d;
         obj[this.spec.id + '_idx'] = idx;
-        var insertIdx = this.cached_svg_str.indexOf('>');
-        this.cached_svg_str = this.cached_svg_str.substr(0, insertIdx + 1) +
+        var insertidx = this.cached_svg_str.indexOf('>');
+        this.cached_svg_str = this.cached_svg_str.substr(0, insertidx + 1) +
           this.reduce_exprs(child_svg, obj) +
-          this.cached_svg_str.substr(insertIdx + 1);
+          this.cached_svg_str.substr(insertidx + 1);
       }, this);
     }
   }

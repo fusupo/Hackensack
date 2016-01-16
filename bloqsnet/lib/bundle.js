@@ -154,7 +154,8 @@
 	        value: token
 	      });
 	    } else if (constants.isALetter(token)) {
-	      while (constants.isALetter(tokenStream.nextToken())) {
+	      while (constants.isALetter(tokenStream.nextToken()) ||
+	             constants.isANumber(tokenStream.nextToken())) {
 	        tokenStream.advance();
 	        token += tokenStream.currentToken();
 	      }
@@ -215,6 +216,10 @@
 	  return this.text[this.index + 1];
 	};
 
+	TokenStream.prototype.prevToken = function() {
+	  return this.text[this.index - 1];
+	};
+
 
 /***/ },
 /* 2 */
@@ -232,7 +237,7 @@
 	  times: '*',
 	  divide: '/',
 	  quote: '"',
-	  isALetter: _.partial(_.contains, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+	  isALetter: _.partial(_.contains, '_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
 	  isANumber: _.partial(_.contains, '0123456789'),
 	  isAToken: _.partial(_.contains, '[]()*+-/'),
 	  functionMap: {
@@ -240,9 +245,9 @@
 	    '-': 'subtract',
 	    '*': 'multiply',
 	    '/': 'divide',
-	    'print': 'print',
-	    'ct': 'ct',
-	    'gt': 'gt'
+	    print: 'print',
+	    ct: 'ct',
+	    gt: 'gt'
 	  },
 	  coreFunctions: ['print', 'defn', 'ct', 'gt']
 	};

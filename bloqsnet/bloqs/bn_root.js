@@ -10,6 +10,7 @@ Root.prototype = Object.create(SVG_Proto.prototype); // See note below
 Root.prototype.constructor = Root;
 
 Root.prototype.render_svg = function() {
+  this.updateLocalEnvironment();
   if (this.cached_svg === undefined) {
     this.cached_svg_str = this.get_svg_str();
     // if (this.spec.children.length > 0) {

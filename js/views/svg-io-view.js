@@ -10,6 +10,9 @@ var app = app || {};
     el: '#svg-io',
 
     initialize: function() {
+      this.$('#svg-io-refresh').on('click', (function(){
+        this.refresh();
+      }).bind(this));
       //this.listenTo(app.CompositionBloqs, 'change:param', this.bloqChange);
       this.listenTo(app.CompositionBloqs, 'change:svg', this.svgChange);
       this.listenTo(app.CompositionBloqs, 'change:connected', this.svgChange);
@@ -24,7 +27,7 @@ var app = app || {};
         matchBrackets: true,
         //tabMode: "indent",
         mode: "text/html",
-        lineWrapping: false
+        lineWrapping: true
       });
       var that = this;
       this.textarea.on('change', function(inst, obj) {
@@ -61,12 +64,17 @@ var app = app || {};
     draw: function() {
       var rendered = app.CompositionBloqs.get_svg(this.currId);
       if (rendered !== undefined) {
+        this.textarea.setOption('lineWrapping', true);
         this.textarea.setValue(rendered);
         setTimeout((function() {
-          this.textarea.refresh();
-          this.autoFormat();
         }).bind(this), 1);
       }
+    },
+
+    refresh: function(){
+      this.textarea.setOption('lineWrapping', false);
+      this.textarea.refresh();
+      this.autoFormat();
     },
 
     autoFormat: function() {

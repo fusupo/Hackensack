@@ -10,21 +10,23 @@ SVG_each.prototype = Object.create(SVG_Proto.prototype);
 SVG_each.prototype.constructor = SVG_each;
 
 SVG_each.prototype.render_svg = function() {
+  console.log('RENDER_EACH');
   //if (this.cached_svg === undefined) {
   this.cached_svg_str = this.get_svg_str();
   if (this.spec.children.length > 0) {
     var child = this.spec.children[0];
     if (child !== 'x') {
       var child_svg = child.render_svg();
-      var l = this.env_val(this.spec.params.list.value);
+      var l = this.findInParentEnvironment(this.spec.params.list.value);
+      //this.spec.parent.getEnvironment();
       _.each(l, function(d, idx) {
         var obj = {};
         obj[this.spec.id + '_d'] = d;
         obj[this.spec.id + '_idx'] = idx;
-        var insertIdx = this.cached_svg_str.indexOf('>');
-        this.cached_svg_str = this.cached_svg_str.substr(0, insertIdx + 1) +
+        var insertidx = this.cached_svg_str.indexOf('>');
+        this.cached_svg_str = this.cached_svg_str.substr(0, insertidx + 1) +
           this.reduce_exprs(child_svg, obj) +
-          this.cached_svg_str.substr(insertIdx + 1);
+          this.cached_svg_str.substr(insertidx + 1);
       }, this);
     }
   }

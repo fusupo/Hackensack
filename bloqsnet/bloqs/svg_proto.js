@@ -163,6 +163,10 @@ SVG_Proto.prototype.reduce_exprs = function(svg, obj) {
     if (str.substr(0, 1) === '{') {
       var expr = str.substr(1, str.length - 2);
       str = minilisp.reduceExpr(expr, obj);
+      if (isNaN(parseFloat(str)) && str[0] === '(' && str[str.length - 1] === ')') {
+        str = '{' + str + '}';
+      }
+      console.log('foo');
       //   var transformed = node.transform(( function(n, path, parent) {
       //     if (n.type === 'SymbolNode') {
       //       if (_.has(obj, n.name)) {
@@ -186,11 +190,11 @@ SVG_Proto.prototype.reduce_exprs = function(svg, obj) {
   }, this).join('');
 };
 
-SVG_Proto.prototype.reduce_exprs_func = function(fn_expr, obj){
+SVG_Proto.prototype.reduce_exprs_func = function(fn_expr, obj) {
   console.log(fn_expr);
   var resolved = true;
-  _.each(fn_expr.args, function(arg){
-    switch(arg.type){
+  _.each(fn_expr.args, function(arg) {
+    switch (arg.type) {
     case 'SymbolNode':
       // solve for symbol somehow
       break;
