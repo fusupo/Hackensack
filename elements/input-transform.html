@@ -9,11 +9,16 @@
                     <label>translate</label>
                 </div>
                 <div flex three>
-                    <label>x</label>
-                    <input id="transX" size=3 value="{{m.x}}" on-input="{{updateVal}}">
-                    <label>y</label>
-                    <input id="transY" size=3 value="{{m.y}}" on-input="{{updateVal}}">
-
+                    <div horizontal layout>
+                        <input id="transX" size=23 value="{{m.x}}" on-input="{{updateVal}}">
+                        <label>x</label>
+                    </div>
+                    <div horizontal layout>
+                        <input id="transY" size=23 value="{{m.y}}" on-input="{{updateVal}}">
+                        <label>y</label>
+                    </div>
+                </div>
+                <div flex two>
                     <button on-click="{{swapUp}}">⬆</button>
                     <button on-click="{{swapDown}}">⬇</button>
                     <button on-click="{{remVal}}">-</button>
@@ -27,11 +32,16 @@
                     <label>scale</label>
                 </div>
                 <div flex three>
-                    <label>x</label>
-                    <input id="scaleX" size=3 value="{{m.x}}" on-input="{{updateVal}}">
-                    <label>y</label>
-                    <input id="scaleY" size=3 value="{{m.y}}" on-input="{{updateVal}}">
-
+                    <div horizontal layout>
+                        <input id="scaleX" size=23 value="{{m.x}}" on-input="{{updateVal}}">
+                        <label>x</label>
+                    </div>
+                    <div horizontal layout>
+                        <input id="scaleY" size=23 value="{{m.y}}" on-input="{{updateVal}}">
+                        <label>y</label>
+                    </div>
+                </div>
+                <div flex two>
                     <button on-click="{{swapUp}}">⬆</button>
                     <button on-click="{{swapDown}}">⬇</button>
                     <button on-click="{{remVal}}">-</button>
@@ -45,13 +55,20 @@
                     <label>rotate</label>
                 </div>
                 <div flex three>
-                    <label>a</label>
-                    <input id="rotA" size=3 value="{{m.r}}" on-input="{{updateVal}}">
-                    <label>x</label>
-                    <input id="rotX" size=3 value="{{m.x}}" on-input="{{updateVal}}">
-                    <label>y</label>
-                    <input id="rotY" size=3 value="{{m.y}}" on-input="{{updateVal}}">
-
+                    <div horizontal layout>
+                        <input id="rotA" size=23 value="{{m.r}}" on-input="{{updateVal}}">
+                        <label>a</label>
+                    </div>
+                    <div horizontal layout>
+                        <input id="rotX" size=23 value="{{m.x}}" on-input="{{updateVal}}">
+                        <label>x</label>
+                    </div>
+                    <div horizontal layout>
+                        <input id="rotY" size=23 value="{{m.y}}" on-input="{{updateVal}}">
+                        <label>y</label>
+                    </div>
+                </div>
+                <div flex two>
                     <button on-click="{{swapUp}}">⬆</button>
                     <button on-click="{{swapDown}}">⬇</button>
                     <button on-click="{{remVal}}">-</button>
@@ -64,10 +81,13 @@
                 <div flex one>
                     <label>skew</label>
                 </div>
-                <div flex three>
-                    <label>x</label>
-                    <input id="skewX" size=3 value="{{m.x}}" on-input="{{updateVal}}">
-
+                <div horizontal layout>
+                    <div flex three>
+                        <input id="skewX" size=23 value="{{m.x}}" on-input="{{updateVal}}">
+                        <label>x</label>
+                    </div>
+                </div>
+                <div flex two>
                     <button on-click="{{swapUp}}">⬆</button>
                     <button on-click="{{swapDown}}">⬇</button>
                     <button on-click="{{remVal}}">-</button>
@@ -80,10 +100,13 @@
                 <div flex one>
                     <label>skew</label>
                 </div>
-                <div flex three>
-                    <label>y</label>
-                    <input id="skewY" size=3 value="{{m.y}}" on-input="{{updateVal}}">
-
+                <div horizontal layout>
+                    <div flex three>
+                        <input id="skewY" size=23 value="{{m.y}}" on-input="{{updateVal}}">
+                        <label>y</label>
+                    </div>
+                </div>
+                <div flex two>
                     <button on-click="{{swapUp}}">⬆</button>
                     <button on-click="{{swapDown}}">⬇</button>
                     <button on-click="{{remVal}}">-</button>

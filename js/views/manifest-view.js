@@ -49,8 +49,8 @@ var app = app || {};
         li.data('type', d.type)
           .draggable({
             scroll: false,
-            revert: true
-            //  helper: "clone"
+              //revert: true,
+            helper: "clone"
           });
         that.$el.append(li);
       });

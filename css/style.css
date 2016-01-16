@@ -39,8 +39,20 @@ body {
 
 #manifest {
     flex-basis: 150px;
-    background-color: #2f4f4f;
+    background-color: #333333;
+    padding:10px;
+    overflow-y: scroll;
 }
+
+#manifest .ui-draggable{
+    width: 100px;
+    height: 40px;
+    background-color: #A3B2C1;
+    margin-bottom: 10px;
+    border-bottom: 2px solid rgba(67, 82, 97, 0.5);
+    border-right: 1px solid rgba(67, 82, 97, 0.5);
+}
+
 #composition {
     flex: 1;
     background-color: #708090;
