@@ -270,7 +270,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
       _.each(data, function(d) {
         _.each(d.c, function(c, idx) {
           if (c !== "x") {
-            this.con([c, "p", 0], [d.id, "c", idx], false); //c, idx, d.id);
+            this.con([c, "p", 0], [d.id, "c", idx], false);
           }
         }, this);
       }, this);

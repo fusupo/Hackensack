@@ -17,6 +17,7 @@ var app = app || {};
       this.listenTo(app.CompositionBloqs, 'change:svg', this.svgChange);
       this.listenTo(app.CompositionBloqs, 'change:connected', this.svgChange);
       this.listenTo(app.CompositionBloqs, 'change:disconnected', this.svgChange);
+      this.listenTo(app.CompositionBloqs, 'reloaded', this.svgChange);
       // this.listenTo(app.CompositionView, 'bloqSelection', this.bloqSelection);
       this.currId = undefined;
     },

@@ -18,6 +18,7 @@ var app = app || {};
       this.listenTo(compositionBloqs, 'remove', this.removeBloq);
       this.listenTo(compositionBloqs, 'change:connected', this.addConnection);
       this.listenTo(compositionBloqs, 'change:disconnected', this.removeConnection);
+      this.listenTo(compositionBloqs, 'reloaded', this.onReloaded);
 
       this.listenTo(compositionBloqs, 'change:terminals', (function(m, v, o) {
         this.stage.resetNodeTerms(m.toJSON()['id']);
@@ -104,6 +105,20 @@ var app = app || {};
 
     resetComposition: function() {
       this.stage.reset();
+    },
+
+    onReloaded: function(rootNode){
+      var addNodes = (function(node){
+        this.addBloq(node);
+        var kids = node.getChildNodes();
+        _.each(kids, function(kid, idx){
+          if(kid !== 'x'){
+            addNodes(kid);
+            this.addConnection([[kid.get_id(), 'p', 0],[node.get_id(), 'c', idx]]);
+          }
+        }, this);
+      }).bind(this);
+      addNodes(rootNode);
     },
 
     setBlockSelection: function(id) {

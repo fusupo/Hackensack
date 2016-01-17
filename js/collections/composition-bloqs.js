@@ -14,51 +14,56 @@ var app = app || {};
     // Reference to this collection's model.
     model: app.BloqsnetModel,
 
+    surpressEvents: false,
+
     initialize: function() {
       var that = this;
       app.vm = bloqsnet.gimmeTheThing({
-        "add": function(bloq) {
-          that.trigger("add", bloq);
-        },
-        "remove": function(m) {
-          that.trigger("remove", m);
-        },
-        "reset": function(root) {
-          that.trigger("reset", root);
-        },
-        "change:terminals": function(m, v, o) {
-          that.trigger("change:terminals", m);
-        },
+        "add": (function(bloq) {
+          if(!this.surpressEvents) this.trigger("add", bloq);
+        }).bind(this),
+        "remove": (function(m) {
+          if(!this.surpressEvents) this.trigger("remove", m);
+        }).bind(this),
+        "reset": (function(root) {
+          if(!this.surpressEvents) this.trigger("reset", root);
+        }).bind(this),
+        "change:terminals": (function(m, v, o) {
+          if(!this.surpressEvents) this.trigger("change:terminals", m);
+        }).bind(this),
         // "term:add": function(m) {
         //     that.trigger("term:add", m);
         // },
         // "term:rem": function(m) {
         //     that.trigger("term:rem", m);
         // },
-        "change:connected": function(m, v, o) {
-          that.trigger("change:connected", m);
-        },
-        "change:disconnected": function(m, v, o) {
-          that.trigger("change:disconnected", m);
-        },
+        "change:connected": (function(m, v, o) {
+          if(!this.surpressEvents) this.trigger("change:connected", m);
+        }).bind(this),
+        "change:disconnected": (function(m, v, o) {
+          if(!this.surpressEvents) this.trigger("change:disconnected", m);
+        }).bind(this),
         //"change:[attribute]" (model, value, options) — when a specific attribute has been updated.
         //"invalid" (model, error, options) — when a model's validation fails on the client.
-        "change:svg": function(m, v, o) {
-          that.trigger("change:svg", m);
-        },
-        "change:meta": function(m, v, o){
-          that.trigger("change:meta", m);
-        }
+        "change:svg": (function(m, v, o) {
+          if(!this.surpressEvents) this.trigger("change:svg", m);
+        }).bind(this),
+        "change:meta": (function(m, v, o){
+          if(!this.surpressEvents) this.trigger("change:meta", m);
+        }).bind(this)
       });
     },
 
     reload: function(data) {
+      this.surpressEvents = true;
       this.reset();
       //assuming there is a root
       var r = _.findWhere(data, {
         type: 'root'
       });
       app.vm.crt(data, r.id);
+      this.surpressEvents = false;
+      this.trigger('reloaded', this.getBloq(this.getRootId()));
     },
 
     reset: function(){
