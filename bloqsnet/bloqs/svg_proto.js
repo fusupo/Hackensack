@@ -113,12 +113,10 @@ SVG_Proto.prototype = Object.create(Base.prototype);
 SVG_Proto.prototype.constructor = SVG_Proto;
 
 SVG_Proto.prototype.render_svg = function() {
-  console.log('RENDER SVG, FOOL');
   //if (this.cached_svg === undefined) {
-  console.log('RENDER SVG : ' + this.spec.type + '-' + this.spec.id);
   this.cached_svg_str = this.get_svg_str();
   if (this.spec.children != undefined && this.spec.children.length > 0) {
-    for (var i = 0; i < this.spec.children.length; i++) {
+    for (var i = this.spec.children.length - 1; i >= 0; i--) {
       var child = this.spec.children[i];
       if (child !== 'x') {
         this.spec.children[i].render_svg();
@@ -134,15 +132,11 @@ SVG_Proto.prototype.render_svg = function() {
 };
 
 SVG_Proto.prototype.get_svg_str = function() {
-  console.log('GET SVG STR, FOOL');
-  // var solution = this.solveParams();
-  // console.log(solution);
   var params_def = bloqsnet.REGISTRY[this.spec.type].prototype.def.params;
   var solution2 = _.reduce(params_def, function(m, p_def) {
     m[p_def.name] = this.spec.params[p_def.name].value;
     return m;
   }, {}, this);
-  console.log(solution2);
   var elmStr = '<' + this.def.svg_elem + '></' + this.def.svg_elem + '>';
   elmStr = this.setAttributesStr(elmStr, solution2);
   return elmStr;
@@ -166,47 +160,28 @@ SVG_Proto.prototype.reduce_exprs = function(svg, obj) {
       if (isNaN(parseFloat(str)) && str[0] === '(' && str[str.length - 1] === ')') {
         str = '{' + str + '}';
       }
-      console.log('foo');
-      //   var transformed = node.transform(( function(n, path, parent) {
-      //     if (n.type === 'SymbolNode') {
-      //       if (_.has(obj, n.name)) {
-      //         return new math.expression.node.ConstantNode(obj[n.name]);
-      //       }
-      //       return n;
-      //     } else if(n.type === 'FunctionNode'){
-      //       var foo = this.reduce_exprs_func(n, obj);
-      //     } 
-      //     return n;
-      //   }).bind(this));
-      //   var r = transformed.toString().replace(/\s+/g, '');
-      //   try {
-      //     r = math.compile(transformed.toString()).eval({});
-      //   } catch (e) {
-      //     r = '{' + r + '}';
-      //   }
-      //   str = r;
     }
     return str;
   }, this).join('');
 };
 
-SVG_Proto.prototype.reduce_exprs_func = function(fn_expr, obj) {
-  console.log(fn_expr);
-  var resolved = true;
-  _.each(fn_expr.args, function(arg) {
-    switch (arg.type) {
-    case 'SymbolNode':
-      // solve for symbol somehow
-      break;
-    default:
-      resolved = false;
-      break;
-    };
-  });
-  var r = math.compile(fn_expr.toString()).eval(obj);
-  console.log(r);
-  return 'foo';
-};
+// SVG_Proto.prototype.reduce_exprs_func = function(fn_expr, obj) {
+//   console.log(fn_expr);
+//   var resolved = true;
+//   _.each(fn_expr.args, function(arg) {
+//     switch (arg.type) {
+//     case 'SymbolNode':
+//       // solve for symbol somehow
+//       break;
+//     default:
+//       resolved = false;
+//       break;
+//     };
+//   });
+//   var r = math.compile(fn_expr.toString()).eval(obj);
+//   console.log(r);
+//   return 'foo';
+// };
 
 SVG_Proto.prototype.def = {
   display: false,

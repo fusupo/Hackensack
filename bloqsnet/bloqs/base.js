@@ -36,15 +36,6 @@ var Base = function(spec) {
     }, {}, this);
   };
 
-  this.env_val = function(var_name, env) {
-    return spec.env[var_name];
-  };
-
-  this.solveParams = function() {
-    this.check_env();
-    return spec.solution;
-  };
-
   this.updateMeta = function(p_name, val) {
     spec.meta[p_name] = val;
     return true;
@@ -60,13 +51,13 @@ var Base = function(spec) {
     return spec.children;
   };
 
-  this.addChild = function(child) {
-    spec.children.unshift(child);
-  };
+  // this.addChild = function(child) {
+  //   spec.children.unshift(child);
+  // };
 
-  this.addChildAt = function(child, idx) {
-    spec.children.splice(idx, 0, child);
-  };
+  // this.addChildAt = function(child, idx) {
+  //   spec.children.splice(idx, 0, child);
+  // };
 
   this.getChildIdx = function(id) {
     var r = -1,
@@ -99,43 +90,13 @@ var Base = function(spec) {
     return !_.isEqual(spec.children, before);
   };
 
-  this.check_env = function() {
-    var params_def,
-        raw_val,
-        success;
-    if (spec.env_dirty) {
-      params_def = bloqsnet.REGISTRY[spec.type].prototype.def.params;
-      spec.solution = _.reduce(params_def, function(m, p_def) {
-        raw_val = spec.params[p_def.name].value;
-        success = spec.params[p_def.name].update(raw_val, spec.env);
-        m[p_def.name] = spec.params[p_def.name].solved;
-        return m;
-      }, {}, this);
-    }
-    spec.env_dirty = false;
-  };
-
   this.setLocalEnvironment = function(data) {
     spec.local_env = data;
     this.refreshEnvironment();
   };
 
   this.refreshEnvironment = function() {
-    // if (spec.parent !== "x" && spec.parent !== undefined) {
-    //   // spec.env = _.clone(spec.parent.getEnvironment());
-    //   // _.each(spec.local_env, function(v, k, l) {
-    //   //   spec.env[k] = v;
-    //   // });
-    // } else {
     spec.env = spec.local_env;
-    // }
-    // if (!_.isEmpty(spec.env)) {
-    //   _.each(spec.children, function(c) {
-    //     if (c !== "x") {
-    //       c.refreshEnvironment();
-    //     }
-    //   });
-    // }
   };
 
   this.findInParentEnvironment = function(key) {
@@ -145,15 +106,6 @@ var Base = function(spec) {
       return this.spec.parent.findInParentEnvironment(key);
     }
     return undefined;
-  };
-
-  this.sully_env_down = function() {
-    this.spec.env_dirty = true;
-    _.each(this.spec.children, function(c) {
-      if (c !== "x") {
-        c.sully_env_down();
-      }
-    });
   };
 
   this.getEnvironment = function() {
@@ -207,10 +159,10 @@ Base.prototype.updateLocalEnvironment = function() {
 Base.prototype.toJSON = function() {
   return _.reduce(this.spec, function(m, s, k) {
     switch (k) {
-    case "parent":
+    case 'parent':
       if (s !== undefined) {
-        if (s === "x") {
-          m.p = ["x"];
+        if (s === 'x') {
+          m.p = ['x'];
         } else {
           m.p = [s.get_id()];
         }
@@ -218,11 +170,11 @@ Base.prototype.toJSON = function() {
         m.p = [];
       }
       break;
-    case "children":
+    case 'children':
       if (s !== undefined) {
         m.c = _.map(s, function(c) {
-          if (c === "x") {
-            return "x";
+          if (c === 'x') {
+            return 'x';
           } else {
             return c.get_id();
           }
@@ -231,12 +183,12 @@ Base.prototype.toJSON = function() {
         m.c = [];
       }
       break;
-    case "id":
-    case "type":
-    case "meta":
+    case 'id':
+    case 'type':
+    case 'meta':
       m[k] = s;
       break;
-    case "params":
+    case 'params':
       m[k] = _.reduce(s, function(mem, val, key) {
         if (val.value !== undefined) {
           mem[key] = val.toJSON();
@@ -253,7 +205,7 @@ Base.prototype.toJSON = function() {
 
 Base.prototype.def = {
   display: false,
-  type: "base",
+  type: 'base',
   params: {}
 };
 

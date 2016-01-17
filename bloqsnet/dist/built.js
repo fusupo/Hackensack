@@ -2166,53 +2166,12 @@ var BaseParam = function(spec, initVal) {
   this.spec = spec;
   this.solved = undefined;
   this.value = initVal !== undefined ? initVal : spec.defaultVal; // || undefined;
-  this.solve_expr = function(expr, env) {
-    var start,
-        node,
-        filtered,
-        res,
-        keys,
-        haveValsForVars,
-        diff;
-    start = (new Date()).getTime();
-    res = minilisp.reduceExpr(expr);
-    // node = math.parse(expr);
-    // console.log(node);
-    // filtered = node.filter(function(no) {
-    //   console.log(no.type);
-    //   return no.type == 'SymbolNode' || no.type == 'FunctionNode';
-    // });
-    // res = expr;
-    // if (filtered.length > 0) {
-    //   keys = _.keys(env);
-    //   haveValsForVars = _.every(filtered, function(i) {
-    //     return _.contains(keys, i.name);
-    //   });
-    //   // if (haveValsForVars) {
-    //   try {
-    //     res = math.eval(expr, env);
-    //   } catch (err) {
-    //     res = undefined;
-    //   }
-    //   //}
-    // }
-    //problem here is that sometimes we want a result thats NaN as in Array
-    // but we don't want results that are NaN as a result of failed solution
-    // how to tell the difference?
-    //res = isNaN(res) ? undefined : res;
-    diff = (new Date()).getTime() - start;
-    return typeof res === "string" ? res.replace(/['"]+/g, '') : res;
-    //return expr;
-  };
 };
 BaseParam.prototype.toJSON = function() {
   return this.value;
 };
 BaseParam.prototype.toString = function() {
   return "";
-};
-BaseParam.prototype.update = function(val, env) {
-  return this.solve_expr(val, env);
 };
 BaseParam.prototype.set = function(val) {
   // return this.solve_expr(val, env);
@@ -2225,20 +2184,6 @@ var number_param = function(spec, initVal) {
 };
 number_param.prototype = Object.create(BaseParam.prototype);
 number_param.prototype.constructor = number_param;
-number_param.prototype.update = function(val, env) {
-  var success = false;
-  this.solved = undefined;
-  if (isNaN(val)) {
-    this.solved = this.solve_expr(val, env);
-  } else {
-    this.solved = val;
-  }
-  if (this.solved !== undefined) {
-    this.value = val;
-    success = true;
-  }
-  return success;
-};
 bloqsnet.PARA_REGISTRY.number = number_param;
 
 //////// PERCPX
@@ -2248,20 +2193,6 @@ var percpx_param = function(spec, initVal) {
 };
 percpx_param.prototype = Object.create(BaseParam.prototype);
 percpx_param.prototype.constructor = percpx_param;
-percpx_param.prototype.update = function(val, env) {
-  var success = false;
-  this.solved = undefined;
-  if (val.slice(-1) === "%") {
-    this.solved = this.solve_expr(val.slice(0, -1), env) + "%";
-  } else {
-    this.solved = this.solve_expr(val.slice(0, -2), env) + "px";
-  }
-  if (this.solved !== undefined) {
-    this.value = val;
-    success = true;
-  }
-  return success;
-};
 bloqsnet.PARA_REGISTRY.percpx = percpx_param;
 
 //////// STRING
@@ -2271,25 +2202,6 @@ var string_param = function(spec, initVal) {
 };
 string_param.prototype = Object.create(BaseParam.prototype);
 string_param.prototype.constructor = string_param;
-string_param.prototype.update = function(val, env) {
-  // var success = false;
-  // this.solved = val;
-  // this.value = val;
-  // success = true;
-  // return success;
-  var success = false;
-  this.solved = undefined;
-  if (isNaN(val)) {
-    this.solved = this.solve_expr(val, env);
-  } else {
-    this.solved = val;
-  }
-  if (this.solved !== undefined) {
-    this.value = val;
-    success = true;
-  }
-  return success;
-};
 bloqsnet.PARA_REGISTRY.string = string_param;
 
 //////// ENUM
@@ -2300,39 +2212,15 @@ var enum_param = function(spec, initVal) {
 };
 enum_param.prototype = Object.create(BaseParam.prototype);
 enum_param.prototype.constructor = enum_param;
-enum_param.prototype.update = function(val, env) {
-  var success = false;
-  this.solved = val;
-  this.value = val;
-  success = true;
-  return success;
-};
 bloqsnet.PARA_REGISTRY.enum = enum_param;
 
 //////// JSON
 
 var json_param = function(spec, initVal) {
   BaseParam.call(this, spec, initVal);
-  // if(typeof(this.value) === "string"){
-  //     this.value = JSON.parse(this.value);
-  // }
 };
 json_param.prototype = Object.create(BaseParam.prototype);
 json_param.prototype.constructor = json_param;
-json_param.prototype.update = function(val, env) {
-  var success = false;
-  this.solved = undefined;
-  try {
-    this.solved = JSON.parse(val);
-  } catch (err) {
-    this.solved = undefined;
-  }
-  if (this.solved !== undefined) {
-    this.value = val;
-    success = true;
-  }
-  return success;
-};
 bloqsnet.PARA_REGISTRY.json = json_param;
 
 //////// TRANSFORM
@@ -2342,30 +2230,6 @@ var transform_param = function(spec, initVal) {
 };
 transform_param.prototype = Object.create(BaseParam.prototype);
 transform_param.prototype.constructor = transform_param;
-transform_param.prototype.update = function(val, env) {
-  // too lazy to implement the error checking at the moment
-  // better do it eventually tho
-  var success = false;
-  this.solved = [];
-  _.each(val, function(p) {
-    var sp = {};
-    _.each(p, function(v, k) {
-      if (k !== "type") {
-        console.log(v);
-        var vs = typeof(v) === "string" ? this.solve_expr(v, env) : v;
-        console.log(vs);
-        sp[k] = vs;
-      } else {
-        sp[k] = v;
-      }
-    }, this);
-    this.solved.push(sp);
-  }, this);
-
-  this.value = val;
-  success = true;
-  return success;
-};
 bloqsnet.PARA_REGISTRY.transform = transform_param;
 
 //////// COLOR
@@ -2375,68 +2239,24 @@ var color_param = function(spec, initVal) {
 };
 color_param.prototype = Object.create(BaseParam.prototype);
 color_param.prototype.constructor = color_param;
-color_param.prototype.update = function(val, env) {
-  var success = false;
-  this.value = val;
-  this.solved = val;
-  success = true;
-  return success;
-};
 bloqsnet.PARA_REGISTRY.color = color_param;
 
 //////// PRESERVE ASPECT RATIO
 
 var par_param = function(spec, initVal) {
   BaseParam.call(this, spec, initVal);
-  //this.value = this.spec.choices[0];
 };
 par_param.prototype = Object.create(BaseParam.prototype);
 par_param.prototype.constructor = par_param;
-par_param.prototype.update = function(val, env) {
-  var success = false;
-  this.solved = val;
-  this.value = val;
-  success = true;
-  return success;
-};
 bloqsnet.PARA_REGISTRY.preserveAspectRatio = par_param;
 
 //////// VIEWBOX
 
 var vb_param = function(spec, initVal) {
   BaseParam.call(this, spec, initVal);
-  //this.value = this.spec.choices[0];
 };
 vb_param.prototype = Object.create(BaseParam.prototype);
 vb_param.prototype.constructor = vb_param;
-vb_param.prototype.update = function(val, env) {
-  var success = false;
-  this.solved = undefined;
-
-  var preSolved = _.reduce(val.split(' '), function(m, e, k) {
-    var s;
-    if (e.slice(-1) === "%") {
-      s = this.solve_expr(e.slice(0, -1), env) + "%";
-    } else if (val.slice(-2) === "px") {
-      s = this.solve_expr(e.slice(0, -2), env) + "px";
-    } else {
-      s = this.solve_expr(e, env);
-    }
-
-    if (s !== undefined) m.push(s);
-
-    return m;
-  }, [], this);
-
-  if (preSolved.length === 4) {
-
-    this.value = val;
-    this.solved = preSolved.join(' ');
-    success = true;
-  }
-
-  return success;
-};
 bloqsnet.PARA_REGISTRY.viewBox = vb_param;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2717,15 +2537,6 @@ var Base = function(spec) {
     }, {}, this);
   };
 
-  this.env_val = function(var_name, env) {
-    return spec.env[var_name];
-  };
-
-  this.solveParams = function() {
-    this.check_env();
-    return spec.solution;
-  };
-
   this.updateMeta = function(p_name, val) {
     spec.meta[p_name] = val;
     return true;
@@ -2741,13 +2552,13 @@ var Base = function(spec) {
     return spec.children;
   };
 
-  this.addChild = function(child) {
-    spec.children.unshift(child);
-  };
+  // this.addChild = function(child) {
+  //   spec.children.unshift(child);
+  // };
 
-  this.addChildAt = function(child, idx) {
-    spec.children.splice(idx, 0, child);
-  };
+  // this.addChildAt = function(child, idx) {
+  //   spec.children.splice(idx, 0, child);
+  // };
 
   this.getChildIdx = function(id) {
     var r = -1,
@@ -2780,43 +2591,13 @@ var Base = function(spec) {
     return !_.isEqual(spec.children, before);
   };
 
-  this.check_env = function() {
-    var params_def,
-        raw_val,
-        success;
-    if (spec.env_dirty) {
-      params_def = bloqsnet.REGISTRY[spec.type].prototype.def.params;
-      spec.solution = _.reduce(params_def, function(m, p_def) {
-        raw_val = spec.params[p_def.name].value;
-        success = spec.params[p_def.name].update(raw_val, spec.env);
-        m[p_def.name] = spec.params[p_def.name].solved;
-        return m;
-      }, {}, this);
-    }
-    spec.env_dirty = false;
-  };
-
   this.setLocalEnvironment = function(data) {
     spec.local_env = data;
     this.refreshEnvironment();
   };
 
   this.refreshEnvironment = function() {
-    // if (spec.parent !== "x" && spec.parent !== undefined) {
-    //   // spec.env = _.clone(spec.parent.getEnvironment());
-    //   // _.each(spec.local_env, function(v, k, l) {
-    //   //   spec.env[k] = v;
-    //   // });
-    // } else {
     spec.env = spec.local_env;
-    // }
-    // if (!_.isEmpty(spec.env)) {
-    //   _.each(spec.children, function(c) {
-    //     if (c !== "x") {
-    //       c.refreshEnvironment();
-    //     }
-    //   });
-    // }
   };
 
   this.findInParentEnvironment = function(key) {
@@ -2826,15 +2607,6 @@ var Base = function(spec) {
       return this.spec.parent.findInParentEnvironment(key);
     }
     return undefined;
-  };
-
-  this.sully_env_down = function() {
-    this.spec.env_dirty = true;
-    _.each(this.spec.children, function(c) {
-      if (c !== "x") {
-        c.sully_env_down();
-      }
-    });
   };
 
   this.getEnvironment = function() {
@@ -2888,10 +2660,10 @@ Base.prototype.updateLocalEnvironment = function() {
 Base.prototype.toJSON = function() {
   return _.reduce(this.spec, function(m, s, k) {
     switch (k) {
-    case "parent":
+    case 'parent':
       if (s !== undefined) {
-        if (s === "x") {
-          m.p = ["x"];
+        if (s === 'x') {
+          m.p = ['x'];
         } else {
           m.p = [s.get_id()];
         }
@@ -2899,11 +2671,11 @@ Base.prototype.toJSON = function() {
         m.p = [];
       }
       break;
-    case "children":
+    case 'children':
       if (s !== undefined) {
         m.c = _.map(s, function(c) {
-          if (c === "x") {
-            return "x";
+          if (c === 'x') {
+            return 'x';
           } else {
             return c.get_id();
           }
@@ -2912,12 +2684,12 @@ Base.prototype.toJSON = function() {
         m.c = [];
       }
       break;
-    case "id":
-    case "type":
-    case "meta":
+    case 'id':
+    case 'type':
+    case 'meta':
       m[k] = s;
       break;
-    case "params":
+    case 'params':
       m[k] = _.reduce(s, function(mem, val, key) {
         if (val.value !== undefined) {
           mem[key] = val.toJSON();
@@ -2934,7 +2706,7 @@ Base.prototype.toJSON = function() {
 
 Base.prototype.def = {
   display: false,
-  type: "base",
+  type: 'base',
   params: {}
 };
 
@@ -3055,12 +2827,10 @@ SVG_Proto.prototype = Object.create(Base.prototype);
 SVG_Proto.prototype.constructor = SVG_Proto;
 
 SVG_Proto.prototype.render_svg = function() {
-  console.log('RENDER SVG, FOOL');
   //if (this.cached_svg === undefined) {
-  console.log('RENDER SVG : ' + this.spec.type + '-' + this.spec.id);
   this.cached_svg_str = this.get_svg_str();
   if (this.spec.children != undefined && this.spec.children.length > 0) {
-    for (var i = 0; i < this.spec.children.length; i++) {
+    for (var i = this.spec.children.length - 1; i >= 0; i--) {
       var child = this.spec.children[i];
       if (child !== 'x') {
         this.spec.children[i].render_svg();
@@ -3076,15 +2846,11 @@ SVG_Proto.prototype.render_svg = function() {
 };
 
 SVG_Proto.prototype.get_svg_str = function() {
-  console.log('GET SVG STR, FOOL');
-  // var solution = this.solveParams();
-  // console.log(solution);
   var params_def = bloqsnet.REGISTRY[this.spec.type].prototype.def.params;
   var solution2 = _.reduce(params_def, function(m, p_def) {
     m[p_def.name] = this.spec.params[p_def.name].value;
     return m;
   }, {}, this);
-  console.log(solution2);
   var elmStr = '<' + this.def.svg_elem + '></' + this.def.svg_elem + '>';
   elmStr = this.setAttributesStr(elmStr, solution2);
   return elmStr;
@@ -3108,47 +2874,28 @@ SVG_Proto.prototype.reduce_exprs = function(svg, obj) {
       if (isNaN(parseFloat(str)) && str[0] === '(' && str[str.length - 1] === ')') {
         str = '{' + str + '}';
       }
-      console.log('foo');
-      //   var transformed = node.transform(( function(n, path, parent) {
-      //     if (n.type === 'SymbolNode') {
-      //       if (_.has(obj, n.name)) {
-      //         return new math.expression.node.ConstantNode(obj[n.name]);
-      //       }
-      //       return n;
-      //     } else if(n.type === 'FunctionNode'){
-      //       var foo = this.reduce_exprs_func(n, obj);
-      //     } 
-      //     return n;
-      //   }).bind(this));
-      //   var r = transformed.toString().replace(/\s+/g, '');
-      //   try {
-      //     r = math.compile(transformed.toString()).eval({});
-      //   } catch (e) {
-      //     r = '{' + r + '}';
-      //   }
-      //   str = r;
     }
     return str;
   }, this).join('');
 };
 
-SVG_Proto.prototype.reduce_exprs_func = function(fn_expr, obj) {
-  console.log(fn_expr);
-  var resolved = true;
-  _.each(fn_expr.args, function(arg) {
-    switch (arg.type) {
-    case 'SymbolNode':
-      // solve for symbol somehow
-      break;
-    default:
-      resolved = false;
-      break;
-    };
-  });
-  var r = math.compile(fn_expr.toString()).eval(obj);
-  console.log(r);
-  return 'foo';
-};
+// SVG_Proto.prototype.reduce_exprs_func = function(fn_expr, obj) {
+//   console.log(fn_expr);
+//   var resolved = true;
+//   _.each(fn_expr.args, function(arg) {
+//     switch (arg.type) {
+//     case 'SymbolNode':
+//       // solve for symbol somehow
+//       break;
+//     default:
+//       resolved = false;
+//       break;
+//     };
+//   });
+//   var r = math.compile(fn_expr.toString()).eval(obj);
+//   console.log(r);
+//   return 'foo';
+// };
 
 SVG_Proto.prototype.def = {
   display: false,
@@ -3230,29 +2977,30 @@ SVG_svg.prototype.def = {
 
 bloqsnet.REGISTRY['svg_svg'] = SVG_svg;
 
-// ////////////////////////////////////////////////////////////////////////////////
-// //                                                                     SVG_G  //
-// ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//                                                                     SVG_G  //
+////////////////////////////////////////////////////////////////////////////////
 var SVG_g = function(spec) {
-    spec.type = "svg_g";
-    SVG_Proto.call(this, spec);
+  spec.type = "svg_g";
+  SVG_Proto.call(this, spec);
 };
 SVG_g.prototype = Object.create(SVG_Proto.prototype);
 SVG_g.prototype.constructor = SVG_g;
 SVG_g.prototype.def = {
-    display: true,
-    type: 'svg_g',
-    svg_elem: 'g',
-    categories: ['Container element',
-                 'structural element'],
-    params: [
-        paramObj(["transform", "transform", [], "specific attributes", true])
-    ].concat(
-        svg_conditional_processing_attributes,
-        svg_core_attributes
-    ),
-    p: [1, 1],
-    c: [1, "n"]
+  display: true,
+  type: 'svg_g',
+  svg_elem: 'g',
+  categories: ['Container element',
+               'structural element'
+              ],
+  params: [
+    paramObj(["transform", "transform", [], "specific attributes", true])
+  ].concat(
+    svg_conditional_processing_attributes,
+    svg_core_attributes
+  ),
+  p: [1, 1],
+  c: [1, "n"]
 };
 bloqsnet.REGISTRY['svg_g'] = SVG_g;
 

@@ -10,53 +10,12 @@ var BaseParam = function(spec, initVal) {
   this.spec = spec;
   this.solved = undefined;
   this.value = initVal !== undefined ? initVal : spec.defaultVal; // || undefined;
-  this.solve_expr = function(expr, env) {
-    var start,
-        node,
-        filtered,
-        res,
-        keys,
-        haveValsForVars,
-        diff;
-    start = (new Date()).getTime();
-    res = minilisp.reduceExpr(expr);
-    // node = math.parse(expr);
-    // console.log(node);
-    // filtered = node.filter(function(no) {
-    //   console.log(no.type);
-    //   return no.type == 'SymbolNode' || no.type == 'FunctionNode';
-    // });
-    // res = expr;
-    // if (filtered.length > 0) {
-    //   keys = _.keys(env);
-    //   haveValsForVars = _.every(filtered, function(i) {
-    //     return _.contains(keys, i.name);
-    //   });
-    //   // if (haveValsForVars) {
-    //   try {
-    //     res = math.eval(expr, env);
-    //   } catch (err) {
-    //     res = undefined;
-    //   }
-    //   //}
-    // }
-    //problem here is that sometimes we want a result thats NaN as in Array
-    // but we don't want results that are NaN as a result of failed solution
-    // how to tell the difference?
-    //res = isNaN(res) ? undefined : res;
-    diff = (new Date()).getTime() - start;
-    return typeof res === "string" ? res.replace(/['"]+/g, '') : res;
-    //return expr;
-  };
 };
 BaseParam.prototype.toJSON = function() {
   return this.value;
 };
 BaseParam.prototype.toString = function() {
   return "";
-};
-BaseParam.prototype.update = function(val, env) {
-  return this.solve_expr(val, env);
 };
 BaseParam.prototype.set = function(val) {
   // return this.solve_expr(val, env);
@@ -69,20 +28,6 @@ var number_param = function(spec, initVal) {
 };
 number_param.prototype = Object.create(BaseParam.prototype);
 number_param.prototype.constructor = number_param;
-number_param.prototype.update = function(val, env) {
-  var success = false;
-  this.solved = undefined;
-  if (isNaN(val)) {
-    this.solved = this.solve_expr(val, env);
-  } else {
-    this.solved = val;
-  }
-  if (this.solved !== undefined) {
-    this.value = val;
-    success = true;
-  }
-  return success;
-};
 bloqsnet.PARA_REGISTRY.number = number_param;
 
 //////// PERCPX
@@ -92,20 +37,6 @@ var percpx_param = function(spec, initVal) {
 };
 percpx_param.prototype = Object.create(BaseParam.prototype);
 percpx_param.prototype.constructor = percpx_param;
-percpx_param.prototype.update = function(val, env) {
-  var success = false;
-  this.solved = undefined;
-  if (val.slice(-1) === "%") {
-    this.solved = this.solve_expr(val.slice(0, -1), env) + "%";
-  } else {
-    this.solved = this.solve_expr(val.slice(0, -2), env) + "px";
-  }
-  if (this.solved !== undefined) {
-    this.value = val;
-    success = true;
-  }
-  return success;
-};
 bloqsnet.PARA_REGISTRY.percpx = percpx_param;
 
 //////// STRING
@@ -115,25 +46,6 @@ var string_param = function(spec, initVal) {
 };
 string_param.prototype = Object.create(BaseParam.prototype);
 string_param.prototype.constructor = string_param;
-string_param.prototype.update = function(val, env) {
-  // var success = false;
-  // this.solved = val;
-  // this.value = val;
-  // success = true;
-  // return success;
-  var success = false;
-  this.solved = undefined;
-  if (isNaN(val)) {
-    this.solved = this.solve_expr(val, env);
-  } else {
-    this.solved = val;
-  }
-  if (this.solved !== undefined) {
-    this.value = val;
-    success = true;
-  }
-  return success;
-};
 bloqsnet.PARA_REGISTRY.string = string_param;
 
 //////// ENUM
@@ -144,39 +56,15 @@ var enum_param = function(spec, initVal) {
 };
 enum_param.prototype = Object.create(BaseParam.prototype);
 enum_param.prototype.constructor = enum_param;
-enum_param.prototype.update = function(val, env) {
-  var success = false;
-  this.solved = val;
-  this.value = val;
-  success = true;
-  return success;
-};
 bloqsnet.PARA_REGISTRY.enum = enum_param;
 
 //////// JSON
 
 var json_param = function(spec, initVal) {
   BaseParam.call(this, spec, initVal);
-  // if(typeof(this.value) === "string"){
-  //     this.value = JSON.parse(this.value);
-  // }
 };
 json_param.prototype = Object.create(BaseParam.prototype);
 json_param.prototype.constructor = json_param;
-json_param.prototype.update = function(val, env) {
-  var success = false;
-  this.solved = undefined;
-  try {
-    this.solved = JSON.parse(val);
-  } catch (err) {
-    this.solved = undefined;
-  }
-  if (this.solved !== undefined) {
-    this.value = val;
-    success = true;
-  }
-  return success;
-};
 bloqsnet.PARA_REGISTRY.json = json_param;
 
 //////// TRANSFORM
@@ -186,30 +74,6 @@ var transform_param = function(spec, initVal) {
 };
 transform_param.prototype = Object.create(BaseParam.prototype);
 transform_param.prototype.constructor = transform_param;
-transform_param.prototype.update = function(val, env) {
-  // too lazy to implement the error checking at the moment
-  // better do it eventually tho
-  var success = false;
-  this.solved = [];
-  _.each(val, function(p) {
-    var sp = {};
-    _.each(p, function(v, k) {
-      if (k !== "type") {
-        console.log(v);
-        var vs = typeof(v) === "string" ? this.solve_expr(v, env) : v;
-        console.log(vs);
-        sp[k] = vs;
-      } else {
-        sp[k] = v;
-      }
-    }, this);
-    this.solved.push(sp);
-  }, this);
-
-  this.value = val;
-  success = true;
-  return success;
-};
 bloqsnet.PARA_REGISTRY.transform = transform_param;
 
 //////// COLOR
@@ -219,68 +83,24 @@ var color_param = function(spec, initVal) {
 };
 color_param.prototype = Object.create(BaseParam.prototype);
 color_param.prototype.constructor = color_param;
-color_param.prototype.update = function(val, env) {
-  var success = false;
-  this.value = val;
-  this.solved = val;
-  success = true;
-  return success;
-};
 bloqsnet.PARA_REGISTRY.color = color_param;
 
 //////// PRESERVE ASPECT RATIO
 
 var par_param = function(spec, initVal) {
   BaseParam.call(this, spec, initVal);
-  //this.value = this.spec.choices[0];
 };
 par_param.prototype = Object.create(BaseParam.prototype);
 par_param.prototype.constructor = par_param;
-par_param.prototype.update = function(val, env) {
-  var success = false;
-  this.solved = val;
-  this.value = val;
-  success = true;
-  return success;
-};
 bloqsnet.PARA_REGISTRY.preserveAspectRatio = par_param;
 
 //////// VIEWBOX
 
 var vb_param = function(spec, initVal) {
   BaseParam.call(this, spec, initVal);
-  //this.value = this.spec.choices[0];
 };
 vb_param.prototype = Object.create(BaseParam.prototype);
 vb_param.prototype.constructor = vb_param;
-vb_param.prototype.update = function(val, env) {
-  var success = false;
-  this.solved = undefined;
-
-  var preSolved = _.reduce(val.split(' '), function(m, e, k) {
-    var s;
-    if (e.slice(-1) === "%") {
-      s = this.solve_expr(e.slice(0, -1), env) + "%";
-    } else if (val.slice(-2) === "px") {
-      s = this.solve_expr(e.slice(0, -2), env) + "px";
-    } else {
-      s = this.solve_expr(e, env);
-    }
-
-    if (s !== undefined) m.push(s);
-
-    return m;
-  }, [], this);
-
-  if (preSolved.length === 4) {
-
-    this.value = val;
-    this.solved = preSolved.join(' ');
-    success = true;
-  }
-
-  return success;
-};
 bloqsnet.PARA_REGISTRY.viewBox = vb_param;
 
 ////////////////////////////////////////////////////////////////////////////////
