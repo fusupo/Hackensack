@@ -3,6 +3,64 @@
 
 <polymer-element name="input-percpx" attributes="value">
     <template>
+        <style>
+         .richtext {
+             display: inline-block;
+             overflow: hidden;
+             /* margin: 2px 0; */
+             
+             vertical-align: top;
+         }
+         .richtext > pre {
+             display: inline-block;
+             border: 2px inset;// transparent;
+             z-index: 1;
+             position: absolute;
+             overflow: hidden;
+             height: 25px;
+             background: #fff;
+             text-align: left;
+             margin: 0px;
+             padding:1px;
+         }
+         /* input, .richtext {
+            padding: 5px;
+            color: #282828;
+            background: #fff;
+            outline: 0;
+            border: 1px solid #BABABA;
+            }*/
+
+         input,
+         .richtext > pre {
+             font-family: Source Code Pro, monaco, courier;
+             font-size: 100%;
+             width: 400px;
+         }
+         .unmatched {
+             background: red;
+         }
+         .paren_0 {
+             /* 5 */
+             
+             background: #00ff00;
+         }
+         .paren_1 {
+             background: #b6e4b6;
+         }
+         .paren_2 {
+             background: #c0c000;
+         }
+         .paren_3 {
+             background: #008000;
+         }
+         .paren_4 {
+             background: #808000;
+         }
+         .selected_paren {
+             background: #00ffff !important;
+         }
+        </style>
         <input type="text" id="scalar" value="{{scalar}}" on-input="{{updateVal}}" on-mousewheel="{{mw}}">
         <select id="unit" on-change="{{updateVal}}">
             <option value="px">px</option>

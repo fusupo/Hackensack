@@ -120,7 +120,7 @@
         <button on-click="{{plusSkewX}}">+ skX</button>
         <button on-click="{{plusSkewY}}">+ skY</button>
 
-        <div id="container" vertical layout style="border-style: solid; border-width: 1px;">
+        <div id="container" vertical layout>
 
             <template repeat="{{m in spec}}">
                 <template if="{{m.type == 'trans'}}" ref="transTpl"></template>

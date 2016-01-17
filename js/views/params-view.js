@@ -25,8 +25,7 @@ var app = app || {};
       this.checkColor = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i;
     },
 
-    finalizeInitialization: function() {
-    },
+    finalizeInitialization: function() {},
 
     update: function(e) {
       console.log(e.value);
@@ -52,6 +51,10 @@ var app = app || {};
     setParams: function(params) {
       var that = this;
       var container = $(this.paramsContainerTpl({}));
+      this.$el.append(container);
+      // $(container).accordion({
+      //   collapsible: true
+      // });
       var groups = _.groupBy(params, function(p) {
         return p.groupName;
       });
@@ -61,7 +64,9 @@ var app = app || {};
           groupName: k,
           groupId: groupId
         }));
-        _.each(g, function(p) {
+        $(container).append(g_elm);
+        var $form = $(g_elm).find('form');
+        _.each(g, function(p, idx) {
           var item;
           switch (p.type) {
 
@@ -69,6 +74,7 @@ var app = app || {};
             item = $(this.paramsEnumItemTpl({
               label: p.name
             }));
+            $form.append(item);
             var f = item.find("select");
             var xxxx = this.currBloqModel.spec.params[p.name];
 
@@ -105,6 +111,7 @@ var app = app || {};
               that.tryUpdateParamNumber(p.name, e.target.value, p.type);
               return false;
             });
+            $form.append(item);
             break;
 
           case "percpx":
@@ -117,6 +124,7 @@ var app = app || {};
             item = $(rendered).bind("change", function(e) {
               that.commitUpdateParam(p.name, e.originalEvent.detail);
             });
+            $form.append(item);
             // .on('mousewheel', function(e) {
             //   var raw_val = e.target.value;
             //   var val;
@@ -142,10 +150,12 @@ var app = app || {};
             })).bind("change", function(e) {
               that.commitUpdateParam(p.name, e.originalEvent.detail);
             });
+            $form.append(item);
             break;
 
           case "color":
             item = this.createColorControl(p);
+            $form.append(item);
             break;
 
           case "string":
@@ -155,6 +165,7 @@ var app = app || {};
             })).bind("input", function(e) {
               that.tryUpdateParamString(p.name, e.target.value, p.type);
             });
+            $form.append(item);
             break;
 
           case "json":
@@ -162,6 +173,7 @@ var app = app || {};
               label: p.name,
               val: this.currBloqModel.get_params()[p.name]
             }));
+            $form.append(item);
             var wtf = CodeMirror.fromTextArea(item.find(".cm-control")[0], {
               lineNumbers: true,
               matchBrackets: true,
@@ -194,6 +206,7 @@ var app = app || {};
             })).bind("change", function(e) {
               that.commitUpdateParam(p.name, e.originalEvent.detail);
             });
+            $form.append(item);
             break;
 
           case "viewBox":
@@ -204,21 +217,14 @@ var app = app || {};
             })).bind("change", function(e) {
               that.commitUpdateParam(p.name, e.originalEvent.detail);
             });
+            $form.append(item);
             break;
           }
 
-          $(g_elm).find('form').append(item);
-
         }, this);
-        $(container).append(g_elm);
 
       }, this);
 
-      this.$el.append(container);
-
-      $(container).accordion({
-        collapsible: true
-      });
     },
 
     /////////////////////////////////////////////////////////////////////////

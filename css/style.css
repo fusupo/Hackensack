@@ -70,7 +70,12 @@ body {
     border-width: 1px;
     border-color: #d3d3d3;
     text-align: right;
+    overflow-y: scroll;
 }
+
+div#params {}
+
+div#params {}
 /* -- */
 
 #io {
@@ -117,3 +122,7 @@ label {
     fill: #ff0000;
 }
 /* */
+
+.params-group{
+    border:1px solid #ccc;
+}

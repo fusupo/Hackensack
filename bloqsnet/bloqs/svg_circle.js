@@ -15,9 +15,9 @@ SVG_circle.prototype.def = {
                  'Graphic Elements',
                  'Shape Elements'],
     params: [
-        paramObj(["cx", "percpx",  "0px", "specific attributes", true]),
-        paramObj(["cy", "percpx",  "0px", "specific attributes", true]),
-        paramObj(["r", "percpx", "10px", "specific attributes", true]),
+        paramObj(["cx", "percpx",  "{0}px", "specific attributes", true]),
+        paramObj(["cy", "percpx",  "{0}px", "specific attributes", true]),
+        paramObj(["r", "percpx", "{10}px", "specific attributes", true]),
         paramObj(["fill", "color", "#ffffff", "specific attributes", true]),
         paramObj(["transform", "transform", [], "specific attributes", true])
     ].concat(

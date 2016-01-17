@@ -13,18 +13,18 @@ SVG_animate.prototype.def = {
     svg_elem: 'animate',
     categories: ['Animation Elements'],
     params: [
-        paramObj(["attributeName", "string", "", "specific attributes", true]),
-      paramObj(["attributeType", "string", "\"auto\"", "specific attributes", true]),
+      paramObj(["attributeName", "string", "", "specific attributes", true]),
+      paramObj(["attributeType", "string", "auto", "specific attributes", true]),
 
-      paramObj(["from", "percpx", "0px", "specific attributes", true]),
-      paramObj(["to", "percpx", "0px", "specific attributes", true]),
-      paramObj(["by", "percpx", "0px", "specific attributes", true]),
+      paramObj(["from", "percpx", "{0}px", "specific attributes", true]),
+      paramObj(["to", "percpx", "{0}px", "specific attributes", true]),
+      paramObj(["by", "percpx", "{0}px", "specific attributes", true]),
 
       paramObj(["begin", "string", "", "specific attributes", true]),
-      paramObj(["dur", "string", "1", "specific attributes", true]),
+      paramObj(["dur", "string", "{1}", "specific attributes", true]),
       paramObj(["end", "string", "", "specific attributes", true]),
-      paramObj(["repeatCount", "string", "\"indefinite\"", "specific attributes", true]),
-      paramObj(["fill", "string", "\"remove\"", "specific attributes", true])
+      paramObj(["repeatCount", "string", "indefinite", "specific attributes", true]),
+      paramObj(["fill", "string", "remove", "specific attributes", true])
     ] // enum : "remove" | "freeze"
     .concat(
       svg_conditional_processing_attributes,
