@@ -1,8 +1,8 @@
 Polymer('input-percpx', {
-  scalar: '{{foo}}',//9999999,
+  scalar: '{{foo}}', //9999999,
   updateVal: function() {
-    this.value = this.scalar + this.$.unit.value;
-    this.fire("change", this.value);
+    this.value = '{' + this.scalar + '}' + this.$.unit.value;
+    this.fire("change", '{' + this.scalar + '}' + this.$.unit.value);
   },
   mw: function(e) {
     var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
@@ -18,6 +18,8 @@ Polymer('input-percpx', {
       this.scalar = this.value.slice(0, -2);
       this.$.unit.value = "px";
     }
+    this.scalar = this.scalar.slice(1, -1);
+    this.updateVal();
   }
 
 });

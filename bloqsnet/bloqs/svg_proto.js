@@ -16,47 +16,6 @@ var SVG_Proto = function(spec) {
     }
   };
 
-  this.setAttributes = function(svg_elem, attrs) {
-    _.each(attrs, function(attr, k) {
-      if (_.findWhere(bloqsnet.REGISTRY[spec.type].prototype.def.params, {
-        'name': k
-      }).renderSvg === true) {
-        switch (k) {
-        case 'transform':
-          var val = '';
-          _.each(attr, function(a) {
-            switch (a.type) {
-            case 'trans':
-              val += 'translate(' + a.x + ', ' + a.y + ') ';
-              break;
-            case 'scale':
-              val += 'scale(' + a.x + ', ' + a.y + ') ';
-              break;
-            case 'rot':
-              val += 'rotate(' + a.r;
-              if (a.x !== undefined)
-                val += ', ' + a.x + ', ' + a.y;
-              val += ') ';
-              break;
-            case 'skewX':
-              val += 'skewX(' + a.x + ') ';
-              break;
-            case 'skewY':
-              val += 'skewY(' + a.y + ') ';
-              break;
-            }
-          });
-          val = val.slice(0, -1);
-          setAttribute(svg_elem, k, val);
-          break;
-        default:
-          setAttribute(svg_elem, k, attr);
-          break;
-        }
-      }
-    });
-  };
-
   this.setAttributesStr = function(svg_elem, attrs) {
     _.each(attrs, function(attr, k) {
       if (_.findWhere(bloqsnet.REGISTRY[spec.type].prototype.def.params, {
@@ -76,7 +35,7 @@ var SVG_Proto = function(spec) {
             case 'rot':
               val += 'rotate(' + a.r;
               if (a.x !== undefined)
-                val += ', ' + a.x + ', ' + a.y;
+                val += ', ' + a.x + ', ' + a.y + '';
               val += ') ';
               break;
             case 'skewX':
@@ -92,7 +51,7 @@ var SVG_Proto = function(spec) {
 
           break;
         default:
-          val = attr;
+          val =   attr ;
           break;
         }
 
@@ -106,7 +65,6 @@ var SVG_Proto = function(spec) {
     });
     return svg_elem;
   };
-  //this.render_svg();
 };
 
 SVG_Proto.prototype = Object.create(Base.prototype);
@@ -156,7 +114,7 @@ SVG_Proto.prototype.reduce_exprs = function(svg, obj) {
   return _.map(exprs, function(str) {
     if (str.substr(0, 1) === '{') {
       var expr = str.substr(1, str.length - 2);
-      str = minilisp.reduceExpr(expr, obj);
+      str = expr === "" ? "" : minilisp.reduceExpr(expr, obj);
       if (isNaN(parseFloat(str)) && str[0] === '(' && str[str.length - 1] === ')') {
         str = '{' + str + '}';
       }
@@ -164,24 +122,6 @@ SVG_Proto.prototype.reduce_exprs = function(svg, obj) {
     return str;
   }, this).join('');
 };
-
-// SVG_Proto.prototype.reduce_exprs_func = function(fn_expr, obj) {
-//   console.log(fn_expr);
-//   var resolved = true;
-//   _.each(fn_expr.args, function(arg) {
-//     switch (arg.type) {
-//     case 'SymbolNode':
-//       // solve for symbol somehow
-//       break;
-//     default:
-//       resolved = false;
-//       break;
-//     };
-//   });
-//   var r = math.compile(fn_expr.toString()).eval(obj);
-//   console.log(r);
-//   return 'foo';
-// };
 
 SVG_Proto.prototype.def = {
   display: false,

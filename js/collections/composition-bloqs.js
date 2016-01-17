@@ -55,8 +55,8 @@ var app = app || {};
     },
 
     reload: function(data) {
-      this.surpressEvents = true;
       this.reset();
+      this.surpressEvents = true;
       //assuming there is a root
       var r = _.findWhere(data, {
         type: 'root'

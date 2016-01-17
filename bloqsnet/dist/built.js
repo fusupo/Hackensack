@@ -2174,7 +2174,6 @@ BaseParam.prototype.toString = function() {
   return "";
 };
 BaseParam.prototype.set = function(val) {
-  // return this.solve_expr(val, env);
   this.value = val;
 };
 //////// NUMBER
@@ -2426,7 +2425,7 @@ bloqsnet.gimmeTheThing = function(callbacks) {
       _.each(data, function(d) {
         _.each(d.c, function(c, idx) {
           if (c !== "x") {
-            this.con([c, "p", 0], [d.id, "c", idx], false); //c, idx, d.id);
+            this.con([c, "p", 0], [d.id, "c", idx], false);
           }
         }, this);
       }, this);
@@ -2730,47 +2729,6 @@ var SVG_Proto = function(spec) {
     }
   };
 
-  this.setAttributes = function(svg_elem, attrs) {
-    _.each(attrs, function(attr, k) {
-      if (_.findWhere(bloqsnet.REGISTRY[spec.type].prototype.def.params, {
-        'name': k
-      }).renderSvg === true) {
-        switch (k) {
-        case 'transform':
-          var val = '';
-          _.each(attr, function(a) {
-            switch (a.type) {
-            case 'trans':
-              val += 'translate(' + a.x + ', ' + a.y + ') ';
-              break;
-            case 'scale':
-              val += 'scale(' + a.x + ', ' + a.y + ') ';
-              break;
-            case 'rot':
-              val += 'rotate(' + a.r;
-              if (a.x !== undefined)
-                val += ', ' + a.x + ', ' + a.y;
-              val += ') ';
-              break;
-            case 'skewX':
-              val += 'skewX(' + a.x + ') ';
-              break;
-            case 'skewY':
-              val += 'skewY(' + a.y + ') ';
-              break;
-            }
-          });
-          val = val.slice(0, -1);
-          setAttribute(svg_elem, k, val);
-          break;
-        default:
-          setAttribute(svg_elem, k, attr);
-          break;
-        }
-      }
-    });
-  };
-
   this.setAttributesStr = function(svg_elem, attrs) {
     _.each(attrs, function(attr, k) {
       if (_.findWhere(bloqsnet.REGISTRY[spec.type].prototype.def.params, {
@@ -2790,7 +2748,7 @@ var SVG_Proto = function(spec) {
             case 'rot':
               val += 'rotate(' + a.r;
               if (a.x !== undefined)
-                val += ', ' + a.x + ', ' + a.y;
+                val += ', ' + a.x + ', ' + a.y + '';
               val += ') ';
               break;
             case 'skewX':
@@ -2806,7 +2764,7 @@ var SVG_Proto = function(spec) {
 
           break;
         default:
-          val = attr;
+          val =   attr ;
           break;
         }
 
@@ -2820,7 +2778,6 @@ var SVG_Proto = function(spec) {
     });
     return svg_elem;
   };
-  //this.render_svg();
 };
 
 SVG_Proto.prototype = Object.create(Base.prototype);
@@ -2870,7 +2827,7 @@ SVG_Proto.prototype.reduce_exprs = function(svg, obj) {
   return _.map(exprs, function(str) {
     if (str.substr(0, 1) === '{') {
       var expr = str.substr(1, str.length - 2);
-      str = minilisp.reduceExpr(expr, obj);
+      str = expr === "" ? "" : minilisp.reduceExpr(expr, obj);
       if (isNaN(parseFloat(str)) && str[0] === '(' && str[str.length - 1] === ')') {
         str = '{' + str + '}';
       }
@@ -2878,24 +2835,6 @@ SVG_Proto.prototype.reduce_exprs = function(svg, obj) {
     return str;
   }, this).join('');
 };
-
-// SVG_Proto.prototype.reduce_exprs_func = function(fn_expr, obj) {
-//   console.log(fn_expr);
-//   var resolved = true;
-//   _.each(fn_expr.args, function(arg) {
-//     switch (arg.type) {
-//     case 'SymbolNode':
-//       // solve for symbol somehow
-//       break;
-//     default:
-//       resolved = false;
-//       break;
-//     };
-//   });
-//   var r = math.compile(fn_expr.toString()).eval(obj);
-//   console.log(r);
-//   return 'foo';
-// };
 
 SVG_Proto.prototype.def = {
   display: false,
@@ -3129,26 +3068,26 @@ SVG_rect.prototype.def = {
                  'Graphic Elements',
                  'Shape Elements'],
     params: [
-        paramObj(["x", "percpx", "0px", "specific attributes", true]),
-        paramObj(["y", "percpx", "0px", "specific attributes", true]),
-        paramObj(["width", "percpx", "10px", "specific attributes", true]),
-        paramObj(["height", "percpx", "10px", "specific attributes", true]),
-        paramObj(["rx", "percpx", "0px", "specific attributes", true]),
-        paramObj(["ry", "percpx", "0px", "specific attributes", true]),
-        paramObj(["fill", "color", "#ffffff", "specific attributes", true]),
-        paramObj(["transform", "transform", [], "specific attributes", true])
+      paramObj(["x", "percpx", "{0}px", "specific attributes", true]),
+      paramObj(["y", "percpx", "{0}px", "specific attributes", true]),
+      paramObj(["width", "percpx", "{10}px", "specific attributes", true]),
+      paramObj(["height", "percpx", "{10}px", "specific attributes", true]),
+      paramObj(["rx", "percpx", "{0}px", "specific attributes", true]),
+      paramObj(["ry", "percpx", "{0}px", "specific attributes", true]),
+      paramObj(["fill", "color", "#ffffff", "specific attributes", true]),
+      paramObj(["transform", "transform", [], "specific attributes", true])
     ].concat(
-        svg_conditional_processing_attributes,
-        svg_core_attributes
-        //graphical_event_attributes,
-        //presentation_attributes,
-        // - class,
-        // - style,
-        // - externalResourcesRequired,
+      svg_conditional_processing_attributes,
+      svg_core_attributes
+      //graphical_event_attributes,
+      //presentation_attributes,
+      // - class,
+      // - style,
+      // - externalResourcesRequired,
     ),
-    p: [1, 1],
-    c: [1, "n"] //mostly to enable animnate subnodes (<animate>, <animateColor>, <animateMotion>, <animateTransform>, <mpath>, <set>)
-        // (<desc>, <metadata>, <title>)
+  p: [1, 1],
+  c: [1, "n"] //mostly to enable animnate subnodes (<animate>, <animateColor>, <animateMotion>, <animateTransform>, <mpath>, <set>)
+  // (<desc>, <metadata>, <title>)
 };
 bloqsnet.REGISTRY["svg_rect"] = SVG_rect;
 
@@ -3286,15 +3225,15 @@ Root.prototype.render_svg = function() {
     var child = this.spec.children[0];
     if (child !== "x") {
       var child_svg = child.render_svg();
-      // var l = this.env_val(this.spec.params.list.value);
-      // _.each(l, function(d, idx) {
-      var obj = JSON.parse(this.spec.params.data.value);
       var insertIdx = this.cached_svg_str.indexOf(">");
       this.cached_svg_str = this.cached_svg_str.substr(0, insertIdx + 1) +
-        this.reduce_exprs(child_svg, obj) +
+        child_svg +
         this.cached_svg_str.substr(insertIdx + 1);
       // }, this);
     }
+
+    var obj = JSON.parse(this.spec.params.data.value);
+    this.cached_svg_str = this.reduce_exprs(this.cached_svg_str, obj);
     // }
   }
   return this.cached_svg_str;
@@ -3310,8 +3249,8 @@ Root.prototype.def = {
   type: 'root',
   svg_elem: 'svg',
   params: [
-    paramObj(["width", "percpx", "100%", "specific attributes", true]),
-    paramObj(["height", "percpx", "100%", "specific attributes", true]),
+    paramObj(["width", "percpx", "{100}%", "specific attributes", true]),
+    paramObj(["height", "percpx", "{100}%", "specific attributes", true]),
     paramObj(["data", "json", "{}", "specific attributes", false])
   ],
   p: [0, 0],

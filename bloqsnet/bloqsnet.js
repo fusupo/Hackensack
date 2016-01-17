@@ -18,7 +18,6 @@ BaseParam.prototype.toString = function() {
   return "";
 };
 BaseParam.prototype.set = function(val) {
-  // return this.solve_expr(val, env);
   this.value = val;
 };
 //////// NUMBER
