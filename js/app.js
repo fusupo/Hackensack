@@ -1,13 +1,8 @@
-/*global $ */
-/*jshint unused:false */
+'use strict';
 var app = app || {};
-var ENTER_KEY = 13;
-var ESC_KEY = 27;
-
+var $ = require('jquery');
+var AppView = require('./views/app-view.js');
 $(function() {
-  'use strict';
-
   // kick things off by creating the `App`
-  new app.AppView();
-
+  new AppView();
 });

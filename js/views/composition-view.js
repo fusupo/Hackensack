@@ -1,5 +1,8 @@
 'use strict';
-var CompositionView = Backbone.View.extend({
+var $ = require('jquery');
+require('jquery-ui');
+var Backbone = require('backbone');
+module.exports = Backbone.View.extend({
 
   el: '#composition',
 

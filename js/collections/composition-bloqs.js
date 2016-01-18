@@ -1,8 +1,9 @@
   'use strict';
+var Backbone = require('backbone');
 // ------------------------------- //
 //  Compositon Bloqs Collection    //
 // ------------------------------- //
-var CompositionBloqs = Backbone.Collection.extend({
+module.exports = Backbone.Collection.extend({
   // Reference to this collection's model.
   model: app.BloqsnetModel,
   surpressEvents: false,

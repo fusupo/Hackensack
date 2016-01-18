@@ -1,5 +1,7 @@
 'use strict';
-var ManifestView = Backbone.View.extend({
+var $ = require('jquery');
+var Backbone = require('backbone');
+module.exports = Backbone.View.extend({
 
   el: '#manifest',
 
@@ -58,9 +60,11 @@ var ManifestView = Backbone.View.extend({
   manifestdata: function() {
     var data = [];
     this.srcBloqs.forEach(function(datapoint) {
+      var idx = datapoint.get('idx');
+      var type = datapoint.get('type');
       data.push({
-        idx: datapoint.get('idx'),
-        type: datapoint.get('type')
+        idx: idx,
+        type: type
       });
     });
     return data;

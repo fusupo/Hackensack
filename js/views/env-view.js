@@ -1,5 +1,7 @@
 'use strict';
-var EnvView = Backbone.View.extend({
+var $ = require('jquery');
+var Backbone = require('backbone');
+module.exports = Backbone.View.extend({
 
   el: '#env',
   //el: "#env",

@@ -1,5 +1,8 @@
 'use strict';
-var ParamsView = Backbone.View.extend({
+var $ = require('jquery');
+var spectrum = require('spectrum-colorpicker');
+var Backbone = require('backbone');
+module.exports = Backbone.View.extend({
 
   el: '#params',
 
