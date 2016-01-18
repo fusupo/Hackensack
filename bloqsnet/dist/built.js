@@ -2912,7 +2912,7 @@ SVG_svg.prototype.def = {
     ),
     p: [1, 1],
     c: [1, "n"]
-};
+}
 
 bloqsnet.REGISTRY['svg_svg'] = SVG_svg;
 
