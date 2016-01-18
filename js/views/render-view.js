@@ -1,34 +1,24 @@
-/*global Backbone, jQuery, _, ENTER_KEY, ESC_KEY */
-var app = app || {};
+'use strict';
+var RenderView = Backbone.View.extend({
 
-(function($) {
+  el: '#render',
 
-  'use strict';
+  initialize: function() {
+    this.currId = undefined;
+  },
 
-  var RenderView = Backbone.View.extend({
+  finalizeInitialization: function() {
+    this.listenTo(app.IOSVGView, 'change', (function(e) {
+      this.clear();
+      this.draw(e);
+    }).bind(this));
+  },
 
-    el: '#render',
+  clear: function() {
+    this.$el.empty();
+  },
 
-    initialize: function() {
-      this.currId = undefined;
-    },
-
-    finalizeInitialization: function() {
-      this.listenTo(app.IOSVGView, 'change', (function(e) {
-        this.clear();
-        this.draw(e);
-      }).bind(this));
-    },
-
-    clear: function() {
-      this.$el.empty();
-    },
-
-    draw: function(r) {
-      this.$el.append($(r));
-    }
-  });
-
-  app.RenderView = new RenderView();
-
-})(jQuery);
+  draw: function(r) {
+    this.$el.append($(r));
+  }
+});

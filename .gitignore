@@ -9,3 +9,5 @@
 /bloqsnet/.sublime-grunt.cache
 /bloqsnet/.tern-port
 /bower_components/*
+/react_components/parenHighlightingInput/node_modules/*
+/react_components/scalarUnitInput/node_modules/*

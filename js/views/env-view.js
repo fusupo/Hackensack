@@ -1,59 +1,49 @@
-/*global Backbone, jQuery, _, ENTER_KEY, ESC_KEY */
-var app = app || {};
+'use strict';
+var EnvView = Backbone.View.extend({
 
-(function($) {
+  el: '#env',
+  //el: "#env",
 
-  'use strict';
+  initialize: function() {
 
-  var EnvView = Backbone.View.extend({
+    console.log('ENV VIEW INIT');
 
-    el: '#env',
-    //el: "#env",
+    this.listenTo(app.CompositionBloqs, 'change:param', this.change);
+    this.listenTo(app.CompositionView, 'bloqSelection', this.update);
 
-    initialize: function() {
+  },
 
-      console.log('ENV VIEW INIT');
+  finalizeInitialization: function() {},
 
-      this.listenTo(app.CompositionBloqs, 'change:param', this.change);
-      this.listenTo(app.CompositionView, 'bloqSelection', this.update);
+  clear: function() {
 
-    },
+    this.$el.empty();
 
-    finalizeInitialization: function() {},
+  },
 
-    clear: function() {
-
-      this.$el.empty();
-
-    },
-
-    update: function(id) {
-      this.clear();
-      if (id != undefined) {
-        var node = app.vm.get(id);
-        var first = true;
-        do{
-          var env = node.getEnvironment();
-          var gr = $('<div></div>');
-          gr.addClass(first ? "env-vars env-vars-0" : "env-vars env-vars"); // + idx);
-          first = false && first;
-          _.each(env, function(v, k, l) {
-            var xxx = $("<div></div>").text(k + " : " + v);
-            xxx.addClass("env-var");
-            gr.append(xxx);
-          });
-          this.$el.append(gr);
-          node = node.spec.parent;
-        }while(node!==undefined && node !== 'x');
-      }
-    },
-
-    change: function(obj) {
-      this.update(obj.get_id());
+  update: function(id) {
+    this.clear();
+    if (id != undefined) {
+      var node = app.vm.get(id);
+      var first = true;
+      do{
+        var env = node.getEnvironment();
+        var gr = $('<div></div>');
+        gr.addClass(first ? "env-vars env-vars-0" : "env-vars env-vars"); // + idx);
+        first = false && first;
+        _.each(env, function(v, k, l) {
+          var xxx = $("<div></div>").text(k + " : " + v);
+          xxx.addClass("env-var");
+          gr.append(xxx);
+        });
+        this.$el.append(gr);
+        node = node.spec.parent;
+      }while(node!==undefined && node !== 'x');
     }
+  },
 
-  });
+  change: function(obj) {
+    this.update(obj.get_id());
+  }
 
-  app.EnvView = new EnvView();
-
-})(jQuery);
+});

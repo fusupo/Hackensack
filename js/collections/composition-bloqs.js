@@ -1,134 +1,120 @@
-/*global Backbone */
-var app = app || {};
-
-(function($) {
-
   'use strict';
+// ------------------------------- //
+//  Compositon Bloqs Collection    //
+// ------------------------------- //
+var CompositionBloqs = Backbone.Collection.extend({
+  // Reference to this collection's model.
+  model: app.BloqsnetModel,
+  surpressEvents: false,
+  initialize: function() {
+    var that = this;
+    app.vm = bloqsnet.gimmeTheThing({
+      "add": (function(bloq) {
+        if(!this.surpressEvents) this.trigger("add", bloq);
+      }).bind(this),
+      "remove": (function(m) {
+        if(!this.surpressEvents) this.trigger("remove", m);
+      }).bind(this),
+      "reset": (function(root) {
+        if(!this.surpressEvents) this.trigger("reset", root);
+      }).bind(this),
+      "change:terminals": (function(m, v, o) {
+        if(!this.surpressEvents) this.trigger("change:terminals", m);
+      }).bind(this),
+      // "term:add": function(m) {
+      //     that.trigger("term:add", m);
+      // },
+      // "term:rem": function(m) {
+      //     that.trigger("term:rem", m);
+      // },
+      "change:connected": (function(m, v, o) {
+        if(!this.surpressEvents) this.trigger("change:connected", m);
+      }).bind(this),
+      "change:disconnected": (function(m, v, o) {
+        if(!this.surpressEvents) this.trigger("change:disconnected", m);
+      }).bind(this),
+      //"change:[attribute]" (model, value, options) — when a specific attribute has been updated.
+      //"invalid" (model, error, options) — when a model's validation fails on the client.
+      "change:svg": (function(m, v, o) {
+        if(!this.surpressEvents) this.trigger("change:svg", m);
+      }).bind(this),
+      "change:meta": (function(m, v, o){
+        if(!this.surpressEvents) this.trigger("change:meta", m);
+      }).bind(this)
+    });
+  },
 
-  // ------------------------------- //
-  //  Compositon Bloqs Collection    //
-  // ------------------------------- //
+  reload: function(data) {
+    this.reset();
+    this.surpressEvents = true;
+    //assuming there is a root
+    var r = _.findWhere(data, {
+      type: 'root'
+    });
+    app.vm.crt(data, r.id);
+    this.surpressEvents = false;
+    this.trigger('reloaded', this.getBloq(this.getRootId()));
+  },
 
-  var CompositionBloqs = Backbone.Collection.extend({
+  reset: function(){
+    app.vm.rst();
+  },
 
-    // Reference to this collection's model.
-    model: app.BloqsnetModel,
+  get_svg: function(id) {
+    return app.vm.get_svg(id);
+  },
 
-    surpressEvents: false,
+  newBloq: function(type, pos) {
+    app.vm.add(type, pos);
+  },
 
-    initialize: function() {
-      var that = this;
-      app.vm = bloqsnet.gimmeTheThing({
-        "add": (function(bloq) {
-          if(!this.surpressEvents) this.trigger("add", bloq);
-        }).bind(this),
-        "remove": (function(m) {
-          if(!this.surpressEvents) this.trigger("remove", m);
-        }).bind(this),
-        "reset": (function(root) {
-          if(!this.surpressEvents) this.trigger("reset", root);
-        }).bind(this),
-        "change:terminals": (function(m, v, o) {
-          if(!this.surpressEvents) this.trigger("change:terminals", m);
-        }).bind(this),
-        // "term:add": function(m) {
-        //     that.trigger("term:add", m);
-        // },
-        // "term:rem": function(m) {
-        //     that.trigger("term:rem", m);
-        // },
-        "change:connected": (function(m, v, o) {
-          if(!this.surpressEvents) this.trigger("change:connected", m);
-        }).bind(this),
-        "change:disconnected": (function(m, v, o) {
-          if(!this.surpressEvents) this.trigger("change:disconnected", m);
-        }).bind(this),
-        //"change:[attribute]" (model, value, options) — when a specific attribute has been updated.
-        //"invalid" (model, error, options) — when a model's validation fails on the client.
-        "change:svg": (function(m, v, o) {
-          if(!this.surpressEvents) this.trigger("change:svg", m);
-        }).bind(this),
-        "change:meta": (function(m, v, o){
-          if(!this.surpressEvents) this.trigger("change:meta", m);
-        }).bind(this)
-      });
-    },
+  updateParam: function(bloq_id, param_name, val) {
+    return app.vm.updt_par(bloq_id, param_name, val);
+  },
 
-    reload: function(data) {
-      this.reset();
-      this.surpressEvents = true;
-      //assuming there is a root
-      var r = _.findWhere(data, {
-        type: 'root'
-      });
-      app.vm.crt(data, r.id);
-      this.surpressEvents = false;
-      this.trigger('reloaded', this.getBloq(this.getRootId()));
-    },
+  setParam: function(bloq_id, param_name, val){
+    app.vm.set_par(bloq_id, param_name, val);      
+  },
 
-    reset: function(){
-      app.vm.rst();
-    },
+  disconnect: function(term, silent) {
+    app.vm.dscon(term);
+  },
 
-    get_svg: function(id) {
-      return app.vm.get_svg(id);
-    },
+  getConnectedTerm: function(term) {
+    return app.vm.getConnectedTerm(term);
+  },
 
-    newBloq: function(type, pos) {
-      app.vm.add(type, pos);
-    },
+  addConnection: function(a, b) {
+    app.vm.con(a, b);
+  },
 
-    updateParam: function(bloq_id, param_name, val) {
-      return app.vm.updt_par(bloq_id, param_name, val);
-    },
+  deleteBloq: function(id) {
+    app.vm.rem(id);
+    //this.refreshTerminals();
+  },
 
-    setParam: function(bloq_id, param_name, val){
-      app.vm.set_par(bloq_id, param_name, val);      
-    },
+  //        refreshTerminals: function() {
+  //            app.vm.rst_trm();
+  //        },
 
-    disconnect: function(term, silent) {
-      app.vm.dscon(term);
-    },
+  getBloqs: function() {
+    return app.vm.insts;
+  },
 
-    getConnectedTerm: function(term) {
-      return app.vm.getConnectedTerm(term);
-    },
+  getBloq: function(id) {
+    return app.vm.get(id);
+  },
 
-    addConnection: function(a, b) {
-      app.vm.con(a, b);
-    },
+  getRootId:function(){
+    var r = _.find(app.vm.insts, function(inst){
+      return inst.spec.type === 'root';
+    });
+    return r.spec.id;
+  },
 
-    deleteBloq: function(id) {
-      app.vm.rem(id);
-      //this.refreshTerminals();
-    },
-
-    //        refreshTerminals: function() {
-    //            app.vm.rst_trm();
-    //        },
-
-    getBloqs: function() {
-      return app.vm.insts;
-    },
-
-    getBloq: function(id) {
-      return app.vm.get(id);
-    },
-
-    getRootId:function(){
-      var r = _.find(app.vm.insts, function(inst){
-        return inst.spec.type === 'root';
-      });
-      return r.spec.id;
-    },
-
-    updateMeta: function(id, data) {
-      _.each(data, function(v, k) {
-        app.vm.updt_mta(id, k, v);
-      });
-    }
-  });
-
-  app.CompositionBloqs = new CompositionBloqs();
-
-})(jQuery);
+  updateMeta: function(id, data) {
+    _.each(data, function(v, k) {
+      app.vm.updt_mta(id, k, v);
+    });
+  }
+});

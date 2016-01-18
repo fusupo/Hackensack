@@ -1,79 +1,69 @@
-/*global Backbone, jQuery, _, ENTER_KEY, ESC_KEY */
-var app = app || {};
+'use strict';
+var ManifestView = Backbone.View.extend({
 
-(function($) {
+  el: '#manifest',
 
-  'use strict';
+  initialize: function(srcBloqs, settings) {
 
-  var ManifestView = Backbone.View.extend({
+    console.log('MANIFEST VIEW INIT');
 
-    el: '#manifest',
+    this.srcBloqs = srcBloqs;
 
-    initialize: function(srcBloqs, settings) {
+    this.listenTo(srcBloqs, 'reset', this.resetManifest);
 
-      console.log('MANIFEST VIEW INIT');
+    this.settings = settings || {};
+    this.currentSelectedBloq = undefined;
+    this.mouseLine = undefined;
+    this.zoom_scale = 1;
 
-      this.srcBloqs = srcBloqs;
+    this.linesData = [];
+    this.bloqData = [];
 
-      this.listenTo(srcBloqs, 'reset', this.resetManifest);
+  },
 
-      this.settings = settings || {};
-      this.currentSelectedBloq = undefined;
-      this.mouseLine = undefined;
-      this.zoom_scale = 1;
+  finalizeInitialization: function() {
 
-      this.linesData = [];
-      this.bloqData = [];
+  },
 
-    },
+  ////////////////////
+  // DRAG BEHAVIORS //
+  ////////////////////
 
-    finalizeInitialization: function() {
+  resetManifest: function() {
 
-    },
+    var that = this;
+    var w = this.w;
+    var h = this.h;
+    var box_w = this.box_w;
+    var box_h = this.box_h;
+    var data = this.manifestdata();
 
-    ////////////////////
-    // DRAG BEHAVIORS //
-    ////////////////////
-
-    resetManifest: function() {
-
-      var that = this;
-      var w = this.w;
-      var h = this.h;
-      var box_w = this.box_w;
-      var box_h = this.box_h;
-      var data = this.manifestdata();
-
-      _.each(data, function(d) {
-        var li = $("<div>" + d.type + "</div>");
-        li.data('type', d.type)
-          .draggable({
-            scroll: false,
-              //revert: true,
-            helper: "clone"
-          });
-        that.$el.append(li);
-      });
-
-    },
-
-    ////////////////////////////////////
-    // BEGIN DATA COMPOSITION METHODS //
-    ////////////////////////////////////
-
-    manifestdata: function() {
-      var data = [];
-      this.srcBloqs.forEach(function(datapoint) {
-        data.push({
-          idx: datapoint.get('idx'),
-          type: datapoint.get('type')
+    _.each(data, function(d) {
+      var li = $("<div>" + d.type + "</div>");
+      li.data('type', d.type)
+        .draggable({
+          scroll: false,
+          //revert: true,
+          helper: "clone"
         });
+      that.$el.append(li);
+    });
+
+  },
+
+  ////////////////////////////////////
+  // BEGIN DATA COMPOSITION METHODS //
+  ////////////////////////////////////
+
+  manifestdata: function() {
+    var data = [];
+    this.srcBloqs.forEach(function(datapoint) {
+      data.push({
+        idx: datapoint.get('idx'),
+        type: datapoint.get('type')
       });
-      return data;
-    }
+    });
+    return data;
+  }
 
-  });
-
-  app.ManifestView = new ManifestView(app.SrcBloqs, {});
-
-})(jQuery);
+});

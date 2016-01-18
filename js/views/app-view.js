@@ -11,6 +11,16 @@ var app = app || {};
     el: '#app',
     initialize: function() {
 
+      app.SrcBloqs = new SrcBloqs();
+      app.CompositionBloqs = new CompositionBloqs();
+      app.ManifestView = new ManifestView(app.SrcBloqs, {});
+      app.CompositionView = new CompositionView(app.CompositionBloqs, {});
+      app.ParamsView = new ParamsView();
+      app.RenderView = new RenderView();
+      app.IOSpecView = new IOSpecView();
+      app.IOSVGView = new IOSVGView();
+      app.EnvView = new EnvView();
+
       console.log('APP VIEW INIT');
 
       app.ManifestView.finalizeInitialization();
