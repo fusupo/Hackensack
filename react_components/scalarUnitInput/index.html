@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+
+    <head>
+        <title>Scalar Unit Input</title>
+        <meta charset="utf-8" />
+        <script type="text/javascript" src="./dist/bundle.js"></script>
+        <script type="text/javascript" src="./node_modules/react/dist/react.min.js"></script>
+        <script type="text/javascript" src="./node_modules/react-dom/dist/react-dom.min.js"></script>
+        <script>
+         window.onload = function() {
+             ReactDOM.render(
+                 React.createElement(ScalarUnitInput, null),
+                 document.getElementById('content')
+             );
+             ReactDOM.render(
+                 React.createElement(ScalarUnitInput, null),
+                 document.getElementById('content2')
+             )
+         };
+        </script>
+        <style>
+         #content2Holder{
+             position: absolute;
+             top: 100px;
+             left: 100px;
+             width: 500px;
+             height: 500px;
+             border: 1px solid black;
+         }
+        </style>
+    </head>
+
+    <body>
+        <div id='content'></div>
+        <div id='content2Holder'>
+            <div id='content2'>
+            </div>
+        </div>
+    </body>
+
+</html>

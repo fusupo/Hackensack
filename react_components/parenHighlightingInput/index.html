@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+
+    <head>
+        <title>Paren Highlighting Input</title>
+        <meta charset="utf-8" />
+        <script type="text/javascript" src="./dist/bundle.js"></script>
+        <script type="text/javascript" src="./node_modules/react/dist/react.min.js"></script>
+        <script type="text/javascript" src="./node_modules/react-dom/dist/react-dom.min.js"></script>
+        <script>
+         window.onload = function() {
+             ReactDOM.render(
+                 React.createElement(ParensHighlightInput, null),
+                 document.getElementById('content')
+             );
+             ReactDOM.render(
+                 React.createElement(ParensHighlightInput, null),
+                 document.getElementById('content2')
+             )
+         };
+        </script>
+        <style>
+         #content2Holder{
+             position: absolute;
+             top: 100px;
+             left: 100px;
+             width: 500px;
+             height: 200px;
+             border: 1px solid black;
+             overflow-y: scroll;
+         } 
+         #block{
+             height:400px; 
+             width:50px;
+             background-color: red;
+         }
+        </style>
+    </head>
+
+    <body>
+        <div id='content'></div>
+        <div id='content2Holder'>
+            <div id='content2'>
+            </div>
+            <div id="block"></div>
+        </div>
+    </body>
+
+</html>
