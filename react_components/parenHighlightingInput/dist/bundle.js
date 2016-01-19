@@ -25585,9 +25585,14 @@
 	            val: '{bar}px'
 	        };
 	    },
+	    componentWillMount: function () {
+	        this.setState({
+	            val: this.props.val || this.state.val
+	        });
+	    },
 	    componentWillReceiveProps: function (nextProps) {
 	        if (nextProps.val) {
-	            this.setState({ val: nexProps.val });
+	            this.setState({ val: nextProps.val });
 	        }
 	    },
 	    render: function () {
@@ -25638,18 +25643,19 @@
 	            { style: divStyle },
 	            React.createElement('input', {
 	                style: inputStyle,
-	                onChange: this.foo,
-	                onKeyUp: this.foo,
-	                onInput: this.foo,
-	                onPaste: this.foo,
-	                onClick: this.foo,
+	                onChange: this.onChange,
+	                onKeyUp: this.onChange,
+	                onInput: this.onChange,
+	                onPaste: this.onChange,
+	                onClick: this.onChange,
 	                value: this.state.val }),
 	            React.createElement('pre', { style: preStyle, dangerouslySetInnerHTML: { __html: this.state.highlightHtml } })
 	        );
 	    },
-	    foo: function (e) {
+	    onChange: function (e) {
 	        this.colorize(e.target.value, this.getCursorPosition(e.target));
 	        this.setState({ val: e.target.value });
+	        if (this.props.onChange !== undefined) this.props.onChange(e.target.value);
 	    },
 	    getCursorPosition: function (input) {
 	        if (!input) return; // No (input) element found

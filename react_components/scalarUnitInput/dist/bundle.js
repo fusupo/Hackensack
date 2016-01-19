@@ -25574,10 +25574,37 @@
 	var ScalarUnitInput = React.createClass({
 	    displayName: 'ScalarUnitInput',
 
+	    getInitialState: function () {
+	        return {
+	            scalar: Math.NEGATIVE_INFINITY,
+	            unit: '',
+	            units: ['%', 'px']
+	        };
+	    },
 	    getDefaultProps: function () {
 	        return {
-	            label: 'foobarx'
+	            name: 'foobarx',
+	            val: '####'
 	        };
+	    },
+	    componentWillMount: function () {
+	        var val = this.props.val || this.state.val;
+	        var selectedUnit = this.state.units.find(function (unit) {
+	            return unit === val.substr(-unit.length);
+	        });
+	        selectedUnit = selectedUnit || '';
+	        var idxL = val.lastIndexOf('}') - 1;
+	        var scalar = idxL !== -1 ? val.substr(1, idxL) : val;
+	        this.setState({
+	            val: val,
+	            unit: selectedUnit,
+	            scalar: scalar
+	        });
+	    },
+	    componentWillReceiveProps: function (nextProps) {
+	        if (nextProps.val) {
+	            this.setState({ val: nextProps.val });
+	        }
 	    },
 	    render: function () {
 	        var selectStyle = {
@@ -25595,6 +25622,16 @@
 	            position: 'relative'
 	        };
 	        var divRStyle = {};
+	        var options = this.state.units.map(function (unit, idx) {
+	            var ret;
+	            ret = React.createElement(
+	                'option',
+	                { key: idx, value: unit },
+	                unit
+	            );
+	            return ret;
+	        }, this);
+	        options.push(React.createElement('option', { key: this.state.units.length, value: '' }));
 	        return React.createElement(
 	            'div',
 	            { style: divStyle },
@@ -25604,34 +25641,39 @@
 	                React.createElement(
 	                    'label',
 	                    null,
-	                    this.props.label
+	                    this.props.name
 	                )
 	            ),
 	            React.createElement(
 	                'div',
 	                { style: divMStyle },
-	                React.createElement(ParensHighlightInput, null)
+	                React.createElement(ParensHighlightInput, { val: this.state.scalar, onChange: this.onScalarChange })
 	            ),
 	            React.createElement(
 	                'div',
 	                { style: divRStyle },
 	                React.createElement(
 	                    'select',
-	                    { style: selectStyle },
-	                    React.createElement(
-	                        'option',
-	                        null,
-	                        '%'
-	                    ),
-	                    React.createElement(
-	                        'option',
-	                        null,
-	                        'px'
-	                    ),
-	                    React.createElement('option', null)
+	                    { style: selectStyle, value: this.state.unit, onChange: this.onUnitChange },
+	                    options
 	                )
 	            )
 	        );
+	    },
+	    onUnitChange: function (e) {
+	        this.setState({
+	            unit: e.target.value
+	        });
+	        this.onChange('{' + this.state.scalar + '}' + e.target.value);
+	    },
+	    onScalarChange: function (val) {
+	        this.setState({
+	            scalar: val
+	        });
+	        this.onChange('{' + val + '}' + this.state.unit);
+	    },
+	    onChange: function (val) {
+	        if (this.props.onChange !== undefined) this.props.onChange(this.props.name, val);
 	    }
 	});
 	module.exports = ScalarUnitInput;
@@ -25666,9 +25708,14 @@
 	            val: '{bar}px'
 	        };
 	    },
+	    componentWillMount: function () {
+	        this.setState({
+	            val: this.props.val || this.state.val
+	        });
+	    },
 	    componentWillReceiveProps: function (nextProps) {
 	        if (nextProps.val) {
-	            this.setState({ val: nexProps.val });
+	            this.setState({ val: nextProps.val });
 	        }
 	    },
 	    render: function () {
@@ -25719,18 +25766,19 @@
 	            { style: divStyle },
 	            React.createElement('input', {
 	                style: inputStyle,
-	                onChange: this.foo,
-	                onKeyUp: this.foo,
-	                onInput: this.foo,
-	                onPaste: this.foo,
-	                onClick: this.foo,
+	                onChange: this.onChange,
+	                onKeyUp: this.onChange,
+	                onInput: this.onChange,
+	                onPaste: this.onChange,
+	                onClick: this.onChange,
 	                value: this.state.val }),
 	            React.createElement('pre', { style: preStyle, dangerouslySetInnerHTML: { __html: this.state.highlightHtml } })
 	        );
 	    },
-	    foo: function (e) {
+	    onChange: function (e) {
 	        this.colorize(e.target.value, this.getCursorPosition(e.target));
 	        this.setState({ val: e.target.value });
+	        if (this.props.onChange !== undefined) this.props.onChange(e.target.value);
 	    },
 	    getCursorPosition: function (input) {
 	        if (!input) return; // No (input) element found
