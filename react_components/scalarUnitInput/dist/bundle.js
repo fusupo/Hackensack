@@ -48,13 +48,8 @@
 	var ReactDOM = __webpack_require__(2);
 	var ScalarUnitInput = __webpack_require__(160);
 
-	// window.onLoad = function() {
 	ReactDOM.render(React.createElement(ScalarUnitInput, null), document.getElementById('content'));
-	// ReactDOM.render(
-	//     React.createElement(ScalarUnitInput, null),
-	//     document.getElementById('content2')
-	// );
-	// }
+	ReactDOM.render(React.createElement(ScalarUnitInput, null), document.getElementById('content2'));
 
 /***/ },
 /* 1 */
@@ -25577,30 +25572,64 @@
 	var ParensHighlightInput = __webpack_require__(162);
 
 	var ScalarUnitInput = React.createClass({
-	    displayName: "scalarUnitInput",
+	    displayName: 'ScalarUnitInput',
+
+	    getDefaultProps: function () {
+	        return {
+	            label: 'foobarx'
+	        };
+	    },
 	    render: function () {
 	        var selectStyle = {
 	            marginLeft: '3px',
 	            WebkitAppearance: 'none'
 	        };
+	        var divStyle = {
+	            display: 'flex',
+	            flexDirection: 'row',
+	            width: '100%'
+	        };
+	        var divLStyle = {};
+	        var divMStyle = {
+	            flexGrow: 10,
+	            position: 'relative'
+	        };
+	        var divRStyle = {};
 	        return React.createElement(
 	            'div',
-	            null,
-	            React.createElement(ParensHighlightInput, null),
+	            { style: divStyle },
 	            React.createElement(
-	                'select',
-	                { style: selectStyle },
+	                'div',
+	                { style: divLStyle },
 	                React.createElement(
-	                    'option',
+	                    'label',
 	                    null,
-	                    '%'
-	                ),
+	                    this.props.label
+	                )
+	            ),
+	            React.createElement(
+	                'div',
+	                { style: divMStyle },
+	                React.createElement(ParensHighlightInput, null)
+	            ),
+	            React.createElement(
+	                'div',
+	                { style: divRStyle },
 	                React.createElement(
-	                    'option',
-	                    null,
-	                    'px'
-	                ),
-	                React.createElement('option', null)
+	                    'select',
+	                    { style: selectStyle },
+	                    React.createElement(
+	                        'option',
+	                        null,
+	                        '%'
+	                    ),
+	                    React.createElement(
+	                        'option',
+	                        null,
+	                        'px'
+	                    ),
+	                    React.createElement('option', null)
+	                )
 	            )
 	        );
 	    }
@@ -25626,14 +25655,21 @@
 	    displayName: 'ParensHighlightingInput',
 
 	    getInitialState: function () {
-	        return { highlightHtml: '' };
+	        return { highlightHtml: '',
+	            val: '' };
 	    },
 	    getDefaultProps: function () {
 	        return {
 	            width: 124,
 	            height: 13,
-	            fontSize: 10
+	            fontSize: 10,
+	            val: '{bar}px'
 	        };
+	    },
+	    componentWillReceiveProps: function (nextProps) {
+	        if (nextProps.val) {
+	            this.setState({ val: nexProps.val });
+	        }
 	    },
 	    render: function () {
 	        var divStyle = {
@@ -25644,8 +25680,9 @@
 	            background: '#fff',
 	            // outline: 0,
 	            margin: '2px',
-	            width: this.props.width + 'px',
-	            height: this.props.height + 'px'
+	            width: '100%', //this.props.width + 'px',
+	            // height: this.props.height + 'px',
+	            textAlign: 'left'
 	        };
 	        var preStyle = {
 	            display: 'inline-block',
@@ -25657,10 +25694,11 @@
 	            margin: '0px',
 	            border: '1px inset',
 	            padding: '0px',
-	            width: this.props.width + 'px',
+	            width: '100%', //this.props.width + 'px',
 	            height: this.props.height + 'px',
 	            background: 'transparent',
-	            pointerEvents: 'none'
+	            pointerEvents: 'none',
+	            textAlign: 'left'
 	        };
 	        var inputStyle = {
 	            color: '#282828',
@@ -25673,19 +25711,26 @@
 	            margin: '0px',
 	            border: '1px inset',
 	            padding: '0px',
-	            width: this.props.width + 'px',
+	            width: '100%', //this.props.width + 'px',
 	            height: this.props.height + 'px'
 	        };
 	        return React.createElement(
 	            'div',
 	            { style: divStyle },
-	            React.createElement('input', { style: inputStyle, onChange: this.foo, onKeyUp: this.foo, onInput: this.foo, onPaste: this.foo, onClick: this.foo }),
+	            React.createElement('input', {
+	                style: inputStyle,
+	                onChange: this.foo,
+	                onKeyUp: this.foo,
+	                onInput: this.foo,
+	                onPaste: this.foo,
+	                onClick: this.foo,
+	                value: this.state.val }),
 	            React.createElement('pre', { style: preStyle, dangerouslySetInnerHTML: { __html: this.state.highlightHtml } })
 	        );
 	    },
 	    foo: function (e) {
-	        console.log(this.getCursorPosition(e.target));
 	        this.colorize(e.target.value, this.getCursorPosition(e.target));
+	        this.setState({ val: e.target.value });
 	    },
 	    getCursorPosition: function (input) {
 	        if (!input) return; // No (input) element found
