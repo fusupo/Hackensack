@@ -1,4 +1,4 @@
-var React = require('react');
+React = require('react');
 var ReactDOM = require('react-dom');
 
 var ParensHighlightingInput = React.createClass({

@@ -238,52 +238,52 @@ module.exports = Backbone.View.extend({
 
     },
 
-                                      /////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
 
-                                      createColorControl: function(p) {
-                                          var that = this;
-                                          return $(this.paramsColorItemTpl({
-                                              label: p.name,
-                                              val: this.currBloqModel.get_params()[p.name]
-                                          })).spectrum({
-                                              color: p[2],
-                                              move: function(tinycolor) {
-                                                  console.log($(this).find('.form-control').val());
-                                                  that.tryUpdateParamColor(p.name, tinycolor.toHexString(), p.type);
-                                              }
-                                          });
-                                      },
+    createColorControl: function(p) {
+        var that = this;
+        return $(this.paramsColorItemTpl({
+            label: p.name,
+            val: this.currBloqModel.get_params()[p.name]
+        })).spectrum({
+            color: p[2],
+            move: function(tinycolor) {
+                console.log($(this).find('.form-control').val());
+                that.tryUpdateParamColor(p.name, tinycolor.toHexString(), p.type);
+            }
+        });
+    },
 
-                                      /////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
 
-                                      commitUpdateParam: function(id, val) {
-                                          var didUpdate = app.CompositionBloqs.setParam(this.currBloqModel.get_id(), id, val);
-                                          //if (didUpdate) {
-                                          //    var p = _.clone(this.currBloqModel.get_params());
-                                          //    p[id] = val;
-                                          //
-                                          //    this.currBloqModel.set({
-                                          //        params: p
-                                          //    });
-                                          //}
-                                          //app.CompositionBloqs.trigger('change:param', this.currBloqModel);
-                                      },
+    commitUpdateParam: function(id, val) {
+        var didUpdate = app.CompositionBloqs.setParam(this.currBloqModel.get_id(), id, val);
+        //if (didUpdate) {
+        //    var p = _.clone(this.currBloqModel.get_params());
+        //    p[id] = val;
+        //
+        //    this.currBloqModel.set({
+        //        params: p
+        //    });
+        //}
+        //app.CompositionBloqs.trigger('change:param', this.currBloqModel);
+    },
 
-                                      tryUpdateParamNumber: function(id, val) {
-                                          //if (!isNaN(val)) {
-                                          this.commitUpdateParam(id, val);
-                                          //};
-                                      },
+    tryUpdateParamNumber: function(id, val) {
+        //if (!isNaN(val)) {
+        this.commitUpdateParam(id, val);
+        //};
+    },
 
-                                      tryUpdateParamColor: function(id, val) {
-                                          //if (this.checkColor.test(val)) {
-                                          this.commitUpdateParam(id, val);
-                                          //}
-                                      },
+    tryUpdateParamColor: function(id, val) {
+        //if (this.checkColor.test(val)) {
+        this.commitUpdateParam(id, val);
+        //}
+    },
 
-                                      tryUpdateParamString: function(id, val) {
-                                          this.commitUpdateParam(id, val);
-                                      },
+    tryUpdateParamString: function(id, val) {
+        this.commitUpdateParam(id, val);
+    },
 
     tryUpdateParamJSON: function(id, val) {
         this.commitUpdateParam(id, val);

@@ -25567,7 +25567,7 @@
 /* 160 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var React = __webpack_require__(3);
+	React = __webpack_require__(3);
 	var ReactDOM = __webpack_require__(161);
 
 	var ParensHighlightingInput = React.createClass({

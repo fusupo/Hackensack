@@ -1815,23 +1815,22 @@
 	var _ = __webpack_require__(3);
 	var Tree = __webpack_require__(5);
 	var AstResult = __webpack_require__(6);
-
 	var FUNC_NAMES = constants.coreFunctions.slice();
 
 	module.exports = function Parser(tokens) {
-	  var ast = new AstResult();
-	  var parserMap = {
-	    operator: processOperators,
-	    keyword: processKeywords,
-	    number: processValue,
-	    string: processValue
-	  };
-	  _.each(tokens, function(token) {
-	    var func = parserMap[token.type];
-	    func(token, ast);
-	  });
+	    var ast = new AstResult();
+	    var parserMap = {
+	        operator: processOperators,
+	        keyword: processKeywords,
+	        number: processValue,
+	        string: processValue
+	    };
+	    _.each(tokens, function(token) {
+	        var func = parserMap[token.type];
+	        func(token, ast);
+	    });
 
-	  return ast;
+	    return ast;
 	};
 
 	function processOperators(token, ast) {
@@ -1870,30 +1869,30 @@
 	}
 
 	function processKeywords(token, ast) {
-	  if (ast.pointer.get('type') === 'function' &&
-	      ast.pointer.get('value') === 'defn') {
-	    var tree = new Tree();
-	    tree.setType('function_name');
-	    tree.setValue(token.value);
-	    FUNC_NAMES.push(token.value);
-	    ast.pointer.insert(tree);
-	  } else if (ast.pointer.get('value') === null &&
-	             !_.contains(FUNC_NAMES, token.value)) {
-	    ast.pointer.setType('arguments');
-	    var tree = new Tree();
-	    tree.setType('variable');
-	    tree.setValue(token.value);
-	    ast.pointer.insert(tree);
-	  } else if (_.contains(FUNC_NAMES, token.value)) {
-	    ast.pointer.setType('function');
-	    ast.pointer.setValue(token.value);
-	  } else {
-	    // processValue(token, ast);
-	    var tree = new Tree();
-	    tree.setType('keyword');
-	    tree.setValue(token.value);
-	    ast.pointer.insert(tree);
-	  }
+	    if (ast.pointer && (ast.pointer.get('type') === 'function' &&
+	                        ast.pointer.get('value') === 'defn')) {
+	        var tree = new Tree();
+	        tree.setType('function_name');
+	        tree.setValue(token.value);
+	        FUNC_NAMES.push(token.value);
+	        ast.pointer.insert(tree);
+	    } else if (ast.pinter && (ast.pointer.get('value') === null &&
+	                              !_.contains(FUNC_NAMES, token.value))) {
+	        ast.pointer.setType('arguments');
+	        var tree = new Tree();
+	        tree.setType('variable');
+	        tree.setValue(token.value);
+	        ast.pointer.insert(tree);
+	    } else if (_.contains(FUNC_NAMES, token.value)) {
+	        ast.pointer.setType('function');
+	        ast.pointer.setValue(token.value);
+	    } else {
+	        processValue(token, ast);
+	        // var tree = new Tree();
+	        // tree.setType('keyword');
+	        // tree.setValue(token.value);
+	        // ast.pointer.insert(tree);
+	    }
 	}
 
 
@@ -3205,6 +3204,44 @@ SVG_animate.prototype.def = {
   c: [0, 0]
 };
 bloqsnet.REGISTRY["svg_animate"] = SVG_animate;
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                               SVG_ANIMATE  //
+////////////////////////////////////////////////////////////////////////////////
+var SVG_animate_transform = function(spec) {
+    spec.type = "svg_animate_transform";
+    SVG_Proto.call(this, spec);
+};
+SVG_animate_transform.prototype = Object.create(SVG_Proto.prototype);
+SVG_animate_transform.prototype.constructor = SVG_animate_transform;
+SVG_animate_transform.prototype.def = {
+    display: true,
+    type: 'svg_animate_transform',
+    svg_elem: 'animateTransform',
+    categories: ['Animation Elements'],
+    params: [
+        paramObj(["attributeName", "string", "transform", "specific attributes", true]),
+        paramObj(["from", "percpx", "{0}", "specific attributes", true]),
+        paramObj(["to", "percpx", "{0}", "specific attributes", true]),
+        paramObj(["by", "percpx", "{0}", "specific attributes", true]),
+        paramObj(["dur", "percpx", "{1}", "specific attributes", true]),
+        paramObj(["repeatCount", "string", "indefinite", "specific attributes", true]),
+        paramObj(["type", "string", "scale", "specific attributes", true]),
+
+    ] // enum : "remove" | "freeze"
+        .concat(
+            svg_conditional_processing_attributes,
+            svg_core_attributes
+            //graphical_event_attributes,
+            //presentation_attributes,
+            // - class,
+            // - style,
+            // - externalResourcesRequired,
+        ),
+    p: [1, 1],
+    c: [0, 0]
+};
+bloqsnet.REGISTRY["svg_animate_transform"] = SVG_animate_transform;
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                      ROOT  //
