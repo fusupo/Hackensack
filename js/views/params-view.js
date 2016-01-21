@@ -22,6 +22,7 @@ module.exports = Backbone.View.extend({
         this.paramsViewBoxItemTpl = _.template($('#params-viewbox-item-template').html());
         this.currBloqModel = undefined;
         this.listenTo(app.CompositionView, 'bloqSelection', this.bloqSelection);
+        this.listenTo(app.CompositionBloqs, 'remove', this.bloqRemoved);
         this.checkColor = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i;
     },
 
@@ -33,7 +34,7 @@ module.exports = Backbone.View.extend({
     },
 
     bloqSelection: function(id) {
-        if (this.currBloqModel === undefined || this.currBloqModel.id !== id) {
+        if (this.currBloqModel === undefined || this.currBloqModel.get_id() !== id) {
             this.clearParams();
             if (id !== undefined) {
                 var bm = this.currBloqModel = app.CompositionBloqs.getBloq(id);
@@ -41,6 +42,13 @@ module.exports = Backbone.View.extend({
             } else {
                 this.currBloqModel = undefined;
             }
+        }
+    },
+
+    bloqRemoved: function(id){
+        console.log(id);
+        if(this.currBloqModel && this.currBloqModel.get_id() === id){
+            this.bloqSelection(undefined);
         }
     },
 
