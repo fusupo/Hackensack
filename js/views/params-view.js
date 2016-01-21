@@ -4,7 +4,8 @@ var spectrum = require('spectrum-colorpicker');
 var Backbone = require('backbone');
 var React = require('react');
 var ReactDOM = require('react-dom');
-var pp = require('../../react_components/scalarUnitInput/scalarUnitInput.js');
+var ScalarUnitInput = require('../../react_components/scalarUnitInput/scalarUnitInput.js');
+var ThreeFieldInput = require('../../react_components/threeFieldInput/threeFieldInput.js');
 module.exports = Backbone.View.extend({
 
     el: '#params',
@@ -124,16 +125,11 @@ module.exports = Backbone.View.extend({
 
                 case "percpx":
                     var val = (this.currBloqModel.get_params()[p.name]);
-                    console.log(val);
-                    var rendered = this.paramsPercPxItemTpl({
-                        label: p.name,
-                        val: val
-                    });
                     rendered = '<div>ifoo</div>';
                     item = $(rendered);
                     $form.append(item);
                     var newPercPix = ReactDOM.render(
-                        React.createElement(pp, {
+                        React.createElement(ScalarUnitInput, {
                             name: p.name,
                             val: val,
                             onChange: (function(name, val) {
@@ -143,22 +139,6 @@ module.exports = Backbone.View.extend({
                         }),
                         item[0]
                     );
-                    
-                    // .on('mousewheel', function(e) {
-                    //   var raw_val = e.target.value;
-                    //   var val;
-                    //   if (typeof(raw_val) === "string" && raw_val.slice(-1) === "%") {
-                    //     val = raw_val.slice(0, -1);
-                    //     if (!isNaN(val)) {
-                    //       val = parseFloat(val);
-                    //       e.target.value = (val + e.deltaY) + "%";
-                    //     }
-                    //   } else if (!isNaN(raw_val)) {
-                    //     e.target.value = parseFloat(raw_val) + e.deltaY;
-                    //   }
-                    //   that.tryUpdateParamNumber(p.name, e.target.value, p.type);
-                    //   return false;
-                    // });
                     break;
 
                 case "transform":
@@ -237,6 +217,24 @@ module.exports = Backbone.View.extend({
                         that.commitUpdateParam(p.name, e.originalEvent.detail);
                     });
                     $form.append(item);
+                    break;
+
+                    
+                case "threeField":
+                    var val = this.currBloqModel.get_params()[p.name];
+                    var rendered = '<div>ifoo</div>';
+                    item = $(rendered);
+                    $form.append(item);
+                    var newThreeField = ReactDOM.render(
+                        React.createElement(ThreeFieldInput, {
+                            name: p.name,
+                            val: val,
+                            onChange: (function(name, val) {
+                                this.commitUpdateParam(name, val);
+                            }).bind(this)
+                        }),
+                        item[0]
+                    );
                     break;
                 }
 

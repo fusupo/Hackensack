@@ -3,7 +3,7 @@ var ReactDOM = require('./node_modules/react-dom/dist/react-dom.js');
 var ParensHighlightingInput = require('./parensHighlightingInput.js');
 
 ReactDOM.render(
-    React.createElement(ParensHighlightingInput, null),
+    React.createElement(ParensHighlightingInput, {width: '100px'}),
     document.getElementById('content')
 );
 ReactDOM.render(

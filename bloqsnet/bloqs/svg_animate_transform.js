@@ -14,9 +14,9 @@ SVG_animate_transform.prototype.def = {
     categories: ['Animation Elements'],
     params: [
         paramObj(["attributeName", "string", "transform", "specific attributes", true]),
-        paramObj(["from", "percpx", "{0}", "specific attributes", true]),
-        paramObj(["to", "percpx", "{0}", "specific attributes", true]),
-        paramObj(["by", "percpx", "{0}", "specific attributes", true]),
+        paramObj(["from", "threeField", "{1}", "specific attributes", true]),
+        paramObj(["to", "threeField", "{2}", "specific attributes", true]),
+        paramObj(["by", "threeField", "{}", "specific attributes", true]),
         paramObj(["dur", "percpx", "{1}", "specific attributes", true]),
         paramObj(["repeatCount", "string", "indefinite", "specific attributes", true]),
         paramObj(["type", "string", "scale", "specific attributes", true]),

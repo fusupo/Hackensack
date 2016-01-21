@@ -48,7 +48,7 @@
 	var ReactDOM = __webpack_require__(2);
 	var ParensHighlightingInput = __webpack_require__(160);
 
-	ReactDOM.render(React.createElement(ParensHighlightingInput, null), document.getElementById('content'));
+	ReactDOM.render(React.createElement(ParensHighlightingInput, { width: '100px' }), document.getElementById('content'));
 	ReactDOM.render(React.createElement(ParensHighlightingInput, null), document.getElementById('content2'));
 
 /***/ },
@@ -25579,7 +25579,6 @@
 	    },
 	    getDefaultProps: function () {
 	        return {
-	            width: 124,
 	            height: 13,
 	            fontSize: 10,
 	            val: '{bar}px'
@@ -25604,7 +25603,7 @@
 	            background: '#fff',
 	            // outline: 0,
 	            margin: '2px',
-	            width: '100%', //this.props.width + 'px',
+	            width: this.props.width || '100%', // + 'px',
 	            // height: this.props.height + 'px',
 	            textAlign: 'left'
 	        };
@@ -25618,7 +25617,7 @@
 	            margin: '0px',
 	            border: '1px inset',
 	            padding: '0px',
-	            width: '100%', //this.props.width + 'px',
+	            width: this.props.width || '100%', //this.props.width + 'px',
 	            height: this.props.height + 'px',
 	            background: 'transparent',
 	            pointerEvents: 'none',
@@ -25635,7 +25634,7 @@
 	            margin: '0px',
 	            border: '1px inset',
 	            padding: '0px',
-	            width: '100%', //this.props.width + 'px',
+	            width: this.props.width || '100%', //this.props.width + 'px',
 	            height: this.props.height + 'px'
 	        };
 	        return React.createElement(

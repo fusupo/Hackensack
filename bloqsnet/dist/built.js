@@ -2162,18 +2162,17 @@ bloqsnet.svgNS = "http://www.w3.org/2000/svg";
 ////////////////////////////////////////////////////////////////////////////////
 
 var BaseParam = function(spec, initVal) {
-  this.spec = spec;
-  this.solved = undefined;
-  this.value = initVal !== undefined ? initVal : spec.defaultVal; // || undefined;
+    this.spec = spec;
+    this.value = initVal || spec.defaultVal;
 };
 BaseParam.prototype.toJSON = function() {
-  return this.value;
+    return this.value;
 };
 BaseParam.prototype.toString = function() {
-  return "";
+    return "";
 };
 BaseParam.prototype.set = function(val) {
-  this.value = val;
+    this.value = val;
 };
 //////// NUMBER
 
@@ -2257,243 +2256,252 @@ vb_param.prototype = Object.create(BaseParam.prototype);
 vb_param.prototype.constructor = vb_param;
 bloqsnet.PARA_REGISTRY.viewBox = vb_param;
 
+//////// THREEFIELD
+
+var tf_param = function(spec, initVal) {
+    BaseParam.call(this, spec, initVal);
+};
+tf_param.prototype = Object.create(BaseParam.prototype);
+tf_param.prototype.constructor = tf_param;
+bloqsnet.PARA_REGISTRY.threeField = tf_param;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 bloqsnet.gimmeTheThing = function(callbacks) {
 
-  return {
+    return {
 
-    inst: undefined,
-    insts: {},
-    callbacks: callbacks,
-    test_render: undefined,
-    maxId:0,
+        inst: undefined,
+        insts: {},
+        callbacks: callbacks,
+        test_render: undefined,
+        maxId:0,
 
-    new: function(id, type, meta, params) {
-      if(id && id !== 'test-render'){
-        this.maxId = Math.max(parseInt(id.substr(1))+1, this.maxId); 
-      }else{
-        id = 'b' + this.maxId;
-        this.maxId++; 
-      }
-      params = params || {};
-      if (this.insts[id] === undefined) {
-        var def = bloqsnet.REGISTRY[type].prototype.def;
-        var that = this;
-        return new bloqsnet.REGISTRY[type]({
-          id: id,
-          type: type,
-          meta: meta,
-          params: _.reduce(def.params, function(memo, p) {
-            memo[p.name] = new bloqsnet.PARA_REGISTRY[p.type](p, params[p.name]);
-            return memo;
-          }, {}, this),
-          onTermAdd: function(idx) {
-            that._call_back('term:add', [id, idx]);
-          },
-          onTermRem: function(idx) {
-            that._call_back('term:rem', [id, idx]);
-          }
-        });
-      }
-    },
+        new: function(id, type, meta, params) {
+            if(id && id !== 'test-render'){
+                this.maxId = Math.max(parseInt(id.substr(1))+1, this.maxId); 
+            }else{
+                id = 'b' + this.maxId;
+                this.maxId++; 
+            }
+            params = params || {};
+            if (this.insts[id] === undefined) {
+                var def = bloqsnet.REGISTRY[type].prototype.def;
+                var that = this;
+                return new bloqsnet.REGISTRY[type]({
+                    id: id,
+                    type: type,
+                    meta: meta,
+                    params: _.reduce(def.params, function(memo, p) {
+                        memo[p.name] = new bloqsnet.PARA_REGISTRY[p.type](p, params[p.name]);
+                        return memo;
+                    }, {}, this),
+                    onTermAdd: function(idx) {
+                        that._call_back('term:add', [id, idx]);
+                    },
+                    onTermRem: function(idx) {
+                        that._call_back('term:rem', [id, idx]);
+                    }
+                });
+            }
+        },
     
-    rst: function(){
-      this.inst= undefined;
-      this.insts= {};
-      this.callbacks= callbacks;
-      this.test_render= undefined;
-      this.maxId=0; 
-      this._call_back('reset');
-    },
+        rst: function(){
+            this.inst= undefined;
+            this.insts= {};
+            this.callbacks= callbacks;
+            this.test_render= undefined;
+            this.maxId=0; 
+            this._call_back('reset');
+        },
 
-    add: function(type, pos, params, meta) {
-      var meta = {
-        x: pos[0],
-        y: pos[1]
-      };
-      var b = this.new(null, type, meta, null);
-      this.insts[b.get_id()] = b;
-      this._call_back('add', b);
-    },
+        add: function(type, pos, params, meta) {
+            var meta = {
+                x: pos[0],
+                y: pos[1]
+            };
+            var b = this.new(null, type, meta, null);
+            this.insts[b.get_id()] = b;
+            this._call_back('add', b);
+        },
 
-    rem: function(id) {
-      var bloq = this.insts[id];
-      var bloq_json = bloq.toJSON();
-      this.dscon([id, 'p', 0]);
-      _.each(bloq_json.c, function(c, idx) {
-        this.dscon([id, 'c', idx]);
-      }, this);
-      bloq.kill();
-      delete this.insts[id];
-      this._call_back('remove', id);
-    },
+        rem: function(id) {
+            var bloq = this.insts[id];
+            var bloq_json = bloq.toJSON();
+            this.dscon([id, 'p', 0]);
+            _.each(bloq_json.c, function(c, idx) {
+                this.dscon([id, 'c', idx]);
+            }, this);
+            bloq.kill();
+            delete this.insts[id];
+            this._call_back('remove', id);
+        },
 
-    con: function(a, b, silent) {
-      silent = silent || false;
-      if (a[0] !== b[0] && a[1] != b[1]) {
-        this.dscon(a, silent);
-        this.dscon(b, silent);
-        // from child to parent
-        var st = a[1] === "p" ? a : b;
-        var et = a[1] === "p" ? b : a;
-        var c_bloq = this.insts[st[0]];
-        var p_bloq = this.insts[et[0]];
-        p_bloq.swapChild(et[2], c_bloq);
-        c_bloq.addParent(p_bloq);
-        c_bloq.refreshEnvironment();
-        this._call_back('term:add', b[0]);
-        if (!silent) this._call_back('change:connected', [a, b]);
-      }
-    },
+        con: function(a, b, silent) {
+            silent = silent || false;
+            if (a[0] !== b[0] && a[1] != b[1]) {
+                this.dscon(a, silent);
+                this.dscon(b, silent);
+                // from child to parent
+                var st = a[1] === "p" ? a : b;
+                var et = a[1] === "p" ? b : a;
+                var c_bloq = this.insts[st[0]];
+                var p_bloq = this.insts[et[0]];
+                p_bloq.swapChild(et[2], c_bloq);
+                c_bloq.addParent(p_bloq);
+                c_bloq.refreshEnvironment();
+                this._call_back('term:add', b[0]);
+                if (!silent) this._call_back('change:connected', [a, b]);
+            }
+        },
 
-    get: function(id) {
-      return this.insts[id];
-    },
+        get: function(id) {
+            return this.insts[id];
+        },
 
-    dscon_chld: function(id, idx) {
-      // from parent to child
-      var p_bloq = this.insts[id];
-      var c_bloq = p_bloq.getChildNodes()[idx];
-      var success = false;
-      if (c_bloq !== undefined && c_bloq !== "x") {
-        c_bloq.addParent("x");
-        p_bloq.swapChild(idx, "x");
-        success = true;
-      }
-      return success;
-    },
+        dscon_chld: function(id, idx) {
+            // from parent to child
+            var p_bloq = this.insts[id];
+            var c_bloq = p_bloq.getChildNodes()[idx];
+            var success = false;
+            if (c_bloq !== undefined && c_bloq !== "x") {
+                c_bloq.addParent("x");
+                p_bloq.swapChild(idx, "x");
+                success = true;
+            }
+            return success;
+        },
 
-    dscon_prnt: function(id, idx) {
-      // from child to parent
-      var c_bloq = this.insts[id];
-      var p_bloq = c_bloq.getParentNode();
-      var success = false;
-      if (p_bloq !== undefined && p_bloq !== "x") {
-        console.log(" --- " + p_bloq.getChildIdx(id));
-        p_bloq.swapChild(p_bloq.getChildIdx(id), "x");
-        c_bloq.addParent("x");
-        success = true;
-      }
-      return success;
-    },
+        dscon_prnt: function(id, idx) {
+            // from child to parent
+            var c_bloq = this.insts[id];
+            var p_bloq = c_bloq.getParentNode();
+            var success = false;
+            if (p_bloq !== undefined && p_bloq !== "x") {
+                console.log(" --- " + p_bloq.getChildIdx(id));
+                p_bloq.swapChild(p_bloq.getChildIdx(id), "x");
+                c_bloq.addParent("x");
+                success = true;
+            }
+            return success;
+        },
 
-    dscon: function(term, silent) {
-      silent = silent || false;
-      var success = false;
-      if (term[1] === "c") {
-        success = this.dscon_chld(term[0], term[2]);
-      } else {
-        success = this.dscon_prnt(term[0], term[2]);
-      }
-      if (success) this.rst_trm(silent);
-      if (!silent && success) this._call_back('change:disconnected', term);
-    },
+        dscon: function(term, silent) {
+            silent = silent || false;
+            var success = false;
+            if (term[1] === "c") {
+                success = this.dscon_chld(term[0], term[2]);
+            } else {
+                success = this.dscon_prnt(term[0], term[2]);
+            }
+            if (success) this.rst_trm(silent);
+            if (!silent && success) this._call_back('change:disconnected', term);
+        },
 
-    getConnectedTerm: function(term) {
-      var t;
-      if (term[1] === "c") {
-        t = this.insts[term[0]].getChildNodes()[term[2]];
-        t = t === undefined ? t : t === "x" ? "x" : [t.get_id(), "p", 0];
-      } else {
-        var n = this.insts[term[0]];
-        t = n.getParentNode();
-        if (t !== "x") {
-          var idx = 0;
-          _.find(t.getChildNodes(), function(c, i) {
-            idx = i;
-            return c === n;
-          });
-          t = [t.get_id(), "c", idx];
+        getConnectedTerm: function(term) {
+            var t;
+            if (term[1] === "c") {
+                t = this.insts[term[0]].getChildNodes()[term[2]];
+                t = t === undefined ? t : t === "x" ? "x" : [t.get_id(), "p", 0];
+            } else {
+                var n = this.insts[term[0]];
+                t = n.getParentNode();
+                if (t !== "x") {
+                    var idx = 0;
+                    _.find(t.getChildNodes(), function(c, i) {
+                        idx = i;
+                        return c === n;
+                    });
+                    t = [t.get_id(), "c", idx];
+                }
+            }
+            return t;
+        },
+
+        crt: function(data, id) {
+            // create bloqs
+            _.each(data, function(d) {
+                var b = this.new(d.id, d.type, _.clone(d.meta));
+                _.each(d.params, function(param, key) {
+                    b.spec.params[key].value = param;
+                });
+                this.insts[b.get_id()] = b;
+                this._call_back('add', b);
+            }, this);
+            // wire them up
+            _.each(data, function(d) {
+                _.each(d.c, function(c, idx) {
+                    if (c !== "x") {
+                        this.con([c, "p", 0], [d.id, "c", idx], false);
+                    }
+                }, this);
+            }, this);
+            this.inst = this.insts[id];
+            this.inst.updateLocalEnvironment();
+            this.inst.render_svg();
+            // this._call_back('reset', this._inst);
+        },
+
+        rndr: function(id) {
+            var rendered = $(this.insts[id].render_svg());
+            if (!rendered.is("svg")) {
+                var svg = this.test_render;
+                svg.empty();
+                svg.append(rendered);
+                rendered = svg;
+            }
+            return rendered;
+        },
+
+        get_svg: function(id) {
+            this.test_render = this.test_render || $(this.new("test-render", "root", {}).render_svg());
+            this.insts[id].sully_cached_svg_down();
+            this.insts[id].render_svg();
+            var rendered = this.insts[id].cached_svg_str;
+            // if (!rendered.is("svg")) {
+            //   var svg = this.test_render;
+            //   svg.empty();
+            //   svg.append(rendered);
+            //   rendered = svg;
+            // }
+            return rendered;
+        },
+
+        updt_par: function(id, p_name, val) {
+            var success = this.insts[id].updateParam(p_name, val);
+            //if (success) {
+            this._call_back('change:svg', this.get_svg(id));
+            // }
+            return success;
+        },
+
+        set_par: function(id, p_name, val){
+            this.insts[id].setParam(p_name, val);      
+            this._call_back('change:svg', this.get_svg(id));
+        },
+
+        updt_mta: function(id, p_name, val) {
+            this.insts[id].updateMeta(p_name, val);
+            this._call_back('change:meta', [p_name, val]);
+        },
+
+        rst_trm: function(silent) {
+            silent = silent || false;
+            _.each(this.insts, function(i) {
+                var didReset = i.resetTerminals();
+                if (didReset && !silent) this._call_back('change:terminals', i);
+            }, this);
+        },
+
+        //////////////////////////////
+
+        _call_back: function(cbk_id, params) {
+            if (this.callbacks[cbk_id] !== undefined) {
+                this.callbacks[cbk_id](params);
+            }
         }
-      }
-      return t;
-    },
 
-    crt: function(data, id) {
-      // create bloqs
-      _.each(data, function(d) {
-        var b = this.new(d.id, d.type, _.clone(d.meta));
-        _.each(d.params, function(param, key) {
-          b.spec.params[key].value = param;
-        });
-        this.insts[b.get_id()] = b;
-        this._call_back('add', b);
-      }, this);
-      // wire them up
-      _.each(data, function(d) {
-        _.each(d.c, function(c, idx) {
-          if (c !== "x") {
-            this.con([c, "p", 0], [d.id, "c", idx], false);
-          }
-        }, this);
-      }, this);
-      this.inst = this.insts[id];
-      this.inst.updateLocalEnvironment();
-      this.inst.render_svg();
-      // this._call_back('reset', this._inst);
-    },
-
-    rndr: function(id) {
-      var rendered = $(this.insts[id].render_svg());
-      if (!rendered.is("svg")) {
-        var svg = this.test_render;
-        svg.empty();
-        svg.append(rendered);
-        rendered = svg;
-      }
-      return rendered;
-    },
-
-    get_svg: function(id) {
-      this.test_render = this.test_render || $(this.new("test-render", "root", {}).render_svg());
-      this.insts[id].sully_cached_svg_down();
-      this.insts[id].render_svg();
-      var rendered = this.insts[id].cached_svg_str;
-      // if (!rendered.is("svg")) {
-      //   var svg = this.test_render;
-      //   svg.empty();
-      //   svg.append(rendered);
-      //   rendered = svg;
-      // }
-      return rendered;
-    },
-
-    updt_par: function(id, p_name, val) {
-      var success = this.insts[id].updateParam(p_name, val);
-      //if (success) {
-      this._call_back('change:svg', this.get_svg(id));
-      // }
-      return success;
-    },
-
-    set_par: function(id, p_name, val){
-      this.insts[id].setParam(p_name, val);      
-      this._call_back('change:svg', this.get_svg(id));
-    },
-
-    updt_mta: function(id, p_name, val) {
-      this.insts[id].updateMeta(p_name, val);
-      this._call_back('change:meta', [p_name, val]);
-    },
-
-    rst_trm: function(silent) {
-      silent = silent || false;
-      _.each(this.insts, function(i) {
-        var didReset = i.resetTerminals();
-        if (didReset && !silent) this._call_back('change:terminals', i);
-      }, this);
-    },
-
-    //////////////////////////////
-
-    _call_back: function(cbk_id, params) {
-      if (this.callbacks[cbk_id] !== undefined) {
-        this.callbacks[cbk_id](params);
-      }
-    }
-
-  };
+    };
 
 };
 
@@ -2715,129 +2723,162 @@ bloqsnet.REGISTRY.base = Base;
 ////////////////////////////////////////////////////////////////////////////////
 
 var SVG_Proto = function(spec) {
-  spec.type = spec.type || 'svg_proto';
-  Base.call(this, spec);
+    spec.type = spec.type || 'svg_proto';
+    Base.call(this, spec);
 
-  this.cached_svg = undefined;
+    this.cached_svg = undefined;
 
-  var setAttribute = function(svg_elm, key, val) {
-    // NOTE: the undefined check here is a stopgap
-    // it really should be mitigated further upstream
-    if (val !== undefined && val !== '' && val !== '0px' && val !== '0px') {
-      svg_elm.setAttribute(key, val);
-    }
-  };
+    var setAttribute = function(svg_elm, key, val) {
+        // NOTE: the undefined check here is a stopgap
+        // it really should be mitigated further upstream
+        if (val !== undefined && val !== '' && val !== '0px' && val !== '0px') {
+            svg_elm.setAttribute(key, val);
+        }
+    };
 
-  this.setAttributesStr = function(svg_elem, attrs) {
-    _.each(attrs, function(attr, k) {
-      if (_.findWhere(bloqsnet.REGISTRY[spec.type].prototype.def.params, {
-        'name': k
-      }).renderSvg === true) {
-        var val = '';
-        switch (k) {
-        case 'transform':
-          _.each(attr, function(a) {
-            switch (a.type) {
-            case 'trans':
-              val += 'translate(' + a.x + ', ' + a.y + ') ';
-              break;
-            case 'scale':
-              val += 'scale(' + a.x + ', ' + a.y + ') ';
-              break;
-            case 'rot':
-              val += 'rotate(' + a.r;
-              if (a.x !== undefined)
-                val += ', ' + a.x + ', ' + a.y + '';
-              val += ') ';
-              break;
-            case 'skewX':
-              val += 'skewX(' + a.x + ') ';
-              break;
-            case 'skewY':
-              val += 'skewY(' + a.y + ') ';
-              break;
+    this.setAttributesStr = function(svg_elem, attrs) {
+        _.each(attrs, function(attr, k) {
+            if (_.findWhere(bloqsnet.REGISTRY[spec.type].prototype.def.params, {
+                'name': k
+            }).renderSvg === true) {
+                var val = '';
+                switch (k) {
+                case 'transform':
+                    _.each(attr, function(a) {
+                        switch (a.type) {
+                        case 'trans':
+                            val += 'translate(' + a.x + ', ' + a.y + ') ';
+                            break;
+                        case 'scale':
+                            val += 'scale(' + a.x + ', ' + a.y + ') ';
+                            break;
+                        case 'rot':
+                            val += 'rotate(' + a.r;
+                            if (a.x !== undefined)
+                                val += ', ' + a.x + ', ' + a.y + '';
+                            val += ') ';
+                            break;
+                        case 'skewX':
+                            val += 'skewX(' + a.x + ') ';
+                            break;
+                        case 'skewY':
+                            val += 'skewY(' + a.y + ') ';
+                            break;
+                        }
+                    });
+
+                    val = val.slice(0, -1);
+
+                    break;
+                default:
+                    val = attr;
+                    break;
+                }
+
+                var endOfOpenIdx = svg_elem.indexOf('>');
+                var strStart = svg_elem.slice(0, endOfOpenIdx);
+                var strEnd = svg_elem.slice(endOfOpenIdx);
+                if (val !== undefined && val !== '') {
+                    svg_elem = strStart + ' ' + k + '=\'' + val + '\'' + strEnd;
+                }
             }
-          });
-
-          val = val.slice(0, -1);
-
-          break;
-        default:
-          val =   attr ;
-          break;
-        }
-
-        var endOfOpenIdx = svg_elem.indexOf('>');
-        var strStart = svg_elem.slice(0, endOfOpenIdx);
-        var strEnd = svg_elem.slice(endOfOpenIdx);
-        if (val !== undefined && val !== '') {
-          svg_elem = strStart + ' ' + k + '=\'' + val + '\'' + strEnd;
-        }
-      }
-    });
-    return svg_elem;
-  };
+        });
+        return svg_elem;
+    };
 };
 
 SVG_Proto.prototype = Object.create(Base.prototype);
 SVG_Proto.prototype.constructor = SVG_Proto;
 
 SVG_Proto.prototype.render_svg = function() {
-  //if (this.cached_svg === undefined) {
-  this.cached_svg_str = this.get_svg_str();
-  if (this.spec.children != undefined && this.spec.children.length > 0) {
-    for (var i = this.spec.children.length - 1; i >= 0; i--) {
-      var child = this.spec.children[i];
-      if (child !== 'x') {
-        this.spec.children[i].render_svg();
-        var insertIdx = this.cached_svg_str.indexOf('>');
-        this.cached_svg_str = this.cached_svg_str.substr(0, insertIdx + 1) +
-          this.spec.children[i].cached_svg_str +
-          this.cached_svg_str.substr(insertIdx + 1);
-      }
+    //if (this.cached_svg === undefined) {
+    this.cached_svg_str = this.get_svg_str();
+    if (this.spec.children != undefined && this.spec.children.length > 0) {
+        for (var i = this.spec.children.length - 1; i >= 0; i--) {
+            var child = this.spec.children[i];
+            if (child !== 'x') {
+                this.spec.children[i].render_svg();
+                var insertIdx = this.cached_svg_str.indexOf('>');
+                this.cached_svg_str = this.cached_svg_str.substr(0, insertIdx + 1) +
+                    this.spec.children[i].cached_svg_str +
+                    this.cached_svg_str.substr(insertIdx + 1);
+            }
+        }
     }
-  }
-  //}
-  return this.cached_svg_str;
+    //}
+    return this.cached_svg_str;
 };
 
 SVG_Proto.prototype.get_svg_str = function() {
-  var params_def = bloqsnet.REGISTRY[this.spec.type].prototype.def.params;
-  var solution2 = _.reduce(params_def, function(m, p_def) {
-    m[p_def.name] = this.spec.params[p_def.name].value;
-    return m;
-  }, {}, this);
-  var elmStr = '<' + this.def.svg_elem + '></' + this.def.svg_elem + '>';
-  elmStr = this.setAttributesStr(elmStr, solution2);
-  return elmStr;
+    var params_def = bloqsnet.REGISTRY[this.spec.type].prototype.def.params;
+    var solution2 = _.reduce(params_def, function(m, p_def) {
+        m[p_def.name] = this.spec.params[p_def.name].value;
+        return m;
+    }, {}, this);
+    var elmStr = '<' + this.def.svg_elem + '></' + this.def.svg_elem + '>';
+    elmStr = this.setAttributesStr(elmStr, solution2);
+    return elmStr;
 };
 
 SVG_Proto.prototype.sully_cached_svg_down = function() {
-  this.cached_svg = undefined;
-  _.each(this.spec.children, function(c) {
-    if (c !== 'x') {
-      c.sully_cached_svg_down();
-    }
-  });
+    this.cached_svg = undefined;
+    _.each(this.spec.children, function(c) {
+        if (c !== 'x') {
+            c.sully_cached_svg_down();
+        }
+    });
 };
 
 SVG_Proto.prototype.reduce_exprs = function(svg, obj) {
-  var exprs = svg.match(/\{.*?\}|.+?(?=\{|$)/g);
-  return _.map(exprs, function(str) {
-    if (str.substr(0, 1) === '{') {
-      var expr = str.substr(1, str.length - 2);
-      str = expr === "" ? "" : minilisp.reduceExpr(expr, obj);
-      if (isNaN(parseFloat(str)) && str[0] === '(' && str[str.length - 1] === ')') {
-        str = '{' + str + '}';
-      }
-    }
-    return str;
-  }, this).join('');
+    var exprs = svg.match(/\{.*?\}|.+?(?=\{|$)/g);
+    return _.map(exprs, function(str) {
+        if (str.substr(0, 1) === '{') {
+            var expr = str.substr(1, str.length - 2);
+            var tokens = expr.split('');
+            var subexprs = [];
+            var subexpr = '';
+            var balance = 0;
+            while (tokens.length) {
+                var token = tokens.shift();
+                switch (token) {
+                case '(':
+                    balance++;
+                    subexpr += token;
+                    break;
+                case ')':
+                    balance--;
+                    subexpr += token;
+                    break;
+                case ' ':
+                    if (balance === 0) {
+                        var subres = subexpr === "" ? "" : minilisp.reduceExpr(subexpr, obj);
+                        subexprs.push(subres);
+                        subexpr='';
+                    }else{
+                        subexpr += token;
+                    }
+                    break;
+                default:
+                    subexpr += token;
+                    break;
+                }
+            }
+            if(subexpr.length > 0){
+                var subres = subexpr === "" ? "" : minilisp.reduceExpr(subexpr, obj);
+                subexprs.push(subres);
+            }
+            str = subexprs.join(' ');
+            if (isNaN(parseFloat(str)) && str[0] === '(' && str[str.length - 1] === ')') {
+                str = '{' + str + '}';
+            }
+        }
+        return str;
+    }, this).join('');
 };
 
 SVG_Proto.prototype.def = {
-  display: false,
-  type: 'svg_proto'
+    display: false,
+    type: 'svg_proto'
 };
 
 bloqsnet.REGISTRY['svg_proto'] = SVG_Proto;
@@ -2846,30 +2887,30 @@ bloqsnet.REGISTRY['svg_proto'] = SVG_Proto;
 ////////////////////////////////////////////////////////////////////////////////
 
 var paramObj = function(config) {
-  var ret = {};
-  ret.name = config[0];
-  ret.type = config[1];
-  if (ret.type === 'enum') {
-    ret.choices = config[2];
-  } else {
-    ret.defaultVal = config[2];
-  }
-  ret.groupName = config[3];
-  ret.renderSvg = config[4];
-  return ret;
+    var ret = {};
+    ret.name = config[0];
+    ret.type = config[1];
+    if (ret.type === 'enum') {
+        ret.choices = config[2];
+    } else {
+        ret.defaultVal = config[2];
+    }
+    ret.groupName = config[3];
+    ret.renderSvg = config[4];
+    return ret;
 };
 
 var svg_conditional_processing_attributes = [
-  paramObj(['requiredExtensions', 'string', '', 'svg conditional processing attributes', true]),
-  paramObj(['requiredFeatures', 'string', '', 'svg conditional processing attributes', true]),
-  paramObj(['systemLanguage', 'string', '', 'svg conditional processing attributes', true])
+    paramObj(['requiredExtensions', 'string', '', 'svg conditional processing attributes', true]),
+    paramObj(['requiredFeatures', 'string', '', 'svg conditional processing attributes', true]),
+    paramObj(['systemLanguage', 'string', '', 'svg conditional processing attributes', true])
 ];
 
 var svg_core_attributes = [
-  paramObj(['id', 'string', '', 'svg core attributes', true]),
-  paramObj(['xml:base', 'string', '', 'svg core attributes', true]),
-  paramObj(['xml:lang', 'string', '', 'svg core attributes', true]),
-  paramObj(['xml:space', 'string', '', 'svg core attributes', true])
+    paramObj(['id', 'string', '', 'svg core attributes', true]),
+    paramObj(['xml:base', 'string', '', 'svg core attributes', true]),
+    paramObj(['xml:lang', 'string', '', 'svg core attributes', true]),
+    paramObj(['xml:space', 'string', '', 'svg core attributes', true])
 ];
 
 // ////////////////////////////////////////////////////////////////////////////////
@@ -3221,9 +3262,9 @@ SVG_animate_transform.prototype.def = {
     categories: ['Animation Elements'],
     params: [
         paramObj(["attributeName", "string", "transform", "specific attributes", true]),
-        paramObj(["from", "percpx", "{0}", "specific attributes", true]),
-        paramObj(["to", "percpx", "{0}", "specific attributes", true]),
-        paramObj(["by", "percpx", "{0}", "specific attributes", true]),
+        paramObj(["from", "threeField", "{1}", "specific attributes", true]),
+        paramObj(["to", "threeField", "{2}", "specific attributes", true]),
+        paramObj(["by", "threeField", "{}", "specific attributes", true]),
         paramObj(["dur", "percpx", "{1}", "specific attributes", true]),
         paramObj(["repeatCount", "string", "indefinite", "specific attributes", true]),
         paramObj(["type", "string", "scale", "specific attributes", true]),

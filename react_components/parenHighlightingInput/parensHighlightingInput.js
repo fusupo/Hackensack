@@ -8,7 +8,6 @@ var ParensHighlightingInput = React.createClass({
     },
     getDefaultProps: function(){
         return {
-            width: 124,
             height: 13,
             fontSize: 10,
             val: '{bar}px'
@@ -33,7 +32,7 @@ var ParensHighlightingInput = React.createClass({
             background: '#fff',
             // outline: 0,
             margin: '2px',
-            width: '100%', //this.props.width + 'px',
+            width: this.props.width || '100%', // + 'px',
             // height: this.props.height + 'px',
             textAlign: 'left'
         };
@@ -47,7 +46,7 @@ var ParensHighlightingInput = React.createClass({
             margin: '0px',
             border: '1px inset',
             padding: '0px',
-            width: '100%',//this.props.width + 'px',
+            width: this.props.width || '100%',//this.props.width + 'px',
             height: this.props.height + 'px',
             background: 'transparent',
             pointerEvents: 'none',
@@ -64,7 +63,7 @@ var ParensHighlightingInput = React.createClass({
             margin: '0px',
             border: '1px inset',
             padding: '0px',
-            width: '100%',//this.props.width + 'px',
+            width: this.props.width || '100%',//this.props.width + 'px',
             height: this.props.height + 'px'
         };
         return (
