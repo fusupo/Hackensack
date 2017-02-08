@@ -48,8 +48,8 @@
 	var ReactDOM = __webpack_require__(2);
 	var ScalarUnitInput = __webpack_require__(160);
 
-	ReactDOM.render(React.createElement(ScalarUnitInput, null), document.getElementById('content'));
-	ReactDOM.render(React.createElement(ScalarUnitInput, null), document.getElementById('content2'));
+	ReactDOM.render(React.createElement(ScalarUnitInput, { val: '{50}%' }), document.getElementById('content'));
+	ReactDOM.render(React.createElement(ScalarUnitInput, { val: '' }), document.getElementById('content2'));
 
 /***/ },
 /* 1 */
@@ -25589,12 +25589,20 @@
 	    },
 	    componentWillMount: function () {
 	        var val = this.props.val || this.state.val;
-	        var selectedUnit = this.state.units.find(function (unit) {
-	            return unit === val.substr(-unit.length);
-	        });
-	        selectedUnit = selectedUnit || '';
-	        var idxL = val.lastIndexOf('}') - 1;
-	        var scalar = idxL !== -1 ? val.substr(1, idxL) : val;
+	        var selectedUnit;
+	        var idxL;
+	        var scalar;
+	        if (val) {
+	            selectedUnit = this.state.units.find(function (unit) {
+	                return unit === val.substr(-unit.length);
+	            });
+	            selectedUnit = selectedUnit || '';
+	            idxL = val.lastIndexOf('}') - 1;
+	            scalar = idxL !== -1 ? val.substr(1, idxL) : val;
+	        } else {
+	            selectedUnit = '';
+	            scalar = '';
+	        }
 	        this.setState({
 	            val: val,
 	            unit: selectedUnit,

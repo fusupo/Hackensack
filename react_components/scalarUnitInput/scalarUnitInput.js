@@ -21,12 +21,20 @@ var ScalarUnitInput = React.createClass({
     },
     componentWillMount: function(){
         var val = this.props.val || this.state.val;
-        var selectedUnit = this.state.units.find(function(unit){
-            return unit === val.substr(-unit.length);
-        });
-        selectedUnit = selectedUnit || '';
-        var idxL = val.lastIndexOf('}') - 1;
-        var scalar = idxL !== -1 ? val.substr(1, idxL) : val;
+        var selectedUnit;
+        var idxL;
+        var scalar;
+        if(val){
+            selectedUnit = this. state. units. find (function(unit){
+                return unit === val.substr(-unit.length);
+            });
+            selectedUnit = selectedUnit || '';
+            idxL = val.lastIndexOf('}') - 1;
+            scalar = idxL !== -1 ? val.substr(1, idxL) : val;
+        }else{
+            selectedUnit = '';
+            scalar = '';
+        }
         this.setState({
             val: val,
             unit: selectedUnit,
@@ -79,7 +87,7 @@ var ScalarUnitInput = React.createClass({
     onUnitChange: function(e){
         this.setState({
             unit:e.target.value
-            });
+        });
         this.onChange('{' + this.state.scalar + '}' + e.target.value);
     },
     onScalarChange: function(val){

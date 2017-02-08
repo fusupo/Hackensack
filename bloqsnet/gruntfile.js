@@ -36,7 +36,7 @@ module.exports = function(grunt) {
             'bloqs/svg_text.js',
             'bloqs/svg_animate.js',
             'bloqs/svg_animate_transform.js',
-            //'bloqs/svg_image.js',
+            'bloqs/svg_image.js',
 
             'bloqs/bn_root.js',
             'bloqs/svg_each.js'
