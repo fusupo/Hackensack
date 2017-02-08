@@ -11,3 +11,8 @@
 /bower_components/*
 /react_components/parenHighlightingInput/node_modules/*
 /react_components/scalarUnitInput/node_modules/*
+/node_modules/.bin/babylon
+/node_modules/
+dist/
+/react_components/threeFieldInput/node_modules/.bin/babylon
+react_components/threeFieldInput/node_modules/

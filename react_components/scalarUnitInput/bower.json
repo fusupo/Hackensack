@@ -1,0 +1,22 @@
+{
+  "name": "scalarUnitInput",
+  "version": "0.0.0",
+  "authors": [
+    "Marc Christophe <m@xtof.net>"
+  ],
+  "main": "main.js",
+  "moduleType": [
+    "node"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "require1k": "~1.0.0"
+  }
+}
